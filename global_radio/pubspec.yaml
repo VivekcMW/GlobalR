@@ -105,7 +105,8 @@ flutter:
 
   assets:
     - assets/catalog/
-    - assets/audio/demo/
+    - assets/audio/demo/english/
+    - assets/audio/demo/hindi/
     - assets/splash/
 
 flutter_native_splash:

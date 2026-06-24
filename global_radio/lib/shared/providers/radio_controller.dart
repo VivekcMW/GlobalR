@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/constants.dart';
 import '../../data/local/local_store.dart';
 import '../../data/models/catalog_item.dart';
 import '../../data/models/item_signals.dart';
@@ -84,8 +85,9 @@ class RadioController extends Notifier<RadioState> {
     final handler = ref.read(audioHandlerProvider);
 
     // Ad decision: check if we should show a pre-roll ad
+    // Skip ads in demo mode since VAST ad servers may return incompatible content
     AdCreative? preRollAd;
-    if (!_adsDisabled) {
+    if (!_adsDisabled && !AppConfig.demoAudio) {
       final adDecision = ref.read(adDecisionServiceProvider);
       final sessionNotifier = ref.read(adSessionStateProvider.notifier);
       final sessionState = ref.read(adSessionStateProvider);
@@ -110,12 +112,21 @@ class RadioController extends Notifier<RadioState> {
     handler.onAdStart = _onAdStart;
     handler.onAdComplete = _onAdComplete;
     handler.onAdSkip = _onAdSkip;
+    handler.onError = _onAudioError;
 
-    await handler.setRadioQueue(
+    final success = await handler.setRadioQueue(
       queue,
       preferredVoice: profile.preferredVoice,
       preRollAd: preRollAd,
     );
+    
+    if (!success) {
+      print('[RadioController] Failed to set radio queue');
+      state = state.copyWith(loading: false, isPlaying: false);
+      return;
+    }
+    
+    print('[RadioController] Queue set successfully, starting playback');
     await handler.play();
 
     // If no pre-roll, fire play event for first content
@@ -169,6 +180,14 @@ class RadioController extends Notifier<RadioState> {
     state = state.copyWith(isPlayingAd: false, clearCurrentAd: true);
   }
 
+  /// Called when an audio error occurs.
+  void _onAudioError(Object error) {
+    print('[RadioController] Audio error: $error');
+    state = state.copyWith(loading: false);
+    // Try to skip to next track on error
+    skipNext();
+  }
+
   Future<void> play() async {
     await ref.read(audioHandlerProvider).play();
     state = state.copyWith(isPlaying: true);
@@ -203,8 +222,9 @@ class RadioController extends Notifier<RadioState> {
   }
 
   /// Insert a mid-roll ad if conditions are met.
+  /// Skip in demo mode since VAST ad servers may return incompatible content.
   Future<void> _maybeInsertMidRollAd() async {
-    if (_adsDisabled) return;
+    if (_adsDisabled || AppConfig.demoAudio) return;
 
     final adDecision = ref.read(adDecisionServiceProvider);
     final sessionNotifier = ref.read(adSessionStateProvider.notifier);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:just_audio/just_audio.dart';
 
 import '../../core/constants.dart';
 import '../providers/providers.dart';
@@ -78,14 +79,37 @@ class MiniPlayer extends ConsumerWidget {
                   // Voice badge
                   _VoiceBadge(voiceId: profile.preferredVoice),
                   const SizedBox(width: 4),
-                  // Play/pause button
-                  IconButton(
-                    iconSize: 32,
-                    icon: Icon(radio.isPlaying
-                        ? Icons.pause_circle_filled
-                        : Icons.play_circle_filled),
-                    color: scheme.primary,
-                    onPressed: controller.togglePlayPause,
+                  // Play/pause button with loading indicator
+                  StreamBuilder<ProcessingState>(
+                    stream: audioHandler.processingStateStream,
+                    builder: (context, snapshot) {
+                      final processingState = snapshot.data ?? ProcessingState.idle;
+                      final isLoading = processingState == ProcessingState.loading ||
+                          processingState == ProcessingState.buffering;
+                      
+                      if (isLoading) {
+                        return const SizedBox(
+                          width: 48,
+                          height: 48,
+                          child: Center(
+                            child: SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          ),
+                        );
+                      }
+                      
+                      return IconButton(
+                        iconSize: 32,
+                        icon: Icon(radio.isPlaying
+                            ? Icons.pause_circle_filled
+                            : Icons.play_circle_filled),
+                        color: scheme.primary,
+                        onPressed: controller.togglePlayPause,
+                      );
+                    },
                   ),
                   // Skip next button
                   IconButton(

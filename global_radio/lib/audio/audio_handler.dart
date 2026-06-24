@@ -30,13 +30,53 @@ class GlobalRadioAudioHandler extends BaseAudioHandler
   /// Callback when ad is skipped.
   void Function(String adId, Duration position)? onAdSkip;
 
+  /// Callback when an error occurs during playback.
+  void Function(Object error)? onError;
+
   /// The concatenating source for dynamic ad insertion.
   ConcatenatingAudioSource? _concatenatingSource;
+
+  /// Whether the audio source is ready to play.
+  bool _isReady = false;
 
   GlobalRadioAudioHandler() {
     _player.playbackEventStream.map(_transformEvent).pipe(playbackState);
     _player.currentIndexStream.listen(_onIndexChanged);
+    
+    // Listen for player errors
+    _player.playerStateStream.listen((state) {
+      if (state.processingState == ProcessingState.ready && !_isReady) {
+        _isReady = true;
+        print('[AudioHandler] Audio source ready, starting playback');
+      }
+    });
+    
+    // Listen for playback completion to auto-advance
+    _player.processingStateStream.listen((state) {
+      if (state == ProcessingState.completed) {
+        print('[AudioHandler] Playback completed');
+      }
+    });
   }
+
+  /// Whether the player is currently playing.
+  bool get playing => _player.playing;
+
+  /// Stream of playing state changes.
+  Stream<bool> get playingStream => _player.playingStream;
+
+  /// Stream of player state for UI reactivity.
+  Stream<PlayerState> get playerStateStream => _player.playerStateStream;
+
+  /// Stream of processing state for loading indicators.
+  Stream<ProcessingState> get processingStateStream => _player.processingStateStream;
+
+  /// Whether the player is ready to play.
+  bool get isReady => _isReady && _player.processingState == ProcessingState.ready;
+
+  /// Whether the player is loading/buffering.
+  bool get isLoading => _player.processingState == ProcessingState.loading || 
+                        _player.processingState == ProcessingState.buffering;
 
   /// Handle track changes, including ad detection.
   void _onIndexChanged(int? index) {
@@ -56,13 +96,20 @@ class GlobalRadioAudioHandler extends BaseAudioHandler
   }
 
   /// Convert engine output (CatalogItem queue) into a playable source.
-  Future<void> setRadioQueue(
+  /// Returns true if the source was set successfully, false otherwise.
+  Future<bool> setRadioQueue(
     List<CatalogItem> items, {
     required String preferredVoice,
     int initialIndex = 0,
     AdCreative? preRollAd,
   }) async {
     _adIndices.clear();
+    _isReady = false;
+
+    if (items.isEmpty) {
+      print('[AudioHandler] ERROR: Empty queue provided');
+      return false;
+    }
 
     final mediaItems = <MediaItem>[];
     final sources = <AudioSource>[];
@@ -91,8 +138,9 @@ class GlobalRadioAudioHandler extends BaseAudioHandler
       mediaItems.add(m);
 
       if (AppConfig.demoAudio) {
-        sources.add(
-            AudioSource.asset(it.demoAssetFor(preferredVoice), tag: m));
+        final assetPath = it.demoAssetFor(preferredVoice);
+        print('[AudioHandler] Loading demo asset: $assetPath for item: ${it.id}');
+        sources.add(AudioSource.asset(assetPath, tag: m));
       } else {
         sources.add(AudioSource.uri(Uri.parse(m.id), tag: m));
       }
@@ -106,10 +154,21 @@ class GlobalRadioAudioHandler extends BaseAudioHandler
     // Adjust initial index for pre-roll ad
     final adjustedIndex = preRollAd != null ? 0 : initialIndex;
 
-    await _player.setAudioSource(
-      _concatenatingSource!,
-      initialIndex: adjustedIndex.clamp(0, mediaItems.isEmpty ? 0 : mediaItems.length - 1),
-    );
+    try {
+      print('[AudioHandler] Setting audio source with ${mediaItems.length} items, starting at index $adjustedIndex');
+      await _player.setAudioSource(
+        _concatenatingSource!,
+        initialIndex: adjustedIndex.clamp(0, mediaItems.isEmpty ? 0 : mediaItems.length - 1),
+      );
+      print('[AudioHandler] Audio source set successfully');
+      _isReady = true;
+      return true;
+    } catch (e, stack) {
+      print('[AudioHandler] ERROR setting audio source: $e');
+      print('[AudioHandler] Stack: $stack');
+      onError?.call(e);
+      return false;
+    }
   }
 
   /// Insert a mid-roll ad after the specified content index.
@@ -224,7 +283,16 @@ class GlobalRadioAudioHandler extends BaseAudioHandler
   Future<void> setSpeed(double speed) => _player.setSpeed(speed.clamp(0.5, 2.0));
 
   @override
-  Future<void> play() => _player.play();
+  Future<void> play() async {
+    try {
+      print('[AudioHandler] Play requested, isReady: $_isReady, processingState: ${_player.processingState}');
+      await _player.play();
+      print('[AudioHandler] Play command sent successfully');
+    } catch (e) {
+      print('[AudioHandler] ERROR during play: $e');
+      onError?.call(e);
+    }
+  }
 
   @override
   Future<void> pause() => _player.pause();

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:just_audio/just_audio.dart';
 
 import '../../core/constants.dart';
 import '../../shared/providers/providers.dart';
@@ -100,28 +101,44 @@ class PlayerScreen extends ConsumerWidget {
               const SizedBox(height: 8),
 
               // Controls
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  IconButton(
-                    iconSize: 40,
-                    icon: const Icon(Icons.skip_previous),
-                    onPressed: controller.skipPrevious,
-                  ),
-                  IconButton(
-                    iconSize: 80,
-                    color: scheme.primary,
-                    icon: Icon(radio.isPlaying
-                        ? Icons.pause_circle_filled
-                        : Icons.play_circle_filled),
-                    onPressed: controller.togglePlayPause,
-                  ),
-                  IconButton(
-                    iconSize: 40,
-                    icon: const Icon(Icons.skip_next),
-                    onPressed: controller.skipNext,
-                  ),
-                ],
+              StreamBuilder<bool>(
+                stream: audioHandler.processingStateStream.map((state) => 
+                  state == ProcessingState.loading || state == ProcessingState.buffering),
+                initialData: false,
+                builder: (context, loadingSnapshot) {
+                  final isLoading = loadingSnapshot.data ?? false;
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      IconButton(
+                        iconSize: 40,
+                        icon: const Icon(Icons.skip_previous),
+                        onPressed: isLoading ? null : controller.skipPrevious,
+                      ),
+                      isLoading
+                          ? const SizedBox(
+                              width: 80,
+                              height: 80,
+                              child: Center(
+                                child: CircularProgressIndicator(strokeWidth: 3),
+                              ),
+                            )
+                          : IconButton(
+                              iconSize: 80,
+                              color: scheme.primary,
+                              icon: Icon(radio.isPlaying
+                                  ? Icons.pause_circle_filled
+                                  : Icons.play_circle_filled),
+                              onPressed: controller.togglePlayPause,
+                            ),
+                      IconButton(
+                        iconSize: 40,
+                        icon: const Icon(Icons.skip_next),
+                        onPressed: isLoading ? null : controller.skipNext,
+                      ),
+                    ],
+                  );
+                },
               ),
               const SizedBox(height: 16),
               Row(
