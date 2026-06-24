@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Background circle with app's brand color -->
+  <circle cx="512" cy="512" r="480" fill="#FF9933"/>
+  
+  <!-- Radio waves emanating outward -->
+  <g fill="none" stroke="#14110E" stroke-width="24" stroke-linecap="round">
+    <!-- Outer wave -->
+    <path d="M 256,512 A 256,256 0 0,1 512,256" opacity="0.3"/>
+    <path d="M 768,512 A 256,256 0 0,1 512,768" opacity="0.3"/>
+    
+    <!-- Middle wave -->
+    <path d="M 320,512 A 192,192 0 0,1 512,320" opacity="0.5"/>
+    <path d="M 704,512 A 192,192 0 0,1 512,704" opacity="0.5"/>
+    
+    <!-- Inner wave -->
+    <path d="M 384,512 A 128,128 0 0,1 512,384" opacity="0.7"/>
+    <path d="M 640,512 A 128,128 0 0,1 512,640" opacity="0.7"/>
+  </g>
+  
+  <!-- Central globe/speaker icon -->
+  <circle cx="512" cy="512" r="96" fill="#14110E"/>
+  <circle cx="512" cy="512" r="48" fill="#FF9933"/>
+  
+  <!-- "G" letter hint in center -->
+  <text x="512" y="532" font-family="Arial, sans-serif" font-size="64" font-weight="bold" fill="#14110E" text-anchor="middle">G</text>
+</svg>

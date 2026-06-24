@@ -1,0 +1,143 @@
+{
+  "collections": [
+    {
+      "id": "hindi_classics",
+      "name": "Hindi Classics",
+      "language": "hindi",
+      "poets": [
+        {"name": "Kabir", "era": "15th century", "style": "doha"},
+        {"name": "Tulsidas", "era": "16th century", "style": "chaupai"},
+        {"name": "Surdas", "era": "16th century", "style": "pad"},
+        {"name": "Rahim", "era": "16th century", "style": "doha"},
+        {"name": "Bihari", "era": "17th century", "style": "doha"},
+        {"name": "Maithili Sharan Gupt", "era": "20th century", "style": "khand kavya"},
+        {"name": "Harivansh Rai Bachchan", "era": "20th century", "style": "geet"},
+        {"name": "Ramdhari Singh Dinkar", "era": "20th century", "style": "veer ras"},
+        {"name": "Sumitranandan Pant", "era": "20th century", "style": "chhayavad"},
+        {"name": "Nirala", "era": "20th century", "style": "mukt chhand"}
+      ],
+      "enabled": true
+    },
+    {
+      "id": "urdu_ghazals",
+      "name": "Urdu Ghazals",
+      "language": "urdu",
+      "poets": [
+        {"name": "Mirza Ghalib", "era": "19th century", "style": "ghazal"},
+        {"name": "Mir Taqi Mir", "era": "18th century", "style": "ghazal"},
+        {"name": "Faiz Ahmed Faiz", "era": "20th century", "style": "nazm"},
+        {"name": "Allama Iqbal", "era": "20th century", "style": "ghazal"},
+        {"name": "Ahmad Faraz", "era": "20th century", "style": "ghazal"},
+        {"name": "Jaun Elia", "era": "20th century", "style": "ghazal"}
+      ],
+      "enabled": true
+    },
+    {
+      "id": "tamil_sangam",
+      "name": "Tamil Poetry",
+      "language": "tamil",
+      "poets": [
+        {"name": "Thiruvalluvar", "era": "Sangam", "style": "kural"},
+        {"name": "Bharathiar", "era": "20th century", "style": "paamalai"},
+        {"name": "Bharathidasan", "era": "20th century", "style": "puratchi kavithai"},
+        {"name": "Kannadasan", "era": "20th century", "style": "cinema songs"}
+      ],
+      "enabled": true
+    },
+    {
+      "id": "bengali_tagore",
+      "name": "Bengali Poetry",
+      "language": "bengali",
+      "poets": [
+        {"name": "Rabindranath Tagore", "era": "20th century", "style": "gitanjali"},
+        {"name": "Kazi Nazrul Islam", "era": "20th century", "style": "bidrohi"},
+        {"name": "Jibanananda Das", "era": "20th century", "style": "modern"},
+        {"name": "Sukumar Ray", "era": "20th century", "style": "children"}
+      ],
+      "enabled": true
+    },
+    {
+      "id": "telugu_padyam",
+      "name": "Telugu Poetry",
+      "language": "telugu",
+      "poets": [
+        {"name": "Nannaya", "era": "11th century", "style": "champu"},
+        {"name": "Tikkana", "era": "13th century", "style": "padyam"},
+        {"name": "Sri Sri", "era": "20th century", "style": "abhyudaya"},
+        {"name": "Gurajada Apparao", "era": "20th century", "style": "modern"}
+      ],
+      "enabled": true
+    },
+    {
+      "id": "kannada_vachana",
+      "name": "Kannada Poetry",
+      "language": "kannada",
+      "poets": [
+        {"name": "Basavanna", "era": "12th century", "style": "vachana"},
+        {"name": "Akka Mahadevi", "era": "12th century", "style": "vachana"},
+        {"name": "Da Ra Bendre", "era": "20th century", "style": "navodaya"},
+        {"name": "Kuvempu", "era": "20th century", "style": "rashtrakavi"}
+      ],
+      "enabled": true
+    },
+    {
+      "id": "marathi_abhang",
+      "name": "Marathi Poetry",
+      "language": "marathi",
+      "poets": [
+        {"name": "Sant Tukaram", "era": "17th century", "style": "abhang"},
+        {"name": "Sant Dnyaneshwar", "era": "13th century", "style": "ovi"},
+        {"name": "Kusumagraj", "era": "20th century", "style": "modern"},
+        {"name": "Bahinabai Chaudhari", "era": "20th century", "style": "folk"}
+      ],
+      "enabled": true
+    },
+    {
+      "id": "gujarati_bhakti",
+      "name": "Gujarati Poetry",
+      "language": "gujarati",
+      "poets": [
+        {"name": "Narsinh Mehta", "era": "15th century", "style": "bhajan"},
+        {"name": "Meera Bai", "era": "16th century", "style": "bhajan"},
+        {"name": "Kalapi", "era": "19th century", "style": "romantic"},
+        {"name": "Umashankar Joshi", "era": "20th century", "style": "modern"}
+      ],
+      "enabled": true
+    },
+    {
+      "id": "malayalam_kavitha",
+      "name": "Malayalam Poetry",
+      "language": "malayalam",
+      "poets": [
+        {"name": "Ezhuthachan", "era": "16th century", "style": "kilippattu"},
+        {"name": "Vallathol", "era": "20th century", "style": "mahakavi"},
+        {"name": "Kumaran Asan", "era": "20th century", "style": "progressive"},
+        {"name": "ONV Kurup", "era": "20th century", "style": "lyrical"}
+      ],
+      "enabled": true
+    },
+    {
+      "id": "english_indian",
+      "name": "Indian English Poetry",
+      "language": "english",
+      "poets": [
+        {"name": "Sarojini Naidu", "era": "20th century", "style": "romantic"},
+        {"name": "Nissim Ezekiel", "era": "20th century", "style": "modern"},
+        {"name": "Kamala Das", "era": "20th century", "style": "confessional"},
+        {"name": "A.K. Ramanujan", "era": "20th century", "style": "contemporary"}
+      ],
+      "enabled": true
+    }
+  ],
+  "daily_selection": {
+    "poems_per_language": 2,
+    "rotation": "daily",
+    "include_translation": true
+  },
+  "settings": {
+    "tts_voice_style": "poetry",
+    "background_music": "soft_instrumental",
+    "reading_speed": 0.9,
+    "pause_between_verses_ms": 800
+  }
+}

@@ -1,0 +1,280 @@
+{
+  "festivals": [
+    {
+      "id": "makar_sankranti",
+      "name": "Makar Sankranti",
+      "names_regional": {
+        "hindi": "मकर संक्रांति",
+        "tamil": "பொங்கல்",
+        "telugu": "సంక్రాంతి",
+        "kannada": "ಸಂಕ್ರಾಂತಿ",
+        "gujarati": "ઉત્તરાયણ",
+        "marathi": "मकर संक्रांत",
+        "bengali": "পৌষ সংক্রান্তি",
+        "punjabi": "ਮਾਘੀ"
+      },
+      "dates": ["2026-01-14", "2027-01-14", "2028-01-14"],
+      "type": "harvest",
+      "religions": ["hindu"],
+      "regions": ["all"],
+      "content_tags": ["sankranti", "pongal", "kite", "harvest"],
+      "icon": "🪁"
+    },
+    {
+      "id": "republic_day",
+      "name": "Republic Day",
+      "names_regional": {
+        "hindi": "गणतंत्र दिवस"
+      },
+      "dates": ["2026-01-26", "2027-01-26", "2028-01-26"],
+      "type": "national",
+      "religions": ["all"],
+      "regions": ["all"],
+      "content_tags": ["republic", "india", "patriotic", "national"],
+      "icon": "🇮🇳"
+    },
+    {
+      "id": "maha_shivaratri",
+      "name": "Maha Shivaratri",
+      "names_regional": {
+        "hindi": "महा शिवरात्रि",
+        "tamil": "மகா சிவராத்திரி",
+        "telugu": "మహా శివరాత్రి",
+        "kannada": "ಮಹಾ ಶಿವರಾತ್ರಿ"
+      },
+      "dates": ["2026-02-27", "2027-02-16", "2028-03-06"],
+      "type": "religious",
+      "religions": ["hindu"],
+      "regions": ["all"],
+      "content_tags": ["shiva", "shivaratri", "mahadev", "bhajan"],
+      "icon": "🔱"
+    },
+    {
+      "id": "holi",
+      "name": "Holi",
+      "names_regional": {
+        "hindi": "होली",
+        "gujarati": "હોળી",
+        "marathi": "होळी",
+        "bengali": "দোল যাত্রা"
+      },
+      "dates": ["2026-03-17", "2027-03-07", "2028-03-25"],
+      "type": "religious",
+      "religions": ["hindu"],
+      "regions": ["north", "west", "east"],
+      "content_tags": ["holi", "colors", "holika", "prahlad"],
+      "icon": "🎨"
+    },
+    {
+      "id": "ugadi",
+      "name": "Ugadi / Gudi Padwa",
+      "names_regional": {
+        "telugu": "ఉగాది",
+        "kannada": "ಯುಗಾದಿ",
+        "marathi": "गुढी पाडवा"
+      },
+      "dates": ["2026-03-28", "2027-03-18", "2028-04-06"],
+      "type": "new_year",
+      "religions": ["hindu"],
+      "regions": ["south", "west"],
+      "content_tags": ["ugadi", "new_year", "gudi_padwa"],
+      "icon": "🌸"
+    },
+    {
+      "id": "baisakhi",
+      "name": "Baisakhi",
+      "names_regional": {
+        "punjabi": "ਵਿਸਾਖੀ",
+        "hindi": "बैसाखी"
+      },
+      "dates": ["2026-04-13", "2027-04-14", "2028-04-13"],
+      "type": "harvest",
+      "religions": ["sikh", "hindu"],
+      "regions": ["north"],
+      "content_tags": ["baisakhi", "khalsa", "harvest", "punjab"],
+      "icon": "🌾"
+    },
+    {
+      "id": "eid_ul_fitr",
+      "name": "Eid ul-Fitr",
+      "names_regional": {
+        "urdu": "عید الفطر",
+        "hindi": "ईद उल-फ़ित्र"
+      },
+      "dates": ["2026-03-20", "2027-03-09", "2028-02-26"],
+      "type": "religious",
+      "religions": ["muslim"],
+      "regions": ["all"],
+      "content_tags": ["eid", "ramadan", "muslim"],
+      "icon": "🌙"
+    },
+    {
+      "id": "raksha_bandhan",
+      "name": "Raksha Bandhan",
+      "names_regional": {
+        "hindi": "रक्षा बंधन",
+        "gujarati": "રક્ષા બંધન"
+      },
+      "dates": ["2026-08-11", "2027-08-30", "2028-08-19"],
+      "type": "religious",
+      "religions": ["hindu"],
+      "regions": ["north", "west"],
+      "content_tags": ["rakhi", "brother", "sister", "bond"],
+      "icon": "🎀"
+    },
+    {
+      "id": "janmashtami",
+      "name": "Janmashtami",
+      "names_regional": {
+        "hindi": "जन्माष्टमी",
+        "gujarati": "જન્માષ્ટમી",
+        "marathi": "गोकुळाष्टमी",
+        "tamil": "கிருஷ்ண ஜெயந்தி"
+      },
+      "dates": ["2026-08-24", "2027-08-14", "2028-09-02"],
+      "type": "religious",
+      "religions": ["hindu"],
+      "regions": ["all"],
+      "content_tags": ["krishna", "janmashtami", "mathura", "govinda"],
+      "icon": "🪈"
+    },
+    {
+      "id": "ganesh_chaturthi",
+      "name": "Ganesh Chaturthi",
+      "names_regional": {
+        "marathi": "गणेश चतुर्थी",
+        "hindi": "गणेश चतुर्थी",
+        "kannada": "ಗಣೇಶ ಚತುರ್ಥಿ",
+        "telugu": "వినాయక చవితి"
+      },
+      "dates": ["2026-09-03", "2027-08-23", "2028-09-11"],
+      "type": "religious",
+      "religions": ["hindu"],
+      "regions": ["west", "south"],
+      "content_tags": ["ganesh", "ganapati", "vinayaka", "modak"],
+      "icon": "🐘"
+    },
+    {
+      "id": "onam",
+      "name": "Onam",
+      "names_regional": {
+        "malayalam": "ഓണം"
+      },
+      "dates": ["2026-09-02", "2027-08-22", "2028-09-10"],
+      "type": "harvest",
+      "religions": ["hindu"],
+      "regions": ["kerala"],
+      "content_tags": ["onam", "mahabali", "kerala", "boat_race"],
+      "icon": "🚣"
+    },
+    {
+      "id": "navratri",
+      "name": "Navratri",
+      "names_regional": {
+        "hindi": "नवरात्रि",
+        "gujarati": "નવરાત્રી",
+        "bengali": "দুর্গা পূজা"
+      },
+      "dates": ["2026-09-21", "2027-10-10", "2028-09-28"],
+      "type": "religious",
+      "religions": ["hindu"],
+      "regions": ["all"],
+      "content_tags": ["durga", "navratri", "garba", "dandiya", "devi"],
+      "icon": "🪔"
+    },
+    {
+      "id": "dussehra",
+      "name": "Dussehra / Vijayadashami",
+      "names_regional": {
+        "hindi": "दशहरा",
+        "bengali": "বিজয়া দশমী",
+        "kannada": "ದಸರಾ"
+      },
+      "dates": ["2026-10-01", "2027-10-20", "2028-10-08"],
+      "type": "religious",
+      "religions": ["hindu"],
+      "regions": ["all"],
+      "content_tags": ["rama", "ravana", "dussehra", "ramlila"],
+      "icon": "🏹"
+    },
+    {
+      "id": "diwali",
+      "name": "Diwali",
+      "names_regional": {
+        "hindi": "दीवाली",
+        "tamil": "தீபாவளி",
+        "telugu": "దీపావళి",
+        "kannada": "ದೀಪಾವಳಿ",
+        "gujarati": "દિવાળી",
+        "marathi": "दिवाळी",
+        "bengali": "দীপাবলি"
+      },
+      "dates": ["2026-10-21", "2027-11-08", "2028-10-27"],
+      "type": "religious",
+      "religions": ["hindu", "jain", "sikh"],
+      "regions": ["all"],
+      "content_tags": ["diwali", "lakshmi", "lights", "fireworks", "rangoli"],
+      "icon": "🪔"
+    },
+    {
+      "id": "guru_nanak_jayanti",
+      "name": "Guru Nanak Jayanti",
+      "names_regional": {
+        "punjabi": "ਗੁਰੂ ਨਾਨਕ ਜਯੰਤੀ",
+        "hindi": "गुरु नानक जयंती"
+      },
+      "dates": ["2026-11-14", "2027-11-04", "2028-11-23"],
+      "type": "religious",
+      "religions": ["sikh"],
+      "regions": ["north", "all"],
+      "content_tags": ["guru_nanak", "sikh", "gurbani", "langar"],
+      "icon": "🙏"
+    },
+    {
+      "id": "christmas",
+      "name": "Christmas",
+      "names_regional": {
+        "hindi": "क्रिसमस",
+        "malayalam": "ക്രിസ്മസ്"
+      },
+      "dates": ["2026-12-25", "2027-12-25", "2028-12-25"],
+      "type": "religious",
+      "religions": ["christian"],
+      "regions": ["all"],
+      "content_tags": ["christmas", "jesus", "carols", "santa"],
+      "icon": "🎄"
+    },
+    {
+      "id": "independence_day",
+      "name": "Independence Day",
+      "names_regional": {
+        "hindi": "स्वतंत्रता दिवस"
+      },
+      "dates": ["2026-08-15", "2027-08-15", "2028-08-15"],
+      "type": "national",
+      "religions": ["all"],
+      "regions": ["all"],
+      "content_tags": ["independence", "freedom", "patriotic", "india"],
+      "icon": "🇮🇳"
+    },
+    {
+      "id": "gandhi_jayanti",
+      "name": "Gandhi Jayanti",
+      "names_regional": {
+        "hindi": "गांधी जयंती"
+      },
+      "dates": ["2026-10-02", "2027-10-02", "2028-10-02"],
+      "type": "national",
+      "religions": ["all"],
+      "regions": ["all"],
+      "content_tags": ["gandhi", "nonviolence", "peace", "freedom"],
+      "icon": "🕊️"
+    }
+  ],
+  "settings": {
+    "show_days_before": 3,
+    "show_days_after": 1,
+    "auto_queue_special_content": true,
+    "notifications_enabled": true
+  }
+}

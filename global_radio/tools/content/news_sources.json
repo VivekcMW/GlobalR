@@ -1,0 +1,124 @@
+{
+  "sources": [
+    {
+      "id": "pti_hindi",
+      "name": "PTI Hindi",
+      "language": "hindi",
+      "url": "https://www.ptinews.com/rss/top-news/hindi",
+      "category": "general",
+      "enabled": true
+    },
+    {
+      "id": "pti_english",
+      "name": "PTI English",
+      "language": "english",
+      "url": "https://www.ptinews.com/rss/top-news/english",
+      "category": "general",
+      "enabled": true
+    },
+    {
+      "id": "dainik_jagran",
+      "name": "Dainik Jagran",
+      "language": "hindi",
+      "url": "https://www.jagran.com/rss/latest-news.xml",
+      "category": "general",
+      "enabled": true
+    },
+    {
+      "id": "aaj_tak_hindi",
+      "name": "Aaj Tak",
+      "language": "hindi",
+      "url": "https://www.aajtak.in/rss/feed.xml",
+      "category": "general",
+      "enabled": true
+    },
+    {
+      "id": "ndtv_india",
+      "name": "NDTV India",
+      "language": "hindi",
+      "url": "https://feeds.feedburner.com/ndtv/india-news",
+      "category": "general",
+      "enabled": true
+    },
+    {
+      "id": "toi_english",
+      "name": "Times of India",
+      "language": "english",
+      "url": "https://timesofindia.indiatimes.com/rssfeedstopstories.cms",
+      "category": "general",
+      "enabled": true
+    },
+    {
+      "id": "eenadu_telugu",
+      "name": "Eenadu",
+      "language": "telugu",
+      "url": "https://www.eenadu.net/rss/main.xml",
+      "category": "general",
+      "enabled": true
+    },
+    {
+      "id": "dinamalar_tamil",
+      "name": "Dinamalar",
+      "language": "tamil",
+      "url": "https://www.dinamalar.com/rss/rss_news.xml",
+      "category": "general",
+      "enabled": true
+    },
+    {
+      "id": "mathrubhumi_malayalam",
+      "name": "Mathrubhumi",
+      "language": "malayalam",
+      "url": "https://www.mathrubhumi.com/rss/news",
+      "category": "general",
+      "enabled": true
+    },
+    {
+      "id": "prajavani_kannada",
+      "name": "Prajavani",
+      "language": "kannada",
+      "url": "https://www.prajavani.net/rss/top-stories",
+      "category": "general",
+      "enabled": true
+    },
+    {
+      "id": "anandabazar_bengali",
+      "name": "Anandabazar",
+      "language": "bengali",
+      "url": "https://www.anandabazar.com/rss/latest-news.xml",
+      "category": "general",
+      "enabled": true
+    },
+    {
+      "id": "lokmat_marathi",
+      "name": "Lokmat",
+      "language": "marathi",
+      "url": "https://www.lokmat.com/rss/latest-news",
+      "category": "general",
+      "enabled": true
+    },
+    {
+      "id": "gujarat_samachar",
+      "name": "Gujarat Samachar",
+      "language": "gujarati",
+      "url": "https://www.gujaratsamachar.com/rss/all",
+      "category": "general",
+      "enabled": true
+    },
+    {
+      "id": "daily_jang_urdu",
+      "name": "Daily Jang",
+      "language": "urdu",
+      "url": "https://jang.com.pk/rss/latest-news",
+      "category": "general",
+      "enabled": true
+    }
+  ],
+  "settings": {
+    "max_items_per_source": 5,
+    "max_age_hours": 24,
+    "fetch_interval_minutes": 60,
+    "tts_voice_style": "news",
+    "intro_template": "आज की ख़बरें, {date}",
+    "outro_template": "यह थी आज की प्रमुख ख़बरें। Global Radio के साथ बने रहिए।"
+  }
+}

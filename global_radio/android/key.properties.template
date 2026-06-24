@@ -1,0 +1,15 @@
+# Key store configuration for release builds.
+# DO NOT commit this file to version control - it contains sensitive data.
+# Copy this template to key.properties and fill in your values.
+
+# Path to keystore file (relative to android/ directory or absolute path)
+storeFile=../keystore/release.keystore
+
+# Keystore password
+storePassword=YOUR_KEYSTORE_PASSWORD
+
+# Key alias
+keyAlias=global_radio
+
+# Key password
+keyPassword=YOUR_KEY_PASSWORD

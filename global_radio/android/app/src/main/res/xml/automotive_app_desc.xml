@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android Auto configuration for Global Radio -->
+<automotiveApp>
+    <!-- Enable media (audio) app for Android Auto -->
+    <uses name="media"/>
+</automotiveApp>

@@ -1,0 +1,8 @@
+edge-tts==7.2.8
+skyfield==1.54
+
+# Optional — only needed for the paid/cloud paths (both degrade cleanly if absent):
+#   requests     : Azure Speech TTS (odia/punjabi/assamese) + FCM HTTP v1 POST
+#   google-auth  : service-account OAuth for the daily-astrology FCM push
+requests==2.32.3
+google-auth==2.35.0

@@ -1,0 +1,27 @@
+{
+  "_comment": "Maps app voice presets (male_story / kids_story / female_warm / devotional) to neural TTS voices per language. 'kids_story' reuses the female_warm voice ID but rendered at +10% rate — the prosody difference creates a noticeably brighter, more energetic character at TTS render time, producing distinct CDN files under /kids_story/. Free Microsoft Edge voices cover 10 Tier-1 languages; odia/punjabi/assamese require the paid Azure Speech key (AZURE_SPEECH_KEY env). 'devotional' reuses the male voice at -12% rate.",
+  "needs_paid_tts": ["odia", "punjabi", "assamese"],
+  "azure": {
+    "odia":    { "short": "or", "male_story": "or-IN-SukantNeural",   "female_warm": "or-IN-SubhasiniNeural", "kids_story": "or-IN-SubhasiniNeural", "devotional": "or-IN-SukantNeural" },
+    "punjabi": { "short": "pa", "male_story": "pa-IN-GurdevNeural",   "female_warm": "pa-IN-VaniNeural",      "kids_story": "pa-IN-VaniNeural",      "devotional": "pa-IN-GurdevNeural" },
+    "assamese":{ "short": "as", "male_story": "as-IN-PriyomNeural",   "female_warm": "as-IN-YashicaNeural",   "kids_story": "as-IN-YashicaNeural",   "devotional": "as-IN-PriyomNeural" }
+  },
+  "languages": {
+    "hindi":     { "short": "hi", "male_story": "hi-IN-MadhurNeural",   "female_warm": "hi-IN-SwaraNeural",    "kids_story": "hi-IN-SwaraNeural",    "devotional": "hi-IN-MadhurNeural" },
+    "english":   { "short": "en", "male_story": "en-IN-PrabhatNeural",  "female_warm": "en-IN-NeerjaNeural",   "kids_story": "en-IN-NeerjaNeural",   "devotional": "en-IN-PrabhatNeural" },
+    "bengali":   { "short": "bn", "male_story": "bn-IN-BashkarNeural",  "female_warm": "bn-IN-TanishaaNeural", "kids_story": "bn-IN-TanishaaNeural", "devotional": "bn-IN-BashkarNeural" },
+    "marathi":   { "short": "mr", "male_story": "mr-IN-ManoharNeural",  "female_warm": "mr-IN-AarohiNeural",   "kids_story": "mr-IN-AarohiNeural",   "devotional": "mr-IN-ManoharNeural" },
+    "telugu":    { "short": "te", "male_story": "te-IN-MohanNeural",    "female_warm": "te-IN-ShrutiNeural",   "kids_story": "te-IN-ShrutiNeural",   "devotional": "te-IN-MohanNeural" },
+    "tamil":     { "short": "ta", "male_story": "ta-IN-ValluvarNeural", "female_warm": "ta-IN-PallaviNeural",  "kids_story": "ta-IN-PallaviNeural",  "devotional": "ta-IN-ValluvarNeural" },
+    "gujarati":  { "short": "gu", "male_story": "gu-IN-NiranjanNeural", "female_warm": "gu-IN-DhwaniNeural",   "kids_story": "gu-IN-DhwaniNeural",   "devotional": "gu-IN-NiranjanNeural" },
+    "urdu":      { "short": "ur", "male_story": "ur-IN-SalmanNeural",   "female_warm": "ur-IN-GulNeural",      "kids_story": "ur-IN-GulNeural",      "devotional": "ur-IN-SalmanNeural" },
+    "kannada":   { "short": "kn", "male_story": "kn-IN-GaganNeural",    "female_warm": "kn-IN-SapnaNeural",    "kids_story": "kn-IN-SapnaNeural",    "devotional": "kn-IN-GaganNeural" },
+    "malayalam": { "short": "ml", "male_story": "ml-IN-MidhunNeural",   "female_warm": "ml-IN-SobhanaNeural",  "kids_story": "ml-IN-SobhanaNeural",  "devotional": "ml-IN-MidhunNeural" }
+  },
+  "rates": {
+    "male_story":  "+0%",
+    "female_warm": "+0%",
+    "kids_story":  "+10%",
+    "devotional":  "-12%"
+  }
+}

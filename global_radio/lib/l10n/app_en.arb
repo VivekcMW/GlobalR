@@ -1,0 +1,223 @@
+{
+  "@@locale": "en",
+  "@@last_modified": "2025-01-01T00:00:00.000Z",
+  
+  "appName": "Global Radio",
+  "@appName": {
+    "description": "The name of the application"
+  },
+  
+  "onboardingWelcome": "Welcome to Global Radio",
+  "@onboardingWelcome": {
+    "description": "Welcome message on onboarding screen"
+  },
+  "onboardingSubtitle": "Personalized audio for your interests",
+  "onboardingSelectLanguages": "Select your languages",
+  "onboardingSelectInterests": "Choose your interests",
+  "onboardingSetupComplete": "You're all set!",
+  "onboardingContinue": "Continue",
+  "onboardingGetStarted": "Get Started",
+  "onboardingSkip": "Skip",
+  
+  "appLanguageTitle": "Select app language",
+  "@appLanguageTitle": {
+    "description": "Title for app language selection step"
+  },
+  "appLanguageSubtitle": "The app will display in this language",
+  "@appLanguageSubtitle": {
+    "description": "Subtitle for app language selection"
+  },
+  "contentLanguagesTitle": "Choose content languages",
+  "@contentLanguagesTitle": {
+    "description": "Title for content languages selection step"
+  },
+  "contentLanguagesSubtitle": "Select languages you want to listen to",
+  "@contentLanguagesSubtitle": {
+    "description": "Subtitle for content languages selection"
+  },
+  "interestsTitle": "Pick your interests",
+  "@interestsTitle": {
+    "description": "Title for interests selection step in onboarding"
+  },
+  "voiceTitle": "Pick a voice",
+  "@voiceTitle": {
+    "description": "Title for voice selection step"
+  },
+  "accountTitle": "Make it yours",
+  "@accountTitle": {
+    "description": "Title for account setup step"
+  },
+  "continueButton": "Continue",
+  "@continueButton": {
+    "description": "Continue button text"
+  },
+  "skipForNow": "Skip for now",
+  "@skipForNow": {
+    "description": "Skip for now button text"
+  },
+  "appLanguage": "App Language",
+  "@appLanguage": {
+    "description": "App language setting label"
+  },
+  "appLanguageDescription": "Language for app interface",
+  "@appLanguageDescription": {
+    "description": "Description for app language setting"
+  },
+  
+  "homeTitle": "Home",
+  "homeGreetingMorning": "Good Morning",
+  "homeGreetingAfternoon": "Good Afternoon",
+  "homeGreetingEvening": "Good Evening",
+  "homeListenNow": "Listen Now",
+  "homeRecommendedForYou": "Recommended for You",
+  "homeTrendingNow": "Trending Now",
+  "homeRecentlyPlayed": "Recently Played",
+  "homeQuickPicks": "Quick Picks",
+  
+  "libraryTitle": "Library",
+  "libraryFavorites": "Favorites",
+  "libraryDownloads": "Downloads",
+  "libraryHistory": "History",
+  "libraryNoFavorites": "No favorites yet",
+  "libraryNoDownloads": "No downloads yet",
+  "libraryNoHistory": "No history yet",
+  "libraryAddFavorites": "Tap the heart icon to add favorites",
+  "libraryDownloadContent": "Download content for offline listening",
+  "libraryStartListening": "Start listening to see your history",
+  
+  "settingsTitle": "Settings",
+  "settingsAccount": "Account",
+  "settingsSignIn": "Sign In",
+  "settingsSignOut": "Sign Out",
+  "settingsLanguages": "Languages",
+  "settingsInterests": "Interests",
+  "settingsVoice": "Voice Preferences",
+  "settingsNotifications": "Notifications",
+  "settingsDownloads": "Downloads",
+  "settingsDownloadsWifiOnly": "Download on Wi-Fi only",
+  "settingsStorage": "Storage",
+  "settingsClearCache": "Clear Cache",
+  "settingsAbout": "About",
+  "settingsPrivacyPolicy": "Privacy Policy",
+  "settingsTermsOfService": "Terms of Service",
+  "settingsVersion": "Version {version}",
+  "@settingsVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "1.0.0"
+      }
+    }
+  },
+  "settingsFeedback": "Send Feedback",
+  "settingsRateApp": "Rate the App",
+  "settingsShareApp": "Share with Friends",
+  
+  "playerNowPlaying": "Now Playing",
+  "playerUpNext": "Up Next",
+  "playerPlaybackSpeed": "Playback Speed",
+  "playerSleepTimer": "Sleep Timer",
+  "playerSleepTimerOff": "Off",
+  "playerSleepTimerMinutes": "{minutes} minutes",
+  "@playerSleepTimerMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "15"
+      }
+    }
+  },
+  "playerAddToFavorites": "Add to Favorites",
+  "playerRemoveFromFavorites": "Remove from Favorites",
+  "playerDownload": "Download",
+  "playerShare": "Share",
+  
+  "interestsTitle": "Edit Interests",
+  "interestsSubtitle": "Select topics you'd like to hear about",
+  "interestsSelected": "{count} selected",
+  "@interestsSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "interestsSave": "Save",
+  
+  "languagesTitle": "Languages",
+  "languagesSubtitle": "Select your preferred languages",
+  "languagesSave": "Save",
+  
+  "searchTitle": "Search",
+  "searchHint": "Search for content...",
+  "searchVoiceHint": "Tap to search by voice",
+  "searchNoResults": "No results found",
+  "searchTryDifferent": "Try different keywords",
+  
+  "authSignInTitle": "Sign In",
+  "authSignInSubtitle": "Sign in to sync your preferences",
+  "authContinueWithGoogle": "Continue with Google",
+  "authContinueWithApple": "Continue with Apple",
+  "authContinueAsGuest": "Continue as Guest",
+  "authSignOutConfirm": "Are you sure you want to sign out?",
+  
+  "premiumTitle": "Go Premium",
+  "premiumSubtitle": "Unlock all features",
+  "premiumFeature1": "Ad-free listening",
+  "premiumFeature2": "Unlimited downloads",
+  "premiumFeature3": "Premium voices",
+  "premiumSubscribe": "Subscribe for {price}",
+  "@premiumSubscribe": {
+    "placeholders": {
+      "price": {
+        "type": "String",
+        "example": "₹99/year"
+      }
+    }
+  },
+  "premiumRestore": "Restore Purchase",
+  
+  "errorGeneric": "Something went wrong",
+  "errorNetwork": "No internet connection",
+  "errorRetry": "Retry",
+  "errorLoadingContent": "Failed to load content",
+  "errorPlayback": "Playback error",
+  
+  "commonCancel": "Cancel",
+  "commonOk": "OK",
+  "commonSave": "Save",
+  "commonDelete": "Delete",
+  "commonEdit": "Edit",
+  "commonDone": "Done",
+  "commonLoading": "Loading...",
+  "commonRefresh": "Refresh",
+  
+  "notificationDailyTitle": "Your Daily Audio",
+  "notificationDailyBody": "Your personalized content is ready",
+  
+  "adSkipIn": "Skip in {seconds}s",
+  "@adSkipIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "adSkip": "Skip Ad",
+  "adLabel": "AD",
+  
+  "offlineTitle": "Offline Mode",
+  "offlineMessage": "You're offline. Only downloaded content is available.",
+  "offlineDownloadAvailable": "Download for offline listening",
+  
+  "feedbackTitle": "Send Feedback",
+  "feedbackHint": "Tell us what you think...",
+  "feedbackSubmit": "Submit",
+  "feedbackThankYou": "Thank you for your feedback!",
+  
+  "updateRequired": "Update Required",
+  "updateMessage": "A new version is available. Please update to continue.",
+  "updateButton": "Update Now"
+}

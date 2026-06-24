@@ -1,0 +1,164 @@
+{
+  "categories": [
+    {
+      "id": "ayurveda",
+      "name": "Ayurveda Tips",
+      "icon": "🌿",
+      "topics": [
+        "morning_routine",
+        "seasonal_diet",
+        "dosha_balance",
+        "herbal_remedies",
+        "digestive_health"
+      ],
+      "enabled": true
+    },
+    {
+      "id": "yoga",
+      "name": "Yoga & Pranayama",
+      "icon": "🧘",
+      "topics": [
+        "morning_asanas",
+        "breathing_exercises",
+        "meditation_guide",
+        "stress_relief",
+        "sleep_yoga"
+      ],
+      "enabled": true
+    },
+    {
+      "id": "nutrition",
+      "name": "Nutrition",
+      "icon": "🥗",
+      "topics": [
+        "balanced_diet",
+        "superfoods_india",
+        "seasonal_fruits",
+        "healthy_cooking",
+        "hydration"
+      ],
+      "enabled": true
+    },
+    {
+      "id": "home_remedies",
+      "name": "Home Remedies",
+      "icon": "🏠",
+      "topics": [
+        "cold_cough",
+        "skin_care",
+        "hair_care",
+        "immunity_boost",
+        "pain_relief"
+      ],
+      "enabled": true
+    },
+    {
+      "id": "fitness",
+      "name": "Fitness Tips",
+      "icon": "💪",
+      "topics": [
+        "daily_exercise",
+        "walking_benefits",
+        "strength_training",
+        "flexibility",
+        "cardio_health"
+      ],
+      "enabled": true
+    },
+    {
+      "id": "mental_health",
+      "name": "Mental Wellness",
+      "icon": "🧠",
+      "topics": [
+        "stress_management",
+        "sleep_hygiene",
+        "mindfulness",
+        "positive_thinking",
+        "work_life_balance"
+      ],
+      "enabled": true
+    },
+    {
+      "id": "womens_health",
+      "name": "Women's Health",
+      "icon": "👩",
+      "topics": [
+        "menstrual_health",
+        "pregnancy_tips",
+        "post_pregnancy",
+        "bone_health",
+        "hormonal_balance"
+      ],
+      "enabled": true
+    },
+    {
+      "id": "seniors",
+      "name": "Senior Health",
+      "icon": "👴",
+      "topics": [
+        "joint_care",
+        "memory_exercises",
+        "heart_health",
+        "diabetes_management",
+        "mobility"
+      ],
+      "enabled": true
+    },
+    {
+      "id": "kids_health",
+      "name": "Child Health",
+      "icon": "👶",
+      "topics": [
+        "nutrition_kids",
+        "immunity_children",
+        "growth_development",
+        "healthy_habits",
+        "screen_time"
+      ],
+      "enabled": true
+    }
+  ],
+  "schedule": {
+    "morning_tip": {
+      "time": "07:00",
+      "categories": ["ayurveda", "yoga", "nutrition"]
+    },
+    "afternoon_tip": {
+      "time": "13:00",
+      "categories": ["home_remedies", "fitness"]
+    },
+    "evening_tip": {
+      "time": "19:00",
+      "categories": ["mental_health", "yoga"]
+    }
+  },
+  "personalization": {
+    "age_groups": ["child", "teen", "adult", "senior"],
+    "health_goals": ["weight_loss", "muscle_gain", "stress_relief", "better_sleep", "immunity"],
+    "conditions": ["diabetes", "hypertension", "thyroid", "arthritis", "none"]
+  },
+  "settings": {
+    "tips_per_category": 30,
+    "tip_duration_seconds": 60,
+    "tts_voice_style": "calm",
+    "include_disclaimer": true,
+    "disclaimer_text": "यह सलाह केवल सामान्य जानकारी के लिए है। किसी भी स्वास्थ्य समस्या के लिए अपने चिकित्सक से परामर्श करें।"
+  },
+  "sources": [
+    {
+      "type": "curated",
+      "name": "Ayurveda Texts",
+      "reference": "Charaka Samhita, Sushruta Samhita"
+    },
+    {
+      "type": "curated",
+      "name": "Ministry of AYUSH",
+      "url": "https://yoga.ayush.gov.in/"
+    },
+    {
+      "type": "curated",
+      "name": "ICMR Guidelines",
+      "url": "https://www.icmr.gov.in/"
+    }
+  ]
+}

@@ -1,0 +1,381 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for Korean (`ko`).
+class AppLocalizationsKo extends AppLocalizations {
+  AppLocalizationsKo([String locale = 'ko']) : super(locale);
+
+  @override
+  String get appName => '글로벌 라디오';
+
+  @override
+  String get onboardingWelcome => '글로벌 라디오에 오신 것을 환영합니다';
+
+  @override
+  String get onboardingSubtitle => '관심사에 맞는 맞춤형 오디오';
+
+  @override
+  String get onboardingSelectLanguages => '언어를 선택하세요';
+
+  @override
+  String get onboardingSelectInterests => '관심사를 선택하세요';
+
+  @override
+  String get onboardingSetupComplete => '준비가 완료되었습니다!';
+
+  @override
+  String get onboardingContinue => '계속하기';
+
+  @override
+  String get onboardingGetStarted => '시작하기';
+
+  @override
+  String get onboardingSkip => '건너뛰기';
+
+  @override
+  String get appLanguageTitle => 'Select app language';
+
+  @override
+  String get appLanguageSubtitle => 'The app will display in this language';
+
+  @override
+  String get contentLanguagesTitle => 'Choose content languages';
+
+  @override
+  String get contentLanguagesSubtitle =>
+      'Select languages you want to listen to';
+
+  @override
+  String get interestsTitle => '관심사 편집';
+
+  @override
+  String get voiceTitle => 'Pick a voice';
+
+  @override
+  String get accountTitle => 'Make it yours';
+
+  @override
+  String get continueButton => 'Continue';
+
+  @override
+  String get skipForNow => 'Skip for now';
+
+  @override
+  String get appLanguage => 'App Language';
+
+  @override
+  String get appLanguageDescription => 'Language for app interface';
+
+  @override
+  String get homeTitle => '홈';
+
+  @override
+  String get homeGreetingMorning => '좋은 아침입니다';
+
+  @override
+  String get homeGreetingAfternoon => '좋은 오후입니다';
+
+  @override
+  String get homeGreetingEvening => '좋은 저녁입니다';
+
+  @override
+  String get homeListenNow => '지금 듣기';
+
+  @override
+  String get homeRecommendedForYou => '추천 콘텐츠';
+
+  @override
+  String get homeTrendingNow => '지금 인기 있는';
+
+  @override
+  String get homeRecentlyPlayed => '최근 재생한 항목';
+
+  @override
+  String get homeQuickPicks => '빠른 선택';
+
+  @override
+  String get libraryTitle => '라이브러리';
+
+  @override
+  String get libraryFavorites => '즐겨찾기';
+
+  @override
+  String get libraryDownloads => '다운로드';
+
+  @override
+  String get libraryHistory => '기록';
+
+  @override
+  String get libraryNoFavorites => '아직 즐겨찾기가 없습니다';
+
+  @override
+  String get libraryNoDownloads => '아직 다운로드가 없습니다';
+
+  @override
+  String get libraryNoHistory => '아직 기록이 없습니다';
+
+  @override
+  String get libraryAddFavorites => '하트 아이콘을 탭하여 즐겨찾기에 추가';
+
+  @override
+  String get libraryDownloadContent => '오프라인에서 듣기 위해 콘텐츠 다운로드';
+
+  @override
+  String get libraryStartListening => '기록을 보려면 듣기를 시작하세요';
+
+  @override
+  String get settingsTitle => '설정';
+
+  @override
+  String get settingsAccount => '계정';
+
+  @override
+  String get settingsSignIn => '로그인';
+
+  @override
+  String get settingsSignOut => '로그아웃';
+
+  @override
+  String get settingsLanguages => '언어';
+
+  @override
+  String get settingsInterests => '관심사';
+
+  @override
+  String get settingsVoice => '음성 환경설정';
+
+  @override
+  String get settingsNotifications => '알림';
+
+  @override
+  String get settingsDownloads => '다운로드';
+
+  @override
+  String get settingsDownloadsWifiOnly => 'Wi-Fi에서만 다운로드';
+
+  @override
+  String get settingsStorage => '저장 공간';
+
+  @override
+  String get settingsClearCache => '캐시 지우기';
+
+  @override
+  String get settingsAbout => '정보';
+
+  @override
+  String get settingsPrivacyPolicy => '개인정보 처리방침';
+
+  @override
+  String get settingsTermsOfService => '서비스 약관';
+
+  @override
+  String settingsVersion(String version) {
+    return '버전 $version';
+  }
+
+  @override
+  String get settingsFeedback => '피드백 보내기';
+
+  @override
+  String get settingsRateApp => '앱 평가하기';
+
+  @override
+  String get settingsShareApp => '친구와 공유';
+
+  @override
+  String get playerNowPlaying => '지금 재생 중';
+
+  @override
+  String get playerUpNext => '다음 재생';
+
+  @override
+  String get playerPlaybackSpeed => '재생 속도';
+
+  @override
+  String get playerSleepTimer => '수면 타이머';
+
+  @override
+  String get playerSleepTimerOff => '끄기';
+
+  @override
+  String playerSleepTimerMinutes(int minutes) {
+    return '$minutes분';
+  }
+
+  @override
+  String get playerAddToFavorites => '즐겨찾기에 추가';
+
+  @override
+  String get playerRemoveFromFavorites => '즐겨찾기에서 삭제';
+
+  @override
+  String get playerDownload => '다운로드';
+
+  @override
+  String get playerShare => '공유';
+
+  @override
+  String get interestsSubtitle => '듣고 싶은 주제를 선택하세요';
+
+  @override
+  String interestsSelected(int count) {
+    return '$count개 선택됨';
+  }
+
+  @override
+  String get interestsSave => '저장';
+
+  @override
+  String get languagesTitle => '언어';
+
+  @override
+  String get languagesSubtitle => '선호하는 언어를 선택하세요';
+
+  @override
+  String get languagesSave => '저장';
+
+  @override
+  String get searchTitle => '검색';
+
+  @override
+  String get searchHint => '콘텐츠 검색...';
+
+  @override
+  String get searchVoiceHint => '음성 검색하려면 탭하세요';
+
+  @override
+  String get searchNoResults => '결과를 찾을 수 없습니다';
+
+  @override
+  String get searchTryDifferent => '다른 키워드를 시도해 보세요';
+
+  @override
+  String get authSignInTitle => '로그인';
+
+  @override
+  String get authSignInSubtitle => '환경설정을 동기화하려면 로그인하세요';
+
+  @override
+  String get authContinueWithGoogle => 'Google로 계속하기';
+
+  @override
+  String get authContinueWithApple => 'Apple로 계속하기';
+
+  @override
+  String get authContinueAsGuest => '게스트로 계속하기';
+
+  @override
+  String get authSignOutConfirm => '정말 로그아웃하시겠습니까?';
+
+  @override
+  String get premiumTitle => '프리미엄 가입';
+
+  @override
+  String get premiumSubtitle => '모든 기능 잠금 해제';
+
+  @override
+  String get premiumFeature1 => '광고 없이 듣기';
+
+  @override
+  String get premiumFeature2 => '무제한 다운로드';
+
+  @override
+  String get premiumFeature3 => '프리미엄 음성';
+
+  @override
+  String premiumSubscribe(String price) {
+    return '$price에 구독';
+  }
+
+  @override
+  String get premiumRestore => '구매 복원';
+
+  @override
+  String get errorGeneric => '문제가 발생했습니다';
+
+  @override
+  String get errorNetwork => '인터넷 연결이 없습니다';
+
+  @override
+  String get errorRetry => '다시 시도';
+
+  @override
+  String get errorLoadingContent => '콘텐츠 로드 실패';
+
+  @override
+  String get errorPlayback => '재생 오류';
+
+  @override
+  String get commonCancel => '취소';
+
+  @override
+  String get commonOk => '확인';
+
+  @override
+  String get commonSave => '저장';
+
+  @override
+  String get commonDelete => '삭제';
+
+  @override
+  String get commonEdit => '편집';
+
+  @override
+  String get commonDone => '완료';
+
+  @override
+  String get commonLoading => '로딩 중...';
+
+  @override
+  String get commonRefresh => '새로고침';
+
+  @override
+  String get notificationDailyTitle => '오늘의 오디오';
+
+  @override
+  String get notificationDailyBody => '맞춤형 콘텐츠가 준비되었습니다';
+
+  @override
+  String adSkipIn(int seconds) {
+    return '$seconds초 후 건너뛰기';
+  }
+
+  @override
+  String get adSkip => '광고 건너뛰기';
+
+  @override
+  String get adLabel => '광고';
+
+  @override
+  String get offlineTitle => '오프라인 모드';
+
+  @override
+  String get offlineMessage => '오프라인 상태입니다. 다운로드한 콘텐츠만 사용할 수 있습니다.';
+
+  @override
+  String get offlineDownloadAvailable => '오프라인에서 듣기 위해 다운로드';
+
+  @override
+  String get feedbackTitle => '피드백 보내기';
+
+  @override
+  String get feedbackHint => '의견을 알려주세요...';
+
+  @override
+  String get feedbackSubmit => '제출';
+
+  @override
+  String get feedbackThankYou => '피드백 감사합니다!';
+
+  @override
+  String get updateRequired => '업데이트 필요';
+
+  @override
+  String get updateMessage => '새 버전을 사용할 수 있습니다. 계속하려면 업데이트하세요.';
+
+  @override
+  String get updateButton => '지금 업데이트';
+}

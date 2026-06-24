@@ -1,0 +1,16 @@
+{
+  "_comment": "Localized copy for the daily-astrology push (notify_fcm.py via astrology_cron.py --notify). Per-language topic astro_{lang} uses its own copy; the broadcast topic daily_astrology uses english. {phase} is the moon phase word from astrology.json. Original wording.",
+  "english":   { "title": "Today's reading is ready", "body": "Your daily horoscope is in — tap to listen." },
+  "hindi":     { "title": "आज का राशिफल तैयार है", "body": "आपका दैनिक राशिफल आ गया है — सुनने के लिए टैप करें।" },
+  "bengali":   { "title": "আজকের রাশিফল প্রস্তুত", "body": "আপনার দৈনিক রাশিফল এসে গেছে — শুনতে ট্যাপ করুন।" },
+  "marathi":   { "title": "आजचे राशिभविष्य तयार आहे", "body": "तुमचे दैनिक राशिभविष्य आले आहे — ऐकण्यासाठी टॅप करा।" },
+  "telugu":    { "title": "నేటి రాశిఫలం సిద్ధంగా ఉంది", "body": "మీ రోజువారీ రాశిఫలం వచ్చింది — వినడానికి నొక్కండి." },
+  "tamil":     { "title": "இன்றைய ராசிபலன் தயார்", "body": "உங்கள் தினசரி ராசிபலன் வந்துவிட்டது — கேட்க தட்டவும்." },
+  "gujarati":  { "title": "આજનું રાશિફળ તૈયાર છે", "body": "તમારું દૈનિક રાશિફળ આવી ગયું છે — સાંભળવા ટૅપ કરો." },
+  "urdu":      { "title": "آج کا حال تیار ہے", "body": "آپ کا روزانہ کا حال آ گیا ہے — سننے کے لیے ٹیپ کریں۔" },
+  "kannada":   { "title": "ಇಂದಿನ ರಾಶಿಫಲ ಸಿದ್ಧವಾಗಿದೆ", "body": "ನಿಮ್ಮ ದೈನಂದಿನ ರಾಶಿಫಲ ಬಂದಿದೆ — ಕೇಳಲು ಟ್ಯಾಪ್ ಮಾಡಿ." },
+  "malayalam": { "title": "ഇന്നത്തെ ഫലം തയ്യാർ", "body": "നിങ്ങളുടെ ദൈനംദിന രാശിഫലം എത്തി — കേൾക്കാൻ ടാപ്പ് ചെയ്യൂ." },
+  "odia":      { "title": "ଆଜିର ରାଶିଫଳ ପ୍ରସ୍ତୁତ", "body": "ଆପଣଙ୍କ ଦୈନନ୍ଦିନ ରାଶିଫଳ ଆସିଛି — ଶୁଣିବାକୁ ଟ୍ୟାପ୍ କରନ୍ତୁ।" },
+  "punjabi":   { "title": "ਅੱਜ ਦਾ ਰਾਸ਼ੀਫਲ ਤਿਆਰ ਹੈ", "body": "ਤੁਹਾਡਾ ਰੋਜ਼ਾਨਾ ਰਾਸ਼ੀਫਲ ਆ ਗਿਆ ਹੈ — ਸੁਣਨ ਲਈ ਟੈਪ ਕਰੋ।" },
+  "assamese":  { "title": "আজিৰ ৰাশিফল প্ৰস্তুত", "body": "আপোনাৰ দৈনন্দিন ৰাশিফল আহিল — শুনিবলৈ টিপক।" }
+}
