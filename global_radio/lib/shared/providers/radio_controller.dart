@@ -70,16 +70,23 @@ class RadioController extends Notifier<RadioState> {
     state = state.copyWith(loading: true);
     final catalog = ref.read(catalogProvider).valueOrNull;
     var profile = ref.read(profileProvider);
+    print('[RadioController] startRadio() - Profile languages: ${profile.languages}, interests: ${profile.interests}');
+    print('[RadioController] startRadio() - Catalog items: ${catalog?.items.length ?? 0}');
     if (onlyInterests != null) {
       profile = profile.copyWith(interests: onlyInterests);
     }
     if (catalog == null) {
+      print('[RadioController] ERROR: Catalog is null!');
       state = state.copyWith(loading: false);
       return;
     }
 
     final queue = _engine.buildRadio(profile, catalog, _signals(),
         now: DateTime.now());
+    print('[RadioController] Built queue with ${queue.length} items');
+    if (queue.isEmpty) {
+      print('[RadioController] WARNING: Empty queue! Check if profile languages/interests match catalog items');
+    }
     state = RadioState(queue: queue, currentIndex: 0, loading: false);
 
     final handler = ref.read(audioHandlerProvider);
@@ -189,8 +196,12 @@ class RadioController extends Notifier<RadioState> {
   }
 
   Future<void> play() async {
-    await ref.read(audioHandlerProvider).play();
+    final handler = ref.read(audioHandlerProvider);
+    print('[RadioController] play() called, queue length: ${state.queue.length}, current index: ${state.currentIndex}');
+    print('[RadioController] Handler isReady: ${handler.isReady}, isLoading: ${handler.isLoading}');
+    await handler.play();
     state = state.copyWith(isPlaying: true);
+    print('[RadioController] play() completed, isPlaying: ${handler.isPlaying}');
   }
 
   Future<void> pause() async {

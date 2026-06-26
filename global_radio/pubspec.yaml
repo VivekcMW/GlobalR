@@ -80,6 +80,9 @@ dependencies:
   # Network connectivity detection (for smart downloads)
   connectivity_plus: ^6.0.0
 
+  # Path provider for temp file operations
+  path_provider: ^2.1.0
+
   # Secure storage (for parental controls PIN)
   flutter_secure_storage: ^9.2.0
 

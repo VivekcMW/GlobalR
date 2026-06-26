@@ -12,6 +12,7 @@ import '../../data/models/catalog_item.dart';
 import '../../data/models/user_profile.dart';
 import '../../data/repositories/catalog_repository.dart';
 import '../../data/services/auth_service.dart';
+import '../../data/services/catalog_sync_service.dart';
 import '../../data/services/firebase_auth_service.dart';
 import '../../data/services/payment_service.dart';
 import '../../data/services/push_service.dart';
@@ -178,17 +179,59 @@ final authControllerProvider =
     NotifierProvider<AuthController, void>(AuthController.new);
 
 /// Catalog: serve cached/bundled immediately, then refresh from CDN.
+/// 
+/// **Auto-sync features:**
+/// - Background catalog sync every 6 hours
+/// - Health checking of audio URLs (marks dead items as unreachable)
+/// - Automatic failover to fallback CDNs
 class CatalogController extends AsyncNotifier<Catalog> {
+  CatalogSyncService? _syncService;
+
   @override
   Future<Catalog> build() async {
     final repo = ref.read(catalogRepositoryProvider);
+    final store = ref.read(localStoreProvider);
     final initial = await repo.loadInitial();
-    // Kick off a background refresh; update state if a newer version lands.
-    repo.refresh().then((updated) {
-      if (updated != null) state = AsyncData(updated);
+    
+    // Initialize sync service with auto-sync
+    _syncService = CatalogSyncService(store);
+    _syncService!.onCatalogUpdated = (catalog) {
+      // Update state when new catalog arrives
+      state = AsyncData(catalog);
+    };
+    _syncService!.onDeadUrlsFound = (deadIds) {
+      // Log dead URLs for monitoring
+      print('[Catalog] Dead URLs found: ${deadIds.length}');
+    };
+    
+    // Start auto-sync in background
+    _syncService!.startAutoSync();
+    
+    // Clean up on dispose
+    ref.onDispose(() {
+      _syncService?.dispose();
     });
+    
     return initial;
   }
+
+  /// Force refresh the catalog (bypass cache).
+  Future<void> forceRefresh() async {
+    if (_syncService != null) {
+      final result = await _syncService!.forceRefresh();
+      if (!result.success && result.error != null) {
+        state = AsyncError(result.error!, StackTrace.current);
+      }
+    }
+  }
+
+  /// Run health check on catalog URLs.
+  Future<void> runHealthCheck() async {
+    await _syncService?.runHealthCheck();
+  }
+
+  /// Whether a sync is in progress.
+  bool get isSyncing => _syncService?.isSyncing ?? false;
 }
 
 final catalogProvider =
