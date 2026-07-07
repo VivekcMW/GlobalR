@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'design_tokens.dart';
+
 /// "Calm Audio, Indian Warmth" — Material 3, dark-first, saffron/indigo.
 /// Tokens mirror docs/design-and-payments-spec.md §3.
+/// "Prabhat" extension: the dark accent follows the time of day (Daypart)
+/// and Kids Mode swaps to a rounder, warmer skin.
 class AppTheme {
   AppTheme._();
 
@@ -39,8 +43,43 @@ class AppTheme {
     error: Color(0xFFBA1A1A),
   );
 
-  static ThemeData dark() => _build(_darkScheme, darkBg, Brightness.dark);
+  static ThemeData dark({Daypart? daypart, bool kids = false}) {
+    if (kids) return _buildKids();
+    final accent = daypart?.accent ?? saffron;
+    final scheme = _darkScheme.copyWith(primary: accent);
+    return _build(scheme, darkBg, Brightness.dark);
+  }
+
   static ThemeData light() => _build(_lightScheme, lightBg, Brightness.light);
+
+  /// Kids Mode skin: rounder shapes, warm pink accent, playful display font.
+  static ThemeData _buildKids() {
+    final scheme = _darkScheme.copyWith(
+      primary: DesignTokens.kidsAccent,
+      onPrimary: const Color(0xFF2A0E1A),
+      secondary: const Color(0xFF9B8FC7),
+    );
+    final base = _build(scheme, darkBg, Brightness.dark);
+    final playful = GoogleFonts.baloo2TextTheme(base.textTheme);
+    return base.copyWith(
+      textTheme: playful,
+      cardTheme: base.cardTheme.copyWith(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          minimumSize: const Size(0, minTap),
+          textStyle:
+              playful.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+        ),
+      ),
+    );
+  }
 
   static ThemeData _build(ColorScheme scheme, Color bg, Brightness b) {
     final base = ThemeData(
@@ -50,7 +89,17 @@ class AppTheme {
       scaffoldBackgroundColor: bg,
     );
     // Noto Sans renders all 22 Indian scripts cleanly.
-    final textTheme = GoogleFonts.notoSansTextTheme(base.textTheme);
+    // Baloo 2 (Devanagari + Latin, glyph-fallback elsewhere) warms up the
+    // large display styles only — body text stays Noto Sans.
+    final noto = GoogleFonts.notoSansTextTheme(base.textTheme);
+    final textTheme = noto.copyWith(
+      headlineMedium: GoogleFonts.baloo2(
+          textStyle: noto.headlineMedium
+              ?.copyWith(fontWeight: FontWeight.w600)),
+      headlineSmall: GoogleFonts.baloo2(
+          textStyle:
+              noto.headlineSmall?.copyWith(fontWeight: FontWeight.w600)),
+    );
     return base.copyWith(
       textTheme: textTheme,
       cardTheme: CardThemeData(

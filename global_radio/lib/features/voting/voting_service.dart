@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:hive/hive.dart';
 
 /// A content request from users.
@@ -77,7 +79,13 @@ class VotingService {
   Box? _box;
 
   Future<void> init() async {
-    _box = await Hive.openBox(_boxName);
+    if (_box != null) return;
+    try {
+      _box = await Hive.openBox(_boxName);
+    } catch (e) {
+      // Hive unavailable (e.g. tests); degrade gracefully with no persistence.
+      debugPrint('VotingService: Hive unavailable: $e');
+    }
   }
 
   /// Get user's voted request IDs.

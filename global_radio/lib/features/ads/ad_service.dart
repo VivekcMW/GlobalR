@@ -1,16 +1,25 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../core/analytics/analytics_events.dart';
+import '../../core/analytics/analytics_service.dart';
 import 'ad_models.dart';
+import 'house_ads.dart';
 
 /// Service for fetching and parsing VAST (Video Ad Serving Template) responses.
 /// VAST is the IAB standard for video/audio ad serving.
 ///
-/// Uses Google's test VAST endpoint for development; replace with production
-/// ad network (Google Ad Manager, Triton Digital, etc.) in production.
+/// Waterfall per slot: programmatic VAST (production tag from Remote Config,
+/// falling back to Google's test tag in dev) -> house ad. A configured share
+/// of slots (`AdConfig.houseAdRatio`) is reserved for house creatives so the
+/// Premium promo always gets rotation.
 class AdService {
   final Dio _dio;
   final AdConfig config;
+  final AnalyticsService? _analytics;
+
+  /// Served-ad counter for deterministic house rotation.
+  int _requestCount = 0;
 
   /// Google's VAST 4.0 test tag - returns a real test ad.
   /// Replace with your ad network's endpoint in production.
@@ -40,19 +49,46 @@ class AdService {
       'impl=s&'
       'correlator=';
 
-  AdService({Dio? dio, this.config = AdConfig.defaults})
-      : _dio = dio ?? Dio();
+  AdService({Dio? dio, this.config = AdConfig.defaults, AnalyticsService? analytics})
+      : _dio = dio ?? Dio(),
+        _analytics = analytics;
+
+  /// Whether this request slot is reserved for a house creative.
+  /// With houseAdRatio 0.25, every 4th served ad is a house ad.
+  @visibleForTesting
+  bool isHouseSlot(int requestNumber) {
+    if (config.houseAdRatio <= 0) return false;
+    if (config.houseAdRatio >= 1) return true;
+    final interval = (1 / config.houseAdRatio).round();
+    return requestNumber % interval == 0;
+  }
 
   /// Fetch an ad creative for the given slot type.
   /// Returns null if fetch fails and no fallback is configured.
   Future<AdCreative?> fetchAd({
     required AdSlotType slotType,
     bool isOffline = false,
+    String? lastAdId,
   }) async {
-    // For offline mode, return bundled promo ad
+    final slotName = slotType == AdSlotType.preRoll ? 'pre_roll' : 'mid_roll';
+
+    // For offline mode, serve a bundled house creative.
     if (isOffline) {
-      return AdCreative.fallback(isOffline: true);
+      _analytics?.logEvent(
+          AdRequestEvent(slotType: slotName, source: 'house'));
+      return HouseAds.next(lastAdId: lastAdId);
     }
+
+    _requestCount++;
+
+    // Reserved house slot: guaranteed rotation for the Premium promo.
+    if (isHouseSlot(_requestCount)) {
+      _analytics?.logEvent(
+          AdRequestEvent(slotType: slotName, source: 'house'));
+      return HouseAds.next(lastAdId: lastAdId);
+    }
+
+    _analytics?.logEvent(AdRequestEvent(slotType: slotName, source: 'vast'));
 
     try {
       final response = await _fetchVast();
@@ -66,9 +102,12 @@ class AdService {
       }
     }
 
-    // Fallback to bundled ad if configured
+    _analytics?.logEvent(
+        AdFailEvent(slotType: slotName, reason: 'vast_fetch_failed'));
+
+    // Fall back to a house ad so the slot never errors out.
     if (config.useFallbackOnError) {
-      return AdCreative.fallback();
+      return HouseAds.next(lastAdId: lastAdId);
     }
 
     return null;
@@ -76,7 +115,11 @@ class AdService {
 
   /// Fetch and parse VAST XML from ad server.
   Future<VastResponse?> _fetchVast() async {
-    final url = '$_audioTestVastUrl${DateTime.now().millisecondsSinceEpoch}';
+    // Production tag from Remote Config wins; test tag is dev-only.
+    final tag = config.vastTagUrl.isNotEmpty
+        ? config.vastTagUrl
+        : _audioTestVastUrl;
+    final url = '$tag${DateTime.now().millisecondsSinceEpoch}';
 
     try {
       final response = await _dio.get<String>(
@@ -258,9 +301,9 @@ class AdService {
       }
     }
 
-    // Always include fallback promo ad
+    // Always include a bundled house promo so offline packs never lack an ad
     if (ads.isEmpty) {
-      ads.add(AdCreative.fallback(isOffline: true));
+      ads.add(HouseAds.next());
     }
 
     return ads;

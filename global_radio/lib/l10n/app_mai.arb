@@ -1,9 +1,7 @@
 {
   "@@locale": "mai",
   "@@last_modified": "2026-06-24T00:00:00.000Z",
-  
   "appName": "ग्लोबल रेडियो",
-  
   "onboardingWelcome": "ग्लोबल रेडियो मे स्वागत अछि",
   "onboardingSubtitle": "अहाँक रुचि लेल व्यक्तिगत ऑडियो",
   "onboardingSelectLanguages": "अपन भाषा चुनू",
@@ -12,7 +10,6 @@
   "onboardingContinue": "जारी राखू",
   "onboardingGetStarted": "शुरू करू",
   "onboardingSkip": "छोड़ू",
-  
   "homeTitle": "होम",
   "homeGreetingMorning": "शुभ प्रभात",
   "homeGreetingAfternoon": "शुभ दोपहर",
@@ -22,7 +19,6 @@
   "homeTrendingNow": "अखन ट्रेंडिंग",
   "homeRecentlyPlayed": "हाल मे चलाएल",
   "homeQuickPicks": "जल्दी चुनू",
-  
   "libraryTitle": "पुस्तकालय",
   "libraryFavorites": "पसंदीदा",
   "libraryDownloads": "डाउनलोड",
@@ -33,7 +29,6 @@
   "libraryAddFavorites": "पसंदीदा मे जोड़य लेल हार्ट आइकन टैप करू",
   "libraryDownloadContent": "ऑफलाइन सुनय लेल सामग्री डाउनलोड करू",
   "libraryStartListening": "अपन इतिहास देखय लेल सुनब शुरू करू",
-  
   "settingsTitle": "सेटिंग्स",
   "settingsAccount": "खाता",
   "settingsSignIn": "साइन इन करू",
@@ -53,7 +48,6 @@
   "settingsFeedback": "प्रतिक्रिया भेजू",
   "settingsRateApp": "ऐप रेट करू",
   "settingsShareApp": "मित्र सभके संग शेयर करू",
-  
   "playerNowPlaying": "अखन बाजि रहल अछि",
   "playerUpNext": "अगला",
   "playerPlaybackSpeed": "प्लेबैक गति",
@@ -64,29 +58,24 @@
   "playerRemoveFromFavorites": "पसंदीदा सं हटाउ",
   "playerDownload": "डाउनलोड करू",
   "playerShare": "शेयर करू",
-  
   "interestsTitle": "रुचि संपादित करू",
   "interestsSubtitle": "जे विषय अहाँ सुनय चाहैत छी से चुनू",
   "interestsSelected": "{count} चुनल",
   "interestsSave": "सेव करू",
-  
   "languagesTitle": "भाषा सभ",
   "languagesSubtitle": "अपन पसंदीदा भाषा चुनू",
   "languagesSave": "सेव करू",
-  
   "searchTitle": "खोजू",
   "searchHint": "सामग्री खोजू...",
   "searchVoiceHint": "आवाज सं खोजय लेल टैप करू",
   "searchNoResults": "कोनो परिणाम नहि भेटल",
   "searchTryDifferent": "अलग शब्द प्रयोग करू",
-  
   "authSignInTitle": "साइन इन करू",
   "authSignInSubtitle": "अपन पसंद सिंक करय लेल साइन इन करू",
   "authContinueWithGoogle": "गूगल सं जारी राखू",
   "authContinueWithApple": "एप्पल सं जारी राखू",
   "authContinueAsGuest": "अतिथि जकाँ जारी राखू",
   "authSignOutConfirm": "की अहाँ सच मे साइन आउट करय चाहैत छी?",
-  
   "premiumTitle": "प्रीमियम बनू",
   "premiumSubtitle": "सब फीचर अनलॉक करू",
   "premiumFeature1": "विज्ञापन-मुक्त सुनब",
@@ -94,13 +83,11 @@
   "premiumFeature3": "प्रीमियम आवाज",
   "premiumSubscribe": "{price} मे सब्सक्राइब करू",
   "premiumRestore": "खरीद बहाल करू",
-  
   "errorGeneric": "किछु गलत भेल",
   "errorNetwork": "इंटरनेट कनेक्शन नहि अछि",
   "errorRetry": "फेर प्रयास करू",
   "errorLoadingContent": "सामग्री लोड करय मे विफल",
   "errorPlayback": "प्लेबैक त्रुटि",
-  
   "commonCancel": "रद्द करू",
   "commonOk": "ठीक छै",
   "commonSave": "सेव करू",
@@ -109,24 +96,29 @@
   "commonDone": "भ गेल",
   "commonLoading": "लोड भ रहल अछि...",
   "commonRefresh": "रिफ्रेश करू",
-  
   "notificationDailyTitle": "अहाँक दैनिक ऑडियो",
   "notificationDailyBody": "अहाँक व्यक्तिगत सामग्री तैयार अछि",
-  
   "adSkipIn": "{seconds} सेकंड मे छोड़ू",
   "adSkip": "विज्ञापन छोड़ू",
   "adLabel": "विज्ञापन",
-  
   "offlineTitle": "ऑफलाइन मोड",
   "offlineMessage": "अहाँ ऑफलाइन छी। खाली डाउनलोड कएल सामग्री उपलब्ध अछि।",
   "offlineDownloadAvailable": "ऑफलाइन सुनय लेल डाउनलोड करू",
-  
   "feedbackTitle": "प्रतिक्रिया भेजू",
   "feedbackHint": "हमरा बताउ अहाँ की सोचैत छी...",
   "feedbackSubmit": "जमा करू",
   "feedbackThankYou": "अहाँक प्रतिक्रिया लेल धन्यवाद!",
-  
   "updateRequired": "अपडेट आवश्यक अछि",
   "updateMessage": "नव संस्करण उपलब्ध अछि। जारी रखय लेल कृपया अपडेट करू।",
-  "updateButton": "अखन अपडेट करू"
+  "updateButton": "अखन अपडेट करू",
+  "accountTitle": "एकरा अपन बनाउ",
+  "appLanguage": "एपक भाषा",
+  "appLanguageDescription": "एप इंटरफेसक भाषा",
+  "appLanguageSubtitle": "एप एहि भाषामे देखाओल जाएत",
+  "appLanguageTitle": "एपक भाषा चुनू",
+  "contentLanguagesSubtitle": "अहाँ जे भाषा सुनए चाहै छी से चुनू",
+  "contentLanguagesTitle": "सामग्रीक भाषा चुनू",
+  "continueButton": "आगाँ बढ़ू",
+  "skipForNow": "अखन छोड़ू",
+  "voiceTitle": "एकटा आवाज चुनू"
 }

@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/constants.dart';
 import '../../data/services/legal_service.dart';
+import '../../shared/providers/display_settings_provider.dart';
 import '../../shared/providers/providers.dart';
 import '../../shared/widgets/voice_preview_button.dart';
+import '../alarm/alarm_service.dart';
 import '../auth/profile_setup_sheet.dart';
+import '../kids_mode/kids_mode_provider.dart';
 
 /// Settings: "You" tab with profile header and organized settings sections.
 class SettingsScreen extends ConsumerWidget {
@@ -120,9 +122,47 @@ class SettingsScreen extends ConsumerWidget {
                 value: profile.lowDataMode,
                 onChanged: p.setLowDataMode,
               ),
+              SwitchListTile(
+                secondary: const Icon(Icons.child_care),
+                title: const Text('Kids Mode'),
+                subtitle: const Text('Only kid-safe stories and stations'),
+                value: ref.watch(kidsModeProvider),
+                onChanged: (on) =>
+                    ref.read(kidsModeProvider.notifier).setEnabled(on),
+              ),
 
               // App Section
               _section(context, 'App'),
+              ListTile(
+                leading: const Icon(Icons.format_size),
+                title: const Text('Text size'),
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SegmentedButton<int>(
+                    segments: const [
+                      ButtonSegment(value: 100, label: Text('100%')),
+                      ButtonSegment(value: 115, label: Text('115%')),
+                      ButtonSegment(value: 130, label: Text('130%')),
+                    ],
+                    selected: {
+                      (ref.watch(displaySettingsProvider).textScale * 100)
+                          .round()
+                    },
+                    onSelectionChanged: (sel) => ref
+                        .read(displaySettingsProvider.notifier)
+                        .setTextScalePct(sel.first),
+                  ),
+                ),
+              ),
+              SwitchListTile(
+                secondary: const Icon(Icons.pin_outlined),
+                title: const Text('Local numerals'),
+                subtitle: const Text('Show numbers in your script (१२:३०)'),
+                value: ref.watch(displaySettingsProvider).localizedNumerals,
+                onChanged: (on) => ref
+                    .read(displaySettingsProvider.notifier)
+                    .setLocalizedNumerals(on),
+              ),
               ListTile(
                 leading: const Icon(Icons.language),
                 title: const Text('App Language'),
@@ -138,6 +178,36 @@ class SettingsScreen extends ConsumerWidget {
                 subtitle: const Text('Daily astrology, festivals'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push('/settings/notifications'),
+              ),
+              SwitchListTile(
+                secondary: const Icon(Icons.alarm),
+                title: const Text('Smart alarm'),
+                subtitle: Text(ref.watch(alarmSettingsProvider).enabled
+                    ? 'Wake up with your Morning Brief at '
+                        '${ref.watch(alarmSettingsProvider).timeLabel}'
+                    : 'Wake up with your Morning Brief'),
+                value: ref.watch(alarmSettingsProvider).enabled,
+                onChanged: (on) async {
+                  final notifier = ref.read(alarmSettingsProvider.notifier);
+                  if (on) {
+                    final current = ref.read(alarmSettingsProvider);
+                    final picked = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay(
+                          hour: current.hour, minute: current.minute),
+                    );
+                    if (picked == null) return;
+                    await notifier.setTime(picked.hour, picked.minute);
+                  }
+                  await notifier.setEnabled(on);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.auto_awesome),
+                title: const Text('Your Weekly Rewind'),
+                subtitle: const Text('Listening minutes, streak & top picks'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/rewind'),
               ),
               ListTile(
                 leading: const Icon(Icons.share_outlined),

@@ -36,38 +36,37 @@ class AppLocalizationsMni extends AppLocalizations {
   String get onboardingSkip => 'থোক্লু';
 
   @override
-  String get appLanguageTitle => 'Select app language';
+  String get appLanguageTitle => 'এপকী লোল খল্লু';
 
   @override
-  String get appLanguageSubtitle => 'The app will display in this language';
+  String get appLanguageSubtitle => 'এপ অসি লোল অসিদা উবা ফংগনি';
 
   @override
-  String get contentLanguagesTitle => 'Choose content languages';
+  String get contentLanguagesTitle => 'কন্তেন্তকী লোলশিং খল্লু';
 
   @override
-  String get contentLanguagesSubtitle =>
-      'Select languages you want to listen to';
+  String get contentLanguagesSubtitle => 'নহাক্না তানিংবা লোলশিং খল্লু';
 
   @override
   String get interestsTitle => 'তাবৎ ওন্থোক্লু';
 
   @override
-  String get voiceTitle => 'Pick a voice';
+  String get voiceTitle => 'খোঞ্জেল অমা খল্লু';
 
   @override
-  String get accountTitle => 'Make it yours';
+  String get accountTitle => 'মসি নহাক্কী ওইহল্লু';
 
   @override
-  String get continueButton => 'Continue';
+  String get continueButton => 'মখা চত্থরু';
 
   @override
-  String get skipForNow => 'Skip for now';
+  String get skipForNow => 'হৌজিক্কীদমক থাদোক্লু';
 
   @override
-  String get appLanguage => 'App Language';
+  String get appLanguage => 'এপকী লোল';
 
   @override
-  String get appLanguageDescription => 'Language for app interface';
+  String get appLanguageDescription => 'এপ ইন্তরফেসকী লোল';
 
   @override
   String get homeTitle => 'য়ুম';

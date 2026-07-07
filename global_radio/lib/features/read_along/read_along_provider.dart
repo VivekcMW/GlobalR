@@ -1,5 +1,8 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
+import '../../core/constants.dart';
 import '../../shared/providers/providers.dart';
 import '../../shared/providers/radio_controller.dart';
 import 'read_along_models.dart';
@@ -38,19 +41,53 @@ class ReadAlongSettingsNotifier extends StateNotifier<ReadAlongSettings> {
   void toggleShowProgress() {
     state = state.copyWith(showProgress: !state.showProgress);
   }
+
+  void toggleShowTranslation() {
+    state = state.copyWith(showTranslation: !state.showTranslation);
+  }
 }
 
+/// In-memory transcript cache (session-scoped); null entries mean the CDN
+/// has no transcript for that item, so we don't refetch.
+final _transcriptCache = <String, SyncedTranscript?>{};
+
 /// Provider for the transcript of the current item.
-/// Note: Transcript sync is a premium feature and requires server-side support.
-/// This provider returns null until transcript integration is implemented.
+///
+/// Transcripts follow the CDN convention
+/// `{cdnBase}/transcripts/{language}/{itemId}.json` and are optional —
+/// read-along is simply unavailable when the file doesn't exist.
 final currentTranscriptProvider = FutureProvider<SyncedTranscript?>((ref) async {
   final radioState = ref.watch(radioControllerProvider);
   final currentItem = radioState.current;
   if (currentItem == null) return null;
 
-  // TODO: Implement transcript loading from backend or local cache.
-  // For now, read-along feature is not available without transcript data.
-  return null;
+  if (_transcriptCache.containsKey(currentItem.id)) {
+    return _transcriptCache[currentItem.id];
+  }
+
+  SyncedTranscript? transcript;
+  try {
+    final url =
+        '${AppConfig.cdnBase}/transcripts/${currentItem.language}/${currentItem.id}.json';
+    final response = await Dio().get<Map<String, dynamic>>(
+      url,
+      options: Options(
+        responseType: ResponseType.json,
+        receiveTimeout: const Duration(seconds: 8),
+        sendTimeout: const Duration(seconds: 8),
+      ),
+    );
+    final data = response.data;
+    if (data != null) {
+      transcript = SyncedTranscript.fromJson(data);
+    }
+  } catch (_) {
+    // 404 / offline / malformed — read-along unavailable for this item.
+    transcript = null;
+  }
+
+  _transcriptCache[currentItem.id] = transcript;
+  return transcript;
 });
 
 /// Provider for playback position stream.
@@ -65,7 +102,7 @@ final currentSegmentIndexProvider = Provider<int?>((ref) {
   final transcriptAsync = ref.watch(currentTranscriptProvider);
   final positionAsync = ref.watch(playbackPositionStreamProvider);
 
-  final position = positionAsync.valueOrNull ?? Duration.zero;
+  final position = positionAsync.value ?? Duration.zero;
 
   return transcriptAsync.whenOrNull(
     data: (transcript) {
@@ -80,7 +117,7 @@ final currentSegmentProvider = Provider<TextSegment?>((ref) {
   final transcriptAsync = ref.watch(currentTranscriptProvider);
   final positionAsync = ref.watch(playbackPositionStreamProvider);
 
-  final position = positionAsync.valueOrNull ?? Duration.zero;
+  final position = positionAsync.value ?? Duration.zero;
 
   return transcriptAsync.whenOrNull(
     data: (transcript) {
@@ -104,7 +141,7 @@ final transcriptProgressProvider = Provider<double>((ref) {
   final transcriptAsync = ref.watch(currentTranscriptProvider);
   final positionAsync = ref.watch(playbackPositionStreamProvider);
 
-  final position = positionAsync.valueOrNull ?? Duration.zero;
+  final position = positionAsync.value ?? Duration.zero;
 
   return transcriptAsync.maybeWhen(
     data: (transcript) {

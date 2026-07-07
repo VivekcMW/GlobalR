@@ -36,38 +36,38 @@ class AppLocalizationsGu extends AppLocalizations {
   String get onboardingSkip => 'છોડો';
 
   @override
-  String get appLanguageTitle => 'Select app language';
+  String get appLanguageTitle => 'ઍપની ભાષા પસંદ કરો';
 
   @override
-  String get appLanguageSubtitle => 'The app will display in this language';
+  String get appLanguageSubtitle => 'ઍપ આ ભાષામાં દેખાશે';
 
   @override
-  String get contentLanguagesTitle => 'Choose content languages';
+  String get contentLanguagesTitle => 'કન્ટેન્ટની ભાષાઓ પસંદ કરો';
 
   @override
   String get contentLanguagesSubtitle =>
-      'Select languages you want to listen to';
+      'તમે સાંભળવા માંગતા હો તે ભાષાઓ પસંદ કરો';
 
   @override
   String get interestsTitle => 'રુચિઓ સંપાદિત કરો';
 
   @override
-  String get voiceTitle => 'Pick a voice';
+  String get voiceTitle => 'એક અવાજ પસંદ કરો';
 
   @override
-  String get accountTitle => 'Make it yours';
+  String get accountTitle => 'તેને તમારું બનાવો';
 
   @override
-  String get continueButton => 'Continue';
+  String get continueButton => 'આગળ વધો';
 
   @override
-  String get skipForNow => 'Skip for now';
+  String get skipForNow => 'હમણાં માટે છોડી દો';
 
   @override
-  String get appLanguage => 'App Language';
+  String get appLanguage => 'ઍપની ભાષા';
 
   @override
-  String get appLanguageDescription => 'Language for app interface';
+  String get appLanguageDescription => 'ઍપ ઇન્ટરફેસની ભાષા';
 
   @override
   String get homeTitle => 'હોમ';

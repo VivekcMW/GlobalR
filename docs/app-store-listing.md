@@ -59,6 +59,11 @@ audio, radio, astrology, news, Indian languages, Hindi, Tamil, Telugu, podcast, 
 
 ## Screenshots Descriptions
 
+> Actual PNGs live in `docs/store-assets/screenshots/` (1206x2622, iPhone 16 Pro
+> — valid for the 6.3" App Store tier). Capture/refresh them with
+> `global_radio/tools/capture_screenshots.sh` while the app runs in the simulator.
+> Still needed for Google Play: 512px icon export + 1024x500 feature graphic.
+
 ### Screenshot 1: Onboarding - Language Selection
 "Choose your preferred language from 10 Indian languages"
 
@@ -134,6 +139,9 @@ audio, radio, astrology, news, Indian languages, Hindi, Tamil, Telugu, podcast, 
 **Purchases:** Yes (in-app subscription)
 
 ## Privacy Practices
+
+> Formal store-form answers (Apple App Privacy label + Google Play Data safety)
+> are maintained in `docs/store-assets/privacy-labels.md`.
 
 **Data Collected:**
 - Email address (for account, optional)

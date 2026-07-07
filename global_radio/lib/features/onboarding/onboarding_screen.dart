@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/constants.dart';
+import '../../core/design_tokens.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../shared/providers/locale_provider.dart';
 import '../../shared/providers/providers.dart';
@@ -11,6 +12,7 @@ import '../../shared/widgets/interest_picker.dart';
 import '../../shared/widgets/voice_preview_button.dart';
 import '../auth/auth_methods.dart';
 import '../auth/profile_setup_sheet.dart';
+import '../engagement/engagement_service.dart';
 
 /// 5-step onboarding: app language → content languages → interests → voice → account.
 class OnboardingScreen extends ConsumerStatefulWidget {
@@ -64,6 +66,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     await profile.setInterests(_interests.toList());
     await profile.setVoice(_voice);
     await profile.completeOnboarding();
+    // Day-2 hook: a gentle local notification tomorrow morning.
+    await ref.read(engagementControllerProvider).onOnboardingComplete();
     if (!mounted) return;
     // Build the radio queue, then land on Home with the mini-player live.
     await ref.read(radioControllerProvider.notifier).startRadio();
@@ -173,7 +177,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 }
 
-/// Step 0: Single-select app UI language.
+/// Step 0: Single-select app UI language — full-bleed grid of scripts,
+/// each language shown in its own script on a hue tile.
 class _AppLanguageStep extends StatelessWidget {
   final String selected;
   final ValueChanged<String> onChanged;
@@ -181,19 +186,9 @@ class _AppLanguageStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Wrap(
-        spacing: 10,
-        runSpacing: 10,
-        children: AppLanguage.all.map((l) {
-          final isSelected = selected == l.code;
-          return ChoiceChip(
-            label: Text('${l.nativeName}  ·  ${l.englishName}'),
-            selected: isSelected,
-            onSelected: (_) => onChanged(l.code),
-          );
-        }).toList(),
-      ),
+    return _LanguageTileGrid(
+      isSelected: (code) => selected == code,
+      onTap: onChanged,
     );
   }
 }
@@ -206,22 +201,88 @@ class _ContentLanguageStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Wrap(
-        spacing: 10,
-        runSpacing: 10,
-        children: AppLanguage.all.map((l) {
-          final on = selected.contains(l.code);
-          return FilterChip(
-            label: Text('${l.nativeName}  ·  ${l.englishName}'),
-            selected: on,
-            onSelected: (_) {
-              on ? selected.remove(l.code) : selected.add(l.code);
-              onChanged();
-            },
-          );
-        }).toList(),
+    return _LanguageTileGrid(
+      isSelected: selected.contains,
+      onTap: (code) {
+        selected.contains(code) ? selected.remove(code) : selected.add(code);
+        onChanged();
+      },
+    );
+  }
+}
+
+/// Grid of language tiles: native script large, English name small,
+/// category-hue tint, check badge when selected. 48dp+ tap targets.
+class _LanguageTileGrid extends StatelessWidget {
+  final bool Function(String code) isSelected;
+  final ValueChanged<String> onTap;
+  const _LanguageTileGrid({required this.isSelected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final languages = AppLanguage.all;
+    return GridView.builder(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: 10,
+        crossAxisSpacing: 10,
+        childAspectRatio: 1.9,
       ),
+      itemCount: languages.length,
+      itemBuilder: (context, i) {
+        final l = languages[i];
+        final hue = DesignTokens
+            .languageTileHues[i % DesignTokens.languageTileHues.length];
+        final on = isSelected(l.code);
+        return InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => onTap(l.code),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: hue.withValues(alpha: on ? 0.28 : 0.10),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: on ? hue : scheme.outlineVariant,
+                width: on ? 2 : 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l.nativeName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleLarge
+                            ?.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        l.englishName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelMedium
+                            ?.copyWith(color: scheme.onSurfaceVariant),
+                      ),
+                    ],
+                  ),
+                ),
+                if (on) Icon(Icons.check_circle, color: hue, size: 22),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

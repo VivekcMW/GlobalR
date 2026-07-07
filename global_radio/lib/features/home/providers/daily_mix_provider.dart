@@ -16,7 +16,7 @@ final dailyMixProvider = Provider<DailyMix?>((ref) {
   final catalogAsync = ref.watch(catalogProvider);
   final store = ref.read(localStoreProvider);
 
-  final catalog = catalogAsync.valueOrNull;
+  final catalog = catalogAsync.value;
   if (catalog == null) return null;
 
   final signals = store.loadAllSignals();
@@ -36,7 +36,7 @@ final favoritesMixProvider = Provider<DailyMix?>((ref) {
   final catalogAsync = ref.watch(catalogProvider);
   final store = ref.read(localStoreProvider);
 
-  final catalog = catalogAsync.valueOrNull;
+  final catalog = catalogAsync.value;
   if (catalog == null) return null;
 
   final signals = store.loadAllSignals();
@@ -56,7 +56,7 @@ final interestMixProvider = Provider.family<DailyMix?, String>((ref, interest) {
   final catalogAsync = ref.watch(catalogProvider);
   final store = ref.read(localStoreProvider);
 
-  final catalog = catalogAsync.valueOrNull;
+  final catalog = catalogAsync.value;
   if (catalog == null) return null;
 
   final signals = store.loadAllSignals();

@@ -9,6 +9,8 @@ import 'package:global_radio/features/home/home_screen.dart';
 import 'package:global_radio/shared/providers/providers.dart';
 import 'package:global_radio/shared/providers/radio_controller.dart';
 
+import '../helpers/fake_controllers.dart';
+
 void main() {
   group('HomeScreen Widget', () {
     late GoRouter testRouter;
@@ -17,10 +19,7 @@ void main() {
       testRouter = GoRouter(
         initialLocation: '/home',
         routes: [
-          GoRoute(
-            path: '/home',
-            builder: (_, __) => const HomeScreen(),
-          ),
+          GoRoute(path: '/home', builder: (_, __) => const HomeScreen()),
           GoRoute(
             path: '/player',
             builder: (_, __) => const Scaffold(body: Text('Player')),
@@ -31,19 +30,16 @@ void main() {
 
     Widget createTestWidget({
       required UserProfile profile,
-      required List<CatalogItem> catalogItems,
+      required Catalog catalog,
       RadioState? radioState,
     }) {
       return ProviderScope(
         overrides: [
-          profileProvider.overrideWith((ref) => ProfileNotifier(profile)),
-          catalogProvider.overrideWith(
-            (ref) => AsyncValue.data(Catalog(items: catalogItems)),
-          ),
-          if (radioState != null)
-            radioControllerProvider.overrideWith(
-              (ref) => MockRadioController(radioState),
-            ),
+          localStoreProvider.overrideWithValue(FakeLocalStore()),
+          profileProvider.overrideWith(() => FakeProfileController(profile)),
+          catalogProvider.overrideWith(() => FakeCatalogController(catalog)),
+          radioControllerProvider
+              .overrideWith(() => FakeRadioController(radioState)),
         ],
         child: MaterialApp.router(routerConfig: testRouter),
       );
@@ -51,11 +47,8 @@ void main() {
 
     testWidgets('displays app name when user has no name', (tester) async {
       await tester.pumpWidget(createTestWidget(
-        profile: UserProfile(
-          languages: ['hindi'],
-          interests: ['kids'],
-        ),
-        catalogItems: [],
+        profile: const UserProfile(languages: ['hindi'], interests: ['kids']),
+        catalog: testCatalog([]),
       ));
       await tester.pumpAndSettle();
 
@@ -64,12 +57,12 @@ void main() {
 
     testWidgets('displays greeting with user name', (tester) async {
       await tester.pumpWidget(createTestWidget(
-        profile: UserProfile(
+        profile: const UserProfile(
           name: 'Test User',
           languages: ['hindi'],
           interests: ['kids'],
         ),
-        catalogItems: [],
+        catalog: testCatalog([]),
       ));
       await tester.pumpAndSettle();
 
@@ -77,15 +70,16 @@ void main() {
       expect(find.textContaining('Test User'), findsOneWidget);
     });
 
-    testWidgets('shows loading indicator when catalog is loading', (tester) async {
+    testWidgets('shows loading indicator when catalog is loading',
+        (tester) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            profileProvider.overrideWith((ref) => ProfileNotifier(UserProfile(
-              languages: ['hindi'],
-              interests: ['kids'],
-            ))),
-            catalogProvider.overrideWith((ref) => const AsyncValue.loading()),
+            localStoreProvider.overrideWithValue(FakeLocalStore()),
+            profileProvider.overrideWith(() => FakeProfileController(
+                const UserProfile(languages: ['hindi'], interests: ['kids']))),
+            catalogProvider.overrideWith(FakeCatalogController.loading),
+            radioControllerProvider.overrideWith(FakeRadioController.new),
           ],
           child: MaterialApp.router(routerConfig: testRouter),
         ),
@@ -99,13 +93,12 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            profileProvider.overrideWith((ref) => ProfileNotifier(UserProfile(
-              languages: ['hindi'],
-              interests: ['kids'],
-            ))),
+            localStoreProvider.overrideWithValue(FakeLocalStore()),
+            profileProvider.overrideWith(() => FakeProfileController(
+                const UserProfile(languages: ['hindi'], interests: ['kids']))),
             catalogProvider.overrideWith(
-              (ref) => AsyncValue.error('Network error', StackTrace.current),
-            ),
+                () => FakeCatalogController.error('Network error')),
+            radioControllerProvider.overrideWith(FakeRadioController.new),
           ],
           child: MaterialApp.router(routerConfig: testRouter),
         ),
@@ -115,48 +108,35 @@ void main() {
       expect(find.textContaining('Could not load catalog'), findsOneWidget);
     });
 
-    testWidgets('displays Your Stations section', (tester) async {
+    testWidgets('displays Your Stations section with interest counts',
+        (tester) async {
       await tester.pumpWidget(createTestWidget(
-        profile: UserProfile(
+        profile: const UserProfile(
           languages: ['hindi'],
           interests: ['kids', 'moral'],
         ),
-        catalogItems: [
-          CatalogItem(
-            id: 'test-1',
-            title: 'Test Story',
-            interests: ['kids'],
-            language: 'hindi',
-            availableVoices: ['male_story'],
-            defaultVoice: 'male_story',
-            durationSec: 180,
-            sizeKb: 1440,
-          ),
-        ],
+        catalog: testCatalog([testItem(id: 'test-1', title: 'Test Story')]),
       ));
       await tester.pumpAndSettle();
 
       expect(find.text('Your Stations'), findsOneWidget);
+      // One station card per interest (other home cards may also use Card).
+      expect(find.text('Kids'), findsOneWidget);
+      expect(find.text('Moral Stories'), findsOneWidget);
     });
   });
 
   group('HomeScreen Navigation', () {
-    testWidgets('tapping station opens player', (tester) async {
-      var playerOpened = false;
-
+    testWidgets('tapping a station starts radio and opens player',
+        (tester) async {
+      final fakeRadio = FakeRadioController();
       final testRouter = GoRouter(
         initialLocation: '/home',
         routes: [
-          GoRoute(
-            path: '/home',
-            builder: (_, __) => const HomeScreen(),
-          ),
+          GoRoute(path: '/home', builder: (_, __) => const HomeScreen()),
           GoRoute(
             path: '/player',
-            builder: (_, __) {
-              playerOpened = true;
-              return const Scaffold(body: Text('Player'));
-            },
+            builder: (_, __) => const Scaffold(body: Text('Player')),
           ),
         ],
       );
@@ -164,81 +144,23 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            profileProvider.overrideWith((ref) => ProfileNotifier(UserProfile(
-              languages: ['hindi'],
-              interests: ['kids'],
-            ))),
-            catalogProvider.overrideWith(
-              (ref) => AsyncValue.data(Catalog(items: [
-                CatalogItem(
-                  id: 'test-1',
-                  title: 'Test Story',
-                  interests: ['kids'],
-                  language: 'hindi',
-                  availableVoices: ['male_story'],
-                  defaultVoice: 'male_story',
-                  durationSec: 180,
-                  sizeKb: 1440,
-                ),
-              ])),
-            ),
+            localStoreProvider.overrideWithValue(FakeLocalStore()),
+            profileProvider.overrideWith(() => FakeProfileController(
+                const UserProfile(languages: ['hindi'], interests: ['kids']))),
+            catalogProvider.overrideWith(() =>
+                FakeCatalogController(testCatalog([testItem()]))),
+            radioControllerProvider.overrideWith(() => fakeRadio),
           ],
           child: MaterialApp.router(routerConfig: testRouter),
         ),
       );
       await tester.pumpAndSettle();
 
-      // Find and tap a station card
-      final stationCard = find.byType(Card).first;
-      if (stationCard.evaluate().isNotEmpty) {
-        await tester.tap(stationCard);
-        await tester.pumpAndSettle();
-        // Navigation should have occurred
-      }
+      await tester.tap(find.byType(Card).first);
+      await tester.pumpAndSettle();
+
+      expect(fakeRadio.calls, contains('startRadio'));
+      expect(find.text('Player'), findsOneWidget);
     });
   });
-}
-
-/// Mock profile notifier for testing.
-class ProfileNotifier extends StateNotifier<UserProfile> {
-  ProfileNotifier(super.state);
-
-  Future<void> setLanguages(List<String> languages) async {
-    state = state.copyWith(languages: languages);
-  }
-
-  Future<void> setInterests(List<String> interests) async {
-    state = state.copyWith(interests: interests);
-  }
-
-  Future<void> setVoice(String voice) async {
-    state = state.copyWith(voice: voice);
-  }
-
-  Future<void> completeOnboarding() async {
-    state = state.copyWith(onboardingComplete: true);
-  }
-}
-
-/// Mock radio controller for testing.
-class MockRadioController extends RadioController {
-  final RadioState _state;
-
-  MockRadioController(this._state) : super(null);
-
-  @override
-  RadioState build() => _state;
-
-  @override
-  Future<void> startRadio({List<String>? onlyInterests, List<String>? onlyLanguages}) async {}
-
-  @override
-  Future<void> togglePlayPause() async {}
-}
-
-/// Mock catalog for testing.
-class Catalog {
-  final List<CatalogItem> items;
-
-  Catalog({required this.items});
 }

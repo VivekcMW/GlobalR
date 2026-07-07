@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../../shared/providers/providers.dart';
 import '../../shared/providers/radio_controller.dart';
@@ -70,6 +71,13 @@ class VoiceSearchController {
     await _service.cancel();
   }
 
+  /// Submit a typed query (fallback when speech is unavailable).
+  void submitTypedQuery(String query) {
+    final language = _ref.read(voiceLanguageProvider);
+    _service.setLanguage(language);
+    _service.submitTypedQuery(query);
+  }
+
   /// Execute an intent.
   Future<void> executeIntent(VoiceIntent intent) async {
     switch (intent) {
@@ -125,7 +133,7 @@ class VoiceSearchController {
     
     // Get items for this interest
     final catalogAsync = _ref.read(catalogProvider);
-    final catalog = catalogAsync.valueOrNull;
+    final catalog = catalogAsync.value;
     if (catalog == null) return;
     
     final items = catalog.items.where((item) => item.primaryInterest == interest).toList();
@@ -155,7 +163,7 @@ class VoiceSearchController {
 
   Future<void> _playSearch(String query, {String? interest, String? language}) async {
     final catalogAsync = _ref.read(catalogProvider);
-    final catalog = catalogAsync.valueOrNull;
+    final catalog = catalogAsync.value;
     if (catalog == null) return;
     
     // Simple search - find items matching query

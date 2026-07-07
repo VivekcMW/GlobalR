@@ -36,38 +36,37 @@ class AppLocalizationsZh extends AppLocalizations {
   String get onboardingSkip => '跳过';
 
   @override
-  String get appLanguageTitle => 'Select app language';
+  String get appLanguageTitle => '选择应用语言';
 
   @override
-  String get appLanguageSubtitle => 'The app will display in this language';
+  String get appLanguageSubtitle => '应用将以此语言显示';
 
   @override
-  String get contentLanguagesTitle => 'Choose content languages';
+  String get contentLanguagesTitle => '选择内容语言';
 
   @override
-  String get contentLanguagesSubtitle =>
-      'Select languages you want to listen to';
+  String get contentLanguagesSubtitle => '选择您想收听的语言';
 
   @override
   String get interestsTitle => '编辑兴趣';
 
   @override
-  String get voiceTitle => 'Pick a voice';
+  String get voiceTitle => '选择一种声音';
 
   @override
-  String get accountTitle => 'Make it yours';
+  String get accountTitle => '打造专属体验';
 
   @override
-  String get continueButton => 'Continue';
+  String get continueButton => '继续';
 
   @override
-  String get skipForNow => 'Skip for now';
+  String get skipForNow => '暂时跳过';
 
   @override
-  String get appLanguage => 'App Language';
+  String get appLanguage => '应用语言';
 
   @override
-  String get appLanguageDescription => 'Language for app interface';
+  String get appLanguageDescription => '应用界面语言';
 
   @override
   String get homeTitle => '首页';

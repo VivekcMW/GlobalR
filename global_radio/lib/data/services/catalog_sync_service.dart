@@ -195,7 +195,7 @@ class CatalogSyncService {
         .onConnectivityChanged
         .listen(_onConnectivityChanged);
 
-    print('[CatalogSync] Auto-sync started (interval: ${config.syncInterval.inHours}h)');
+    debugPrint('[CatalogSync] Auto-sync started (interval: ${config.syncInterval.inHours}h)');
   }
 
   /// Stop automatic sync.
@@ -206,7 +206,7 @@ class CatalogSyncService {
     _syncTimer = null;
     _healthCheckTimer = null;
     _connectivitySubscription = null;
-    print('[CatalogSync] Auto-sync stopped');
+    debugPrint('[CatalogSync] Auto-sync stopped');
   }
 
   /// Handle connectivity changes.
@@ -214,7 +214,7 @@ class CatalogSyncService {
     final result = results.isNotEmpty ? results.first : ConnectivityResult.none;
     if (result != ConnectivityResult.none) {
       // Reconnected - trigger a sync
-      print('[CatalogSync] Network reconnected, triggering sync');
+      debugPrint('[CatalogSync] Network reconnected, triggering sync');
       syncNow();
     }
   }
@@ -222,12 +222,12 @@ class CatalogSyncService {
   /// Sync catalog now.
   Future<CatalogSyncResult> syncNow() async {
     if (_isSyncing) {
-      print('[CatalogSync] Sync already in progress, skipping');
+      debugPrint('[CatalogSync] Sync already in progress, skipping');
       return CatalogSyncResult.unchanged();
     }
 
     _isSyncing = true;
-    print('[CatalogSync] Starting catalog sync...');
+    debugPrint('[CatalogSync] Starting catalog sync...');
 
     try {
       // Try primary CDN first
@@ -236,7 +236,7 @@ class CatalogSyncService {
       // If primary fails, try fallbacks
       if (!result.success && config.cdnFallbackUrls.isNotEmpty) {
         for (final fallbackUrl in config.cdnFallbackUrls) {
-          print('[CatalogSync] Trying fallback: $fallbackUrl');
+          debugPrint('[CatalogSync] Trying fallback: $fallbackUrl');
           result = await _fetchCatalog(fallbackUrl);
           if (result.success) break;
         }
@@ -246,9 +246,9 @@ class CatalogSyncService {
       onSyncResult?.call(result);
 
       if (result.success) {
-        print('[CatalogSync] Sync completed: ${result.itemCount} items, version ${result.newVersion}');
+        debugPrint('[CatalogSync] Sync completed: ${result.itemCount} items, version ${result.newVersion}');
       } else {
-        print('[CatalogSync] Sync failed: ${result.error}');
+        debugPrint('[CatalogSync] Sync failed: ${result.error}');
       }
 
       return result;
@@ -322,16 +322,16 @@ class CatalogSyncService {
     final connectivity = await Connectivity().checkConnectivity();
     final isMetered = connectivity.any((c) => c == ConnectivityResult.mobile);
     if (isMetered && !config.healthCheckOnMetered) {
-      print('[HealthCheck] Skipping on metered connection');
+      debugPrint('[HealthCheck] Skipping on metered connection');
       return;
     }
 
-    print('[HealthCheck] Starting health check...');
+    debugPrint('[HealthCheck] Starting health check...');
 
     // Load current catalog
     final catalogJson = _store.cachedCatalogJson();
     if (catalogJson == null) {
-      print('[HealthCheck] No cached catalog');
+      debugPrint('[HealthCheck] No cached catalog');
       return;
     }
 
@@ -356,7 +356,7 @@ class CatalogSyncService {
           // Mark as dead after 3 consecutive failures
           if (_failedUrls[item.id]! >= 3) {
             deadItemIds.add(item.id);
-            print('[HealthCheck] Dead URL: ${item.id}');
+            debugPrint('[HealthCheck] Dead URL: ${item.id}');
           }
         } else {
           // Reset failure count on success
@@ -370,9 +370,9 @@ class CatalogSyncService {
         onDeadUrlsFound?.call(deadItemIds);
       }
 
-      print('[HealthCheck] Completed: ${itemsToCheck.length} checked, ${deadItemIds.length} dead');
+      debugPrint('[HealthCheck] Completed: ${itemsToCheck.length} checked, ${deadItemIds.length} dead');
     } catch (e) {
-      print('[HealthCheck] Error: $e');
+      debugPrint('[HealthCheck] Error: $e');
     }
   }
 
@@ -428,7 +428,7 @@ class CatalogSyncService {
         json['version'] as String? ?? 'unknown',
       );
     } catch (e) {
-      print('[HealthCheck] Failed to update catalog: $e');
+      debugPrint('[HealthCheck] Failed to update catalog: $e');
     }
   }
 

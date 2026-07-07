@@ -3,9 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/constants.dart';
+import '../../core/design_tokens.dart';
+import '../../shared/providers/daypart_provider.dart';
 import '../../shared/providers/providers.dart';
 import '../../shared/providers/radio_controller.dart';
 import '../../shared/utils/interest_icons.dart';
+import '../engagement/engagement_cards.dart';
 import 'today_provider.dart';
 
 /// Today tab: daily habit driver with astrology, festivals, streaks.
@@ -17,13 +20,14 @@ class TodayScreen extends ConsumerWidget {
     final content = ref.watch(todayContentProvider);
     final profile = ref.watch(profileProvider);
     final scheme = Theme.of(context).colorScheme;
+    final daypart = ref.watch(currentDaypartProvider);
 
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          // Collapsible header with greeting
+          // "Panchang strip": date + daypart + streak in one glanceable header.
           SliverAppBar(
-            expandedHeight: 120,
+            expandedHeight: 132,
             floating: false,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
@@ -34,7 +38,7 @@ class TodayScreen extends ConsumerWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      scheme.primaryContainer,
+                      daypart.gradientTop,
                       scheme.surface,
                     ],
                   ),
@@ -44,16 +48,45 @@ class TodayScreen extends ConsumerWidget {
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 48),
                     child: Row(
                       children: [
-                        Icon(Icons.wb_sunny_rounded,
-                            size: 28, color: scheme.primary),
+                        Icon(daypart.icon, size: 28, color: daypart.accent),
                         const SizedBox(width: 12),
-                        Text(
-                          '${content.greeting}${profile.name != null ? ", ${profile.name}" : ""}',
-                          style:
-                              Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                '${content.greeting}${profile.name != null ? ", ${profile.name}" : ""}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(fontWeight: FontWeight.w600),
+                              ),
+                              Text(
+                                '${daypart.labelNative} · ${daypart.labelEn}',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelMedium
+                                    ?.copyWith(color: daypart.accent),
+                              ),
+                            ],
+                          ),
                         ),
+                        if (content.hasStreak)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: scheme.surface.withValues(alpha: 0.6),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              '\u{1F525} ${content.currentStreak}',
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -74,6 +107,10 @@ class TodayScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                 ],
+
+                // Weekly goal ring — right under the streak banner.
+                const WeeklyGoalCard(),
+                const SizedBox(height: 16),
 
                 // Zodiac selector
                 Text('Your Rashi',
@@ -97,6 +134,18 @@ class TodayScreen extends ConsumerWidget {
                   _FestivalCard(festivals: content.todaysFestivals),
                   const SizedBox(height: 20),
                 ],
+
+                // Serialized journey — one episode unlocks per day.
+                const JourneyCard(),
+                const SizedBox(height: 16),
+
+                // Daily mystery story — same reveal for everyone.
+                const MysteryCard(),
+                const SizedBox(height: 16),
+
+                // Close the voting loop publicly.
+                const VotingWinnerCard(),
+                const SizedBox(height: 16),
 
                 // Daily stories
                 if (content.dailyStories.isNotEmpty) ...[
@@ -459,6 +508,14 @@ class _DailyItemCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.read(radioControllerProvider.notifier);
     final interest = Interest.byId(item.primaryInterest);
+    // Fresh daily item: generated for today (or undated dailies).
+    final now = DateTime.now();
+    final DateTime? date = item.date;
+    final isFresh = item.isDaily == true &&
+        (date == null ||
+            (date.year == now.year &&
+                date.month == now.month &&
+                date.day == now.day));
 
     return Card(
       child: ListTile(
@@ -469,7 +526,35 @@ class _DailyItemCard extends ConsumerWidget {
                 size: 18,
               )
             : const Icon(Icons.headphones_rounded),
-        title: Text(item.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(item.title,
+                  maxLines: 1, overflow: TextOverflow.ellipsis),
+            ),
+            if (isFresh) ...[
+              const SizedBox(width: 6),
+              Semantics(
+                label: 'New today',
+                child: Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: DesignTokens.live,
+                    boxShadow: [
+                      BoxShadow(
+                        color: DesignTokens.live.withValues(alpha: 0.5),
+                        blurRadius: 6,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
         subtitle:
             Text('${Interest.labelFor(item.primaryInterest)} · ${item.durationSec ~/ 60} min'),
         trailing: const Icon(Icons.play_circle_outline),

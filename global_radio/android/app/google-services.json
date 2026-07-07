@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "716603335285",
+    "project_id": "globalradio-1f547",
+    "storage_bucket": "globalradio-1f547.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:716603335285:android:8810928357fc4fbe9e4e3c",
+        "android_client_info": {
+          "package_name": "com.globalradio.global_radio"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWMGy3yTybmGKOwHcdjF7_wjm9pD3K1fY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

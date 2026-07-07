@@ -36,38 +36,37 @@ class AppLocalizationsMai extends AppLocalizations {
   String get onboardingSkip => 'छोड़ू';
 
   @override
-  String get appLanguageTitle => 'Select app language';
+  String get appLanguageTitle => 'एपक भाषा चुनू';
 
   @override
-  String get appLanguageSubtitle => 'The app will display in this language';
+  String get appLanguageSubtitle => 'एप एहि भाषामे देखाओल जाएत';
 
   @override
-  String get contentLanguagesTitle => 'Choose content languages';
+  String get contentLanguagesTitle => 'सामग्रीक भाषा चुनू';
 
   @override
-  String get contentLanguagesSubtitle =>
-      'Select languages you want to listen to';
+  String get contentLanguagesSubtitle => 'अहाँ जे भाषा सुनए चाहै छी से चुनू';
 
   @override
   String get interestsTitle => 'रुचि संपादित करू';
 
   @override
-  String get voiceTitle => 'Pick a voice';
+  String get voiceTitle => 'एकटा आवाज चुनू';
 
   @override
-  String get accountTitle => 'Make it yours';
+  String get accountTitle => 'एकरा अपन बनाउ';
 
   @override
-  String get continueButton => 'Continue';
+  String get continueButton => 'आगाँ बढ़ू';
 
   @override
-  String get skipForNow => 'Skip for now';
+  String get skipForNow => 'अखन छोड़ू';
 
   @override
-  String get appLanguage => 'App Language';
+  String get appLanguage => 'एपक भाषा';
 
   @override
-  String get appLanguageDescription => 'Language for app interface';
+  String get appLanguageDescription => 'एप इंटरफेसक भाषा';
 
   @override
   String get homeTitle => 'होम';

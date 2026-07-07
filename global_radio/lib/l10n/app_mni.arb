@@ -1,9 +1,7 @@
 {
   "@@locale": "mni",
   "@@last_modified": "2026-06-24T00:00:00.000Z",
-  
   "appName": "গ্লোবাল রেদিও",
-  
   "onboardingWelcome": "গ্লোবাল রেদিওদা ওকচরি",
   "onboardingSubtitle": "নখোয়গী তাবৎ লৈবাক্তা পার্সোনেল ওদিও",
   "onboardingSelectLanguages": "নখোয়গী লোন খল্লু",
@@ -12,7 +10,6 @@
   "onboardingContinue": "চৎথ্রু",
   "onboardingGetStarted": "হৌদোক্লু",
   "onboardingSkip": "থোক্লু",
-  
   "homeTitle": "য়ুম",
   "homeGreetingMorning": "নুংশা য়াইফ",
   "homeGreetingAfternoon": "নুংথৎ য়াইফ",
@@ -22,7 +19,6 @@
   "homeTrendingNow": "হৌজিক ত্রেন্দিং",
   "homeRecentlyPlayed": "ফলে শাদোক্লবা",
   "homeQuickPicks": "অকন্বা খল্লু",
-  
   "libraryTitle": "লায়ব্রেরি",
   "libraryFavorites": "ফেবোরেৎ",
   "libraryDownloads": "দাউনলোদ",
@@ -33,7 +29,6 @@
   "libraryAddFavorites": "ফেবোরেৎ তা শাল্লু হর্ত আইকন তপ তৌবু",
   "libraryDownloadContent": "ওফলায়ন দা তানবা কন্তেন্ত দাউনলোদ তৌবু",
   "libraryStartListening": "নখোয়গী ৱারি য়েংবা তানবা হৌদোক্লু",
-  
   "settingsTitle": "সেৎতিং",
   "settingsAccount": "একাউন্ত",
   "settingsSignIn": "সায়ন ইন তৌবু",
@@ -53,7 +48,6 @@
   "settingsFeedback": "ফিদবেক থাবু",
   "settingsRateApp": "এপ রেৎ তৌবু",
   "settingsShareApp": "মরূপ মশা শেয়র তৌবু",
-  
   "playerNowPlaying": "হৌজিক শাদোক্লি",
   "playerUpNext": "অহানবা",
   "playerPlaybackSpeed": "প্লেবেক স্পিদ",
@@ -64,29 +58,24 @@
   "playerRemoveFromFavorites": "ফেবোরেৎ দগী লৌথোক্লু",
   "playerDownload": "দাউনলোদ তৌবু",
   "playerShare": "শেয়র তৌবু",
-  
   "interestsTitle": "তাবৎ ওন্থোক্লু",
   "interestsSubtitle": "তানবা পাম্বা টোপিক খল্লু",
   "interestsSelected": "{count} খল্লরে",
   "interestsSave": "সেভ তৌবু",
-  
   "languagesTitle": "লোন শিং",
   "languagesSubtitle": "পাম্বা লোন শিং খল্লু",
   "languagesSave": "সেভ তৌবু",
-  
   "searchTitle": "থিবু",
   "searchHint": "কন্তেন্ত থিবু...",
   "searchVoiceHint": "ৱা নুংশীবু থিনবা টেপ তৌবু",
   "searchNoResults": "ফংলবা অমত্তা",
   "searchTryDifferent": "অতোপ্পা ৱাহং শীজিন্নবু",
-  
   "authSignInTitle": "সায়ন ইন তৌবু",
   "authSignInSubtitle": "পছন্দ সিঙ্ক তৌনবা সায়ন ইন তৌবু",
   "authContinueWithGoogle": "গুগল না চৎথ্রু",
   "authContinueWithApple": "এপল না চৎথ্রু",
   "authContinueAsGuest": "গেস্ত ওইনা চৎথ্রু",
   "authSignOutConfirm": "নখোয় চেনবা মতিক সায়ন আউৎ পাম্বা?",
-  
   "premiumTitle": "প্রিমিয়ম ওইবু",
   "premiumSubtitle": "পুম্বা ফিচর আনলোক তৌবু",
   "premiumFeature1": "এদ-ফ্রি তানবা",
@@ -94,13 +83,11 @@
   "premiumFeature3": "প্রিমিয়ম খোৱেল",
   "premiumSubscribe": "{price} না সবস্ক্রাইব তৌবু",
   "premiumRestore": "লেই হনবীরু",
-  
   "errorGeneric": "অমত্তা শোক্ত ওইরে",
   "errorNetwork": "ইন্তরনেৎ কনেকশন লৈতে",
   "errorRetry": "অমুক হোৎনবু",
   "errorLoadingContent": "কন্তেন্ত লোদ তৌবা ঙমদ্রে",
   "errorPlayback": "প্লেবেক এরর",
-  
   "commonCancel": "ক্যান্সল তৌবু",
   "commonOk": "ওকে",
   "commonSave": "সেভ তৌবু",
@@ -109,24 +96,29 @@
   "commonDone": "তৌরে",
   "commonLoading": "লোদ তৌরি...",
   "commonRefresh": "রিফ্রেশ তৌবু",
-  
   "notificationDailyTitle": "নখোয়গী নুমিৎ মতম ওদিও",
   "notificationDailyBody": "নখোয়গী পার্সোনেল কন্তেন্ত রেদি ওইরে",
-  
   "adSkipIn": "{seconds} সেকেন্দ তা থোক্লু",
   "adSkip": "এদ থোক্লু",
   "adLabel": "এদ",
-  
   "offlineTitle": "ওফলায়ন মোদ",
   "offlineMessage": "নখোয় ওফলায়ন ওইরি। দাউনলোদ তৌরবা কন্তেন্ত খক্তা লৈরি।",
   "offlineDownloadAvailable": "ওফলায়ন দা তানবা দাউনলোদ তৌবু",
-  
   "feedbackTitle": "ফিদবেক থাবু",
   "feedbackHint": "নখোয় করম খন্দ্রিবা হায়বু...",
   "feedbackSubmit": "শুবমিৎ তৌবু",
   "feedbackThankYou": "নখোয়গী ফিদবেক থাগৎচরি!",
-  
   "updateRequired": "আপদেৎ মথৌ তাই",
   "updateMessage": "অনৌবা ভর্জন লৈরে। চৎথবু আপদেৎ তৌবু।",
-  "updateButton": "হৌজিক আপদেৎ তৌবু"
+  "updateButton": "হৌজিক আপদেৎ তৌবু",
+  "accountTitle": "মসি নহাক্কী ওইহল্লু",
+  "appLanguage": "এপকী লোল",
+  "appLanguageDescription": "এপ ইন্তরফেসকী লোল",
+  "appLanguageSubtitle": "এপ অসি লোল অসিদা উবা ফংগনি",
+  "appLanguageTitle": "এপকী লোল খল্লু",
+  "contentLanguagesSubtitle": "নহাক্না তানিংবা লোলশিং খল্লু",
+  "contentLanguagesTitle": "কন্তেন্তকী লোলশিং খল্লু",
+  "continueButton": "মখা চত্থরু",
+  "skipForNow": "হৌজিক্কীদমক থাদোক্লু",
+  "voiceTitle": "খোঞ্জেল অমা খল্লু"
 }

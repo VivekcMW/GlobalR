@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../../core/constants.dart';
 import '../../data/models/catalog_item.dart';
@@ -49,7 +50,7 @@ final todayContentProvider = Provider<TodayContent>((ref) {
   final stats = ref.watch(listeningStatsProvider);
   final segment = ref.watch(daySegmentProvider);
 
-  final catalog = catalogAsync.valueOrNull;
+  final catalog = catalogAsync.value;
   final now = DateTime.now();
   final today = DateTime(now.year, now.month, now.day);
 

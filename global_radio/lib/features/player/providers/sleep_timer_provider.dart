@@ -106,23 +106,25 @@ class SleepTimerController extends Notifier<SleepTimerState> {
   }
 
   void _startFadeOut() {
+    if (state.isFading) return;
     state = state.copyWith(isFading: true);
     _timer?.cancel();
 
-    // Fade volume over 10 seconds then stop
+    // Fade volume over 10 seconds then pause and restore volume.
     const fadeSteps = 10;
     var step = 0;
-    
+
     _fadeTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
       step++;
-      final volume = 1.0 - (step / fadeSteps);
-      
+
       if (step >= fadeSteps) {
         timer.cancel();
         await _handler.pause();
         // Reset volume for next play
+        await _handler.setVolume(1.0);
         state = const SleepTimerState();
       } else {
+        await _handler.setVolume(1.0 - (step / fadeSteps));
         state = state.copyWith(
           remaining: Duration(seconds: fadeSteps - step),
         );
@@ -133,6 +135,10 @@ class SleepTimerController extends Notifier<SleepTimerState> {
   void cancel() {
     _timer?.cancel();
     _fadeTimer?.cancel();
+    if (state.isFading) {
+      // Restore volume if we were mid-fade.
+      _handler.setVolume(1.0);
+    }
     state = const SleepTimerState();
   }
 

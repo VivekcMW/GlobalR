@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 
 import 'streaks_service.dart';
 
@@ -202,6 +203,24 @@ class WeeklyInsightsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your Insights'),
+        actions: [
+          IconButton(
+            tooltip: 'Share your Weekly Rewind',
+            icon: const Icon(Icons.ios_share),
+            onPressed: () {
+              final streak = ref.read(currentStreakProvider);
+              final buffer = StringBuffer('🎧 My Global Radio Weekly Rewind\n')
+                ..write('⏱ ${weekMinutes ~/ 60}h ${weekMinutes % 60}m listened\n')
+                ..write('📅 $daysListened of 7 days\n')
+                ..write('🎵 $weekItems stories & shows\n');
+              if (topCategory != null) {
+                buffer.write('⭐ Top interest: $topCategory\n');
+              }
+              if (streak > 0) buffer.write('🔥 $streak-day streak\n');
+              SharePlus.instance.share(ShareParams(text: buffer.toString()));
+            },
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),

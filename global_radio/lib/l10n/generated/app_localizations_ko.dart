@@ -36,38 +36,37 @@ class AppLocalizationsKo extends AppLocalizations {
   String get onboardingSkip => '건너뛰기';
 
   @override
-  String get appLanguageTitle => 'Select app language';
+  String get appLanguageTitle => '앱 언어 선택';
 
   @override
-  String get appLanguageSubtitle => 'The app will display in this language';
+  String get appLanguageSubtitle => '앱이 이 언어로 표시됩니다';
 
   @override
-  String get contentLanguagesTitle => 'Choose content languages';
+  String get contentLanguagesTitle => '콘텐츠 언어 선택';
 
   @override
-  String get contentLanguagesSubtitle =>
-      'Select languages you want to listen to';
+  String get contentLanguagesSubtitle => '듣고 싶은 언어를 선택하세요';
 
   @override
   String get interestsTitle => '관심사 편집';
 
   @override
-  String get voiceTitle => 'Pick a voice';
+  String get voiceTitle => '목소리 선택';
 
   @override
-  String get accountTitle => 'Make it yours';
+  String get accountTitle => '나만의 설정';
 
   @override
-  String get continueButton => 'Continue';
+  String get continueButton => '계속';
 
   @override
-  String get skipForNow => 'Skip for now';
+  String get skipForNow => '지금은 건너뛰기';
 
   @override
-  String get appLanguage => 'App Language';
+  String get appLanguage => '앱 언어';
 
   @override
-  String get appLanguageDescription => 'Language for app interface';
+  String get appLanguageDescription => '앱 인터페이스 언어';
 
   @override
   String get homeTitle => '홈';

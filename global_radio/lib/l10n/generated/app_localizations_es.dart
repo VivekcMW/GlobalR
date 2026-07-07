@@ -36,38 +36,38 @@ class AppLocalizationsEs extends AppLocalizations {
   String get onboardingSkip => 'Omitir';
 
   @override
-  String get appLanguageTitle => 'Select app language';
+  String get appLanguageTitle => 'Selecciona el idioma de la aplicación';
 
   @override
-  String get appLanguageSubtitle => 'The app will display in this language';
+  String get appLanguageSubtitle => 'La aplicación se mostrará en este idioma';
 
   @override
-  String get contentLanguagesTitle => 'Choose content languages';
+  String get contentLanguagesTitle => 'Elige los idiomas del contenido';
 
   @override
   String get contentLanguagesSubtitle =>
-      'Select languages you want to listen to';
+      'Selecciona los idiomas que quieres escuchar';
 
   @override
   String get interestsTitle => 'Editar intereses';
 
   @override
-  String get voiceTitle => 'Pick a voice';
+  String get voiceTitle => 'Elige una voz';
 
   @override
-  String get accountTitle => 'Make it yours';
+  String get accountTitle => 'Hazla tuya';
 
   @override
-  String get continueButton => 'Continue';
+  String get continueButton => 'Continuar';
 
   @override
-  String get skipForNow => 'Skip for now';
+  String get skipForNow => 'Omitir por ahora';
 
   @override
-  String get appLanguage => 'App Language';
+  String get appLanguage => 'Idioma de la aplicación';
 
   @override
-  String get appLanguageDescription => 'Language for app interface';
+  String get appLanguageDescription => 'Idioma de la interfaz de la aplicación';
 
   @override
   String get homeTitle => 'Inicio';

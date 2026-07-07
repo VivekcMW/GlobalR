@@ -36,38 +36,38 @@ class AppLocalizationsSd extends AppLocalizations {
   String get onboardingSkip => 'ڇڏيو';
 
   @override
-  String get appLanguageTitle => 'Select app language';
+  String get appLanguageTitle => 'ايپ جي ٻولي چونڊيو';
 
   @override
-  String get appLanguageSubtitle => 'The app will display in this language';
+  String get appLanguageSubtitle => 'ايپ ھن ٻوليءَ ۾ ڏيکاربي';
 
   @override
-  String get contentLanguagesTitle => 'Choose content languages';
+  String get contentLanguagesTitle => 'مواد جون ٻوليون چونڊيو';
 
   @override
   String get contentLanguagesSubtitle =>
-      'Select languages you want to listen to';
+      'اھي ٻوليون چونڊيو جيڪي توھان ٻڌڻ چاھيو ٿا';
 
   @override
   String get interestsTitle => 'دلچسپيون ايڊٽ ڪريو';
 
   @override
-  String get voiceTitle => 'Pick a voice';
+  String get voiceTitle => 'ھڪ آواز چونڊيو';
 
   @override
-  String get accountTitle => 'Make it yours';
+  String get accountTitle => 'ھن کي پنھنجو بڻايو';
 
   @override
-  String get continueButton => 'Continue';
+  String get continueButton => 'اڳتي وڌو';
 
   @override
-  String get skipForNow => 'Skip for now';
+  String get skipForNow => 'في الحال ڇڏي ڏيو';
 
   @override
-  String get appLanguage => 'App Language';
+  String get appLanguage => 'ايپ جي ٻولي';
 
   @override
-  String get appLanguageDescription => 'Language for app interface';
+  String get appLanguageDescription => 'ايپ انٽرفيس جي ٻولي';
 
   @override
   String get homeTitle => 'گھر';

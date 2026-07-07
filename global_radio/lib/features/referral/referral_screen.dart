@@ -84,15 +84,63 @@ class ReferralService {
 
   static const _storageKey = 'referral_data';
 
-  /// Generate a unique referral code.
+  static const String _codeChars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+  /// Deterministic checksum character over a code payload, so codes are
+  /// self-verifying client-side without a backend round-trip.
+  static String _checksumChar(String payload) {
+    var sum = 0;
+    for (final unit in payload.codeUnits) {
+      sum = (sum + unit) % _codeChars.length;
+    }
+    return _codeChars[sum];
+  }
+
+  /// Generate a unique referral code: prefix + 5 random chars + checksum.
   String _generateCode() {
     final random = Random();
-    final chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Avoid confusing chars
-    final code = StringBuffer(ReferralConfig.codePrefix);
-    for (var i = 0; i < 6; i++) {
-      code.write(chars[random.nextInt(chars.length)]);
+    final payload = StringBuffer();
+    for (var i = 0; i < 5; i++) {
+      payload.write(_codeChars[random.nextInt(_codeChars.length)]);
     }
-    return code.toString();
+    return '${ReferralConfig.codePrefix}$payload${_checksumChar(payload.toString())}';
+  }
+
+  /// Prefix for premium gift codes (e.g. "gift a month to your parents").
+  static const giftPrefix = 'GP';
+
+  /// Generate a self-verifying premium gift code.
+  /// TODO(backend): record issued gift codes server-side and charge the
+  /// gifter via IAP; client-side codes are for the pilot only.
+  String generateGiftCode() {
+    final random = Random();
+    final payload = StringBuffer();
+    for (var i = 0; i < 5; i++) {
+      payload.write(_codeChars[random.nextInt(_codeChars.length)]);
+    }
+    return '$giftPrefix$payload${_checksumChar(payload.toString())}';
+  }
+
+  /// Validate a premium gift code's structure and checksum.
+  static bool isValidGiftCode(String rawCode) {
+    final code = rawCode.toUpperCase();
+    if (!code.startsWith(giftPrefix) || code.length != 8) return false;
+    final body = code.substring(giftPrefix.length);
+    if (!body.split('').every(_codeChars.contains)) return false;
+    final payload = body.substring(0, body.length - 1);
+    return _checksumChar(payload) == body[body.length - 1];
+  }
+
+  /// Validate a referral code's structure and checksum.
+  static bool isValidCode(String rawCode) {
+    final code = rawCode.toUpperCase();
+    if (!code.startsWith(ReferralConfig.codePrefix) || code.length != 8) {
+      return false;
+    }
+    final body = code.substring(ReferralConfig.codePrefix.length);
+    if (!body.split('').every(_codeChars.contains)) return false;
+    final payload = body.substring(0, body.length - 1);
+    return _checksumChar(payload) == body[body.length - 1];
   }
 
   /// Get or create referral data.
@@ -121,6 +169,12 @@ class ReferralService {
   Future<ReferralRedeemResult> redeemCode(String code) async {
     final data = await getReferralData();
 
+    // Premium gift codes are checked first — they can be redeemed even by
+    // users who already used a referral code.
+    if (isValidGiftCode(code)) {
+      return ReferralRedeemResult.giftPremium;
+    }
+
     // Can't use own code
     if (code.toUpperCase() == data.code) {
       return ReferralRedeemResult.ownCode;
@@ -131,13 +185,14 @@ class ReferralService {
       return ReferralRedeemResult.alreadyRedeemed;
     }
 
-    // Validate code format
-    if (!code.toUpperCase().startsWith(ReferralConfig.codePrefix) || code.length != 8) {
+    // Validate code structure + checksum (codes are self-verifying).
+    if (!isValidCode(code)) {
       return ReferralRedeemResult.invalidCode;
     }
 
-    // TODO: Verify code exists in backend and credit both users
-    // For now, just save locally
+    // Note: crediting the *inviter* happens when they receive the deep link
+    // callback (creditReferralBonus); no backend round-trip is required for
+    // the local redemption record.
     final updatedData = data.copyWith(
       redeemedCodes: [...data.redeemedCodes, code.toUpperCase()],
     );
@@ -165,6 +220,7 @@ class ReferralService {
 /// Referral redeem result.
 enum ReferralRedeemResult {
   success,
+  giftPremium,
   invalidCode,
   ownCode,
   alreadyRedeemed,
@@ -204,10 +260,11 @@ class _ReferralScreenState extends ConsumerState<ReferralScreen> {
   Future<void> _shareReferral() async {
     final service = ref.read(referralServiceProvider);
     final link = await service.getReferralLink();
-    await Share.share(
-      'Listen to Global Radio with me! Download the app and use my referral link to get free premium: $link',
+    await SharePlus.instance.share(ShareParams(
+      text:
+          'Listen to Global Radio with me! Download the app and use my referral link to get free premium: $link',
       subject: 'Try Global Radio',
-    );
+    ));
   }
 
   Future<void> _copyCode(String code) async {
@@ -231,8 +288,13 @@ class _ReferralScreenState extends ConsumerState<ReferralScreen> {
 
     if (!mounted) return;
 
+    if (result == ReferralRedeemResult.giftPremium) {
+      ref.read(profileProvider.notifier).setPremium(true);
+    }
+
     final message = switch (result) {
       ReferralRedeemResult.success => 'Referral code redeemed! Enjoy your free premium days.',
+      ReferralRedeemResult.giftPremium => 'Gift redeemed — Premium unlocked! 🎁',
       ReferralRedeemResult.invalidCode => 'Invalid referral code. Please check and try again.',
       ReferralRedeemResult.ownCode => 'You cannot use your own referral code.',
       ReferralRedeemResult.alreadyRedeemed => 'You have already redeemed a referral code.',
@@ -243,14 +305,29 @@ class _ReferralScreenState extends ConsumerState<ReferralScreen> {
       SnackBar(
         content: Text(message),
         behavior: SnackBarBehavior.floating,
-        backgroundColor: result == ReferralRedeemResult.success ? Colors.green : null,
+        backgroundColor: result == ReferralRedeemResult.success ||
+                result == ReferralRedeemResult.giftPremium
+            ? Colors.green
+            : null,
       ),
     );
 
-    if (result == ReferralRedeemResult.success) {
+    if (result == ReferralRedeemResult.success ||
+        result == ReferralRedeemResult.giftPremium) {
       _codeController.clear();
       ref.invalidate(referralDataProvider);
     }
+  }
+
+  Future<void> _shareGiftCode() async {
+    final service = ref.read(referralServiceProvider);
+    final code = service.generateGiftCode();
+    await SharePlus.instance.share(ShareParams(
+      text: '🎁 I’m gifting you Global Radio Premium!\n\n'
+          'Download the app and redeem this code on the Invite Friends '
+          'screen: $code',
+      subject: 'A Global Radio Premium gift for you',
+    ));
   }
 
   @override
@@ -339,6 +416,17 @@ class _ReferralScreenState extends ConsumerState<ReferralScreen> {
                   onPressed: _shareReferral,
                   icon: const Icon(Icons.share),
                   label: const Text('Share with Friends'),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // Gift premium — perfect for gifting to parents/family.
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: _shareGiftCode,
+                  icon: const Icon(Icons.redeem),
+                  label: const Text('Gift Premium to someone'),
                 ),
               ),
               const SizedBox(height: 32),

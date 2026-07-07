@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:hive/hive.dart';
 
 /// Listening statistics and streak data.
@@ -153,7 +155,13 @@ class StreaksService {
   Box? _box;
 
   Future<void> init() async {
-    _box = await Hive.openBox(_boxName);
+    if (_box != null) return;
+    try {
+      _box = await Hive.openBox(_boxName);
+    } catch (e) {
+      // Hive unavailable (e.g. tests); degrade gracefully with no persistence.
+      debugPrint('StreaksService: Hive unavailable: $e');
+    }
   }
 
   /// Load current stats.

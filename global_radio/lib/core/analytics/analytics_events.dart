@@ -496,6 +496,53 @@ class PurchaseFailEvent extends AnalyticsEvent {
 // Ad Events
 // ============================================================================
 
+/// Ad requested from the ad server / house rotation.
+class AdRequestEvent extends AnalyticsEvent {
+  final String slotType; // 'pre_roll', 'mid_roll'
+  final String source; // 'vast', 'house'
+
+  AdRequestEvent({required this.slotType, required this.source});
+
+  @override
+  String get name => 'ad_requested';
+
+  @override
+  Map<String, Object> get parameters => {
+        'slot_type': slotType,
+        'source': source,
+      };
+}
+
+/// Ad fetch or playback failed.
+class AdFailEvent extends AnalyticsEvent {
+  final String slotType;
+  final String reason;
+
+  AdFailEvent({required this.slotType, required this.reason});
+
+  @override
+  String get name => 'ad_failed';
+
+  @override
+  Map<String, Object> get parameters => {
+        'slot_type': slotType,
+        'reason': reason,
+      };
+}
+
+/// User tapped the Premium upsell from an ad surface.
+class PremiumUpsellFromAdEvent extends AnalyticsEvent {
+  final String adId;
+
+  PremiumUpsellFromAdEvent({required this.adId});
+
+  @override
+  String get name => 'premium_upsell_from_ad';
+
+  @override
+  Map<String, Object> get parameters => {'ad_id': adId};
+}
+
 /// Ad impression.
 class AdImpressionEvent extends AnalyticsEvent {
   final String adType; // 'pre_roll', 'mid_roll'
@@ -679,5 +726,92 @@ class ErrorEvent extends AnalyticsEvent {
         'error_type': errorType,
         if (message != null) 'message': message!,
         if (screen != null) 'screen': screen!,
+      };
+}
+
+// ============================================================================
+// Engagement Events
+// ============================================================================
+
+/// A local engagement nudge was scheduled, shown, or acted upon.
+/// [kind] is one of: streak_rescue, personal_nudge, day2_hook.
+/// [action] is one of: scheduled, cancelled, opened.
+class EngagementNudgeEvent extends AnalyticsEvent {
+  final String kind;
+  final String action;
+
+  EngagementNudgeEvent({required this.kind, required this.action});
+
+  @override
+  String get name => 'engagement_nudge';
+
+  @override
+  Map<String, Object> get parameters => {'kind': kind, 'action': action};
+}
+
+/// A listening-streak milestone was reached (3/7/30/100/365 days).
+class MilestoneReachedEvent extends AnalyticsEvent {
+  final int days;
+  final bool shared;
+
+  MilestoneReachedEvent({required this.days, this.shared = false});
+
+  @override
+  String get name => 'milestone_reached';
+
+  @override
+  Map<String, Object> get parameters => {'days': days, 'shared': shared};
+}
+
+/// Serialized journey progress. [action]: started, episode_played, completed.
+class JourneyEvent extends AnalyticsEvent {
+  final String journeyId;
+  final String action;
+  final int episode;
+
+  JourneyEvent({
+    required this.journeyId,
+    required this.action,
+    required this.episode,
+  });
+
+  @override
+  String get name => 'journey_progress';
+
+  @override
+  Map<String, Object> get parameters => {
+        'journey_id': journeyId,
+        'action': action,
+        'episode': episode,
+      };
+}
+
+/// The daily mystery story was revealed/played.
+class MysteryRevealEvent extends AnalyticsEvent {
+  final String itemId;
+
+  MysteryRevealEvent({required this.itemId});
+
+  @override
+  String get name => 'mystery_reveal';
+
+  @override
+  Map<String, Object> get parameters => {'item_id': itemId};
+}
+
+/// The weekly listening goal was met.
+class WeeklyGoalMetEvent extends AnalyticsEvent {
+  final int daysListened;
+  final int goalDays;
+
+  WeeklyGoalMetEvent({required this.daysListened, required this.goalDays});
+
+  @override
+  String get name => 'weekly_goal_met';
+
+  @override
+  Map<String, Object> get parameters => {
+        'days_listened': daysListened,
+        'goal_days': goalDays,
       };
 }

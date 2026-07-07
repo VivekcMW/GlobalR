@@ -14,9 +14,21 @@ class ShareService {
       'https://apps.apple.com/app/global-radio/id000000000';
 
   /// Share a catalog item with a deep link.
-  Future<void> shareItem(CatalogItem item, {String? referralCode}) async {
-    final link = generateItemLink(item.id, referralCode: referralCode);
-    final text = _buildShareText(item, link);
+  /// When [at] is given, the link carries a `t=` timestamp so the recipient
+  /// starts from the shared moment.
+  Future<void> shareItem(CatalogItem item,
+      {String? referralCode, Duration? at}) async {
+    var link = generateItemLink(item.id, referralCode: referralCode);
+    if (at != null && at > Duration.zero) {
+      link += link.contains('?') ? '&' : '?';
+      link += 't=${at.inSeconds}';
+    }
+    var text = _buildShareText(item, link);
+    if (at != null && at > Duration.zero) {
+      final m = at.inMinutes;
+      final s = (at.inSeconds % 60).toString().padLeft(2, '0');
+      text = '▶ Starts at $m:$s\n$text';
+    }
 
     await Share.share(
       text,

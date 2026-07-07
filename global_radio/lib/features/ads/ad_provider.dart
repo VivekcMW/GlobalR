@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../core/config/remote_config_service.dart';
 import '../../shared/providers/providers.dart';
+import '../kids_mode/kids_mode_provider.dart';
 import 'ad_decision_service.dart';
 import 'ad_models.dart';
 import 'ad_service.dart';
@@ -12,12 +14,28 @@ import 'ad_tracking_service.dart';
 // --- Service Providers ---
 
 /// Ad configuration provider.
-final adConfigProvider = Provider<AdConfig>((ref) => AdConfig.defaults);
+/// Every knob is remote-config driven; compiled-in defaults ship dark.
+final adConfigProvider = Provider<AdConfig>((ref) {
+  final rc = ref.watch(remoteConfigProvider);
+  return AdConfig(
+    enabled: rc.adsEnabled,
+    maxAdsPerSession: rc.adsMaxPerSession,
+    maxAdsPerHour: rc.adsMaxPerHour,
+    minItemsBetweenAds: rc.adsMidrollEveryNItems,
+    minGapBetweenAds: Duration(minutes: rc.adsMidrollMinGapMinutes),
+    enablePreRoll: rc.adsPrerollEnabled,
+    gracePeriodDays: rc.adsGracePeriodDays,
+    suppressDuringBedtime: rc.adsBedtimeSuppress,
+    houseAdRatio: rc.adsHouseRatio,
+    vastTagUrl: rc.adsVastTagUrl,
+  );
+});
 
 /// Ad service provider for VAST fetching.
 final adServiceProvider = Provider<AdService>((ref) {
   final config = ref.watch(adConfigProvider);
-  return AdService(config: config);
+  final analytics = ref.watch(analyticsServiceProvider);
+  return AdService(config: config, analytics: analytics);
 });
 
 /// Ad decision service provider.
@@ -43,10 +61,31 @@ final adPlaybackStateProvider =
     NotifierProvider<AdPlaybackNotifier, AdPlaybackState>(
         AdPlaybackNotifier.new);
 
-/// Whether ads are currently disabled (premium user).
+/// Whether ads are currently disabled for this user.
+/// Hard gates: remote kill switch, Premium, Kids Mode, install grace period.
 final adsDisabledProvider = Provider<bool>((ref) {
+  final config = ref.watch(adConfigProvider);
+  if (!config.enabled) return true;
+  if (ref.watch(kidsModeProvider)) return true;
+  if (ref.watch(adGracePeriodProvider)) return true;
   final profile = ref.watch(profileProvider);
   return profile.isPremium;
+});
+
+/// Whether the install is still inside the no-ads grace period.
+/// First-launch timestamp is persisted on first read.
+final adGracePeriodProvider = Provider<bool>((ref) {
+  final store = ref.watch(localStoreProvider);
+  const key = 'first_launch_at';
+  var firstLaunchMs = store.getSetting<int>(key);
+  if (firstLaunchMs == null) {
+    firstLaunchMs = DateTime.now().millisecondsSinceEpoch;
+    unawaited(store.putSetting(key, firstLaunchMs));
+  }
+  final config = ref.watch(adConfigProvider);
+  final firstLaunch = DateTime.fromMillisecondsSinceEpoch(firstLaunchMs);
+  return DateTime.now().difference(firstLaunch) <
+      Duration(days: config.gracePeriodDays);
 });
 
 // --- Notifiers ---
@@ -78,21 +117,27 @@ class AdSessionNotifier extends Notifier<AdSessionState> {
 
   /// Check if pre-roll should be shown.
   AdDecision shouldShowPreRoll() {
-    final isPremium = ref.read(adsDisabledProvider);
+    final profile = ref.read(profileProvider);
     return ref.read(adDecisionServiceProvider).shouldShowPreRoll(
           state: state,
-          isPremium: isPremium,
+          isPremium: profile.isPremium,
+          isKidsMode: ref.read(kidsModeProvider),
+          inGracePeriod: ref.read(adGracePeriodProvider),
         );
   }
 
   /// Check if mid-roll should be shown after current item.
-  AdDecision shouldShowMidRoll(int currentIndex, {String? candidateAdId}) {
-    final isPremium = ref.read(adsDisabledProvider);
+  AdDecision shouldShowMidRoll(int currentIndex,
+      {String? candidateAdId, bool isBedtimeContent = false}) {
+    final profile = ref.read(profileProvider);
     return ref.read(adDecisionServiceProvider).shouldShowMidRoll(
           state: state,
-          isPremium: isPremium,
+          isPremium: profile.isPremium,
           currentItemIndex: currentIndex,
           candidateAdId: candidateAdId,
+          isKidsMode: ref.read(kidsModeProvider),
+          inGracePeriod: ref.read(adGracePeriodProvider),
+          isBedtimeContent: isBedtimeContent,
         );
   }
 }

@@ -19,7 +19,10 @@ import 'core/router.dart';
 import 'core/theme.dart';
 import 'data/local/local_store.dart';
 import 'data/services/push_service.dart';
+import 'features/kids_mode/kids_mode_provider.dart';
 import 'firebase_options.dart';
+import 'shared/providers/daypart_provider.dart';
+import 'shared/providers/display_settings_provider.dart';
 import 'shared/providers/locale_provider.dart';
 import 'shared/providers/providers.dart';
 
@@ -139,16 +142,32 @@ class GlobalRadioApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
     final locale = ref.watch(appLocaleProvider);
+    // "Prabhat" adaptive theming: accent follows the time of day; Kids Mode
+    // swaps to the playful skin so parents can see the mode is on.
+    final daypart = ref.watch(currentDaypartProvider);
+    final kidsMode = ref.watch(kidsModeProvider);
+    final display = ref.watch(displaySettingsProvider);
     return MaterialApp.router(
       title: 'Global Radio',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
+      darkTheme: AppTheme.dark(daypart: daypart, kids: kidsMode),
       themeMode: ThemeMode.dark, // dark-first
       routerConfig: router,
       locale: locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      builder: (context, child) {
+        // Global text-scale setting (100/115/130%), stacked on the OS scale.
+        final mq = MediaQuery.of(context);
+        return MediaQuery(
+          data: mq.copyWith(
+            textScaler:
+                TextScaler.linear(mq.textScaler.scale(display.textScale)),
+          ),
+          child: child!,
+        );
+      },
     );
   }
 }

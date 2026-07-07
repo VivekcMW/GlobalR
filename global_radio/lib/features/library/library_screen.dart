@@ -7,15 +7,25 @@ import '../../data/models/catalog_item.dart';
 import '../../shared/providers/providers.dart';
 import '../../shared/providers/radio_controller.dart';
 import '../../shared/utils/interest_icons.dart';
+import '../offline/offline_packs.dart';
 
 /// Library: Saved (Favorites), Recently Played, Downloads
 /// Now rendered as a flat list with sections, no inner tabs.
-class LibraryScreen extends ConsumerWidget {
+class LibraryScreen extends ConsumerStatefulWidget {
   const LibraryScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final catalog = ref.watch(catalogProvider).valueOrNull;
+  ConsumerState<LibraryScreen> createState() => _LibraryScreenState();
+}
+
+class _LibraryScreenState extends ConsumerState<LibraryScreen> {
+  static const _previewCount = 5;
+  bool _showAllSaved = false;
+  bool _showAllRecent = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final catalog = ref.watch(catalogProvider).value;
     final favs = ref.watch(favoritesProvider);
     final recent = ref.watch(recentlyPlayedProvider);
     final controller = ref.read(radioControllerProvider.notifier);
@@ -36,6 +46,10 @@ class LibraryScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         children: [
+          // Offline listening pack (premium)
+          const OfflinePackCard(),
+          const SizedBox(height: 12),
+
           // Saved (Favorites) Section
           _SectionHeader(
             icon: Icons.bookmark_rounded,
@@ -45,19 +59,20 @@ class LibraryScreen extends ConsumerWidget {
           if (savedItems.isEmpty)
             _EmptyCard(message: 'Tap ♥ on the player to save favorites.')
           else
-            ...savedItems.take(5).map((it) => _ItemCard(
-                  item: it,
-                  onTap: () async {
-                    await controller.startRadio(onlyInterests: it.interests);
-                    if (context.mounted) context.push('/player');
-                  },
-                )),
-          if (savedItems.length > 5)
+            ...(_showAllSaved ? savedItems : savedItems.take(_previewCount))
+                .map((it) => _ItemCard(
+                      item: it,
+                      onTap: () async {
+                        await controller.startRadio(onlyInterests: it.interests);
+                        if (context.mounted) context.push('/player');
+                      },
+                    )),
+          if (savedItems.length > _previewCount)
             TextButton(
-              onPressed: () {
-                // TODO: Navigate to full saved list
-              },
-              child: Text('See all ${savedItems.length} saved'),
+              onPressed: () => setState(() => _showAllSaved = !_showAllSaved),
+              child: Text(_showAllSaved
+                  ? 'Show less'
+                  : 'See all ${savedItems.length} saved'),
             ),
           const SizedBox(height: 20),
 
@@ -70,19 +85,20 @@ class LibraryScreen extends ConsumerWidget {
           if (recentItems.isEmpty)
             _EmptyCard(message: 'Items you play will appear here.')
           else
-            ...recentItems.take(5).map((it) => _ItemCard(
-                  item: it,
-                  onTap: () async {
-                    await controller.startRadio(onlyInterests: it.interests);
-                    if (context.mounted) context.push('/player');
-                  },
-                )),
-          if (recentItems.length > 5)
+            ...(_showAllRecent ? recentItems : recentItems.take(_previewCount))
+                .map((it) => _ItemCard(
+                      item: it,
+                      onTap: () async {
+                        await controller.startRadio(onlyInterests: it.interests);
+                        if (context.mounted) context.push('/player');
+                      },
+                    )),
+          if (recentItems.length > _previewCount)
             TextButton(
-              onPressed: () {
-                // TODO: Navigate to full history
-              },
-              child: Text('See all ${recentItems.length} recent'),
+              onPressed: () => setState(() => _showAllRecent = !_showAllRecent),
+              child: Text(_showAllRecent
+                  ? 'Show less'
+                  : 'See all ${recentItems.length} recent'),
             ),
           const SizedBox(height: 20),
 

@@ -123,15 +123,20 @@ def synth_azure(text: str, voice: str, rate: str, out_path: Path) -> None:
 
 
 def render_item_audio(out_root: Path, language: str, item_id: str,
-                      preset: str, text: str) -> dict | None:
+                      preset: str, text: str, force: bool = False) -> dict | None:
     """Render one (language, voice) MP3 via the right backend. Returns
     {durationSec, sizeKb, backend} or None if the language can't be rendered
-    (no free voice and no Azure key)."""
+    (no free voice and no Azure key). If the MP3 already exists and force is
+    False, it is probed and reused (resumable builds)."""
     backend, voice = resolve_voice(language, preset)
     if not voice:
         return None
     rate = RATES.get(preset, "+0%")
     dest = out_root / language / preset / f"{item_id}.mp3"
+    if dest.exists() and dest.stat().st_size > 1024 and not force:
+        size_kb = max(1, round(dest.stat().st_size / 1024))
+        return {"durationSec": ffprobe_duration(dest), "sizeKb": size_kb,
+                "backend": backend, "reused": True}
     if backend == "azure":
         synth_azure(text, voice, rate, dest)
     else:
@@ -141,6 +146,53 @@ def render_item_audio(out_root: Path, language: str, item_id: str,
             "backend": backend}
 
 
+async def _render_one_async(sem: asyncio.Semaphore, out_root: Path,
+                            language: str, item_id: str, preset: str,
+                            text: str, force: bool) -> dict | None:
+    """Async twin of render_item_audio, gated by a shared semaphore.
+    Retries transient TTS failures twice before giving up."""
+    backend, voice = resolve_voice(language, preset)
+    if not voice:
+        return None
+    rate = RATES.get(preset, "+0%")
+    dest = out_root / language / preset / f"{item_id}.mp3"
+    if dest.exists() and dest.stat().st_size > 1024 and not force:
+        size_kb = max(1, round(dest.stat().st_size / 1024))
+        duration = await asyncio.to_thread(ffprobe_duration, dest)
+        return {"durationSec": duration, "sizeKb": size_kb,
+                "backend": backend, "reused": True}
+    async with sem:
+        last_err: Exception | None = None
+        for attempt in range(3):
+            try:
+                if backend == "azure":
+                    await asyncio.to_thread(synth_azure, text, voice, rate, dest)
+                else:
+                    await synth(text, voice, rate, dest)
+                last_err = None
+                break
+            except Exception as e:  # transient network / TTS hiccups
+                last_err = e
+                await asyncio.sleep(2 * (attempt + 1))
+        if last_err is not None:
+            raise last_err
+    size_kb = max(1, round(dest.stat().st_size / 1024))
+    duration = await asyncio.to_thread(ffprobe_duration, dest)
+    return {"durationSec": duration, "sizeKb": size_kb, "backend": backend}
+
+
+def render_batch(jobs: list[tuple], concurrency: int = 8) -> list[dict | None]:
+    """Render many MP3s concurrently. Each job is
+    (out_root, language, item_id, preset, text, force). Returns results in
+    job order; None where the language has no available voice."""
+    async def _run() -> list:
+        sem = asyncio.Semaphore(max(1, concurrency))
+        return await asyncio.gather(
+            *[_render_one_async(sem, *job) for job in jobs])
+
+    return asyncio.run(_run())
+
+
 def write_catalog(out_root: Path, version: str, items: list[dict]) -> Path:
     out_root.mkdir(parents=True, exist_ok=True)
     path = out_root / "catalog.json"
@@ -148,3 +200,24 @@ def write_catalog(out_root: Path, version: str, items: list[dict]) -> Path:
     with open(path, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
     return path
+
+
+def load_library_items() -> list[dict]:
+    """Load item specs from content/library.json (legacy) plus every
+    content/library/*.json (one file per category). Later files win on
+    duplicate base_id."""
+    specs: dict[str, dict] = {}
+    legacy = CONTENT / "library.json"
+    if legacy.exists():
+        with open(legacy, encoding="utf-8") as f:
+            for it in json.load(f).get("items", []):
+                specs[it["base_id"]] = it
+    split_dir = CONTENT / "library"
+    if split_dir.is_dir():
+        for p in sorted(split_dir.glob("*.json")):
+            with open(p, encoding="utf-8") as f:
+                for it in json.load(f).get("items", []):
+                    if it.get("_draft"):
+                        continue  # unreviewed ingested drafts never build
+                    specs[it["base_id"]] = it
+    return list(specs.values())

@@ -36,38 +36,38 @@ class AppLocalizationsBrx extends AppLocalizations {
   String get onboardingSkip => 'थांनांगौ';
 
   @override
-  String get appLanguageTitle => 'Select app language';
+  String get appLanguageTitle => 'एपनि राव सायख\'';
 
   @override
-  String get appLanguageSubtitle => 'The app will display in this language';
+  String get appLanguageSubtitle => 'एपआ बे रावाव नुजागोन';
 
   @override
-  String get contentLanguagesTitle => 'Choose content languages';
+  String get contentLanguagesTitle => 'आयदानि रावफोरखौ सायख\'';
 
   @override
   String get contentLanguagesSubtitle =>
-      'Select languages you want to listen to';
+      'नोंथाङा खोनासोनो लुबैनाय रावफोरखौ सायख\'';
 
   @override
   String get interestsTitle => 'मोजां लानाय सोदांमा';
 
   @override
-  String get voiceTitle => 'Pick a voice';
+  String get voiceTitle => 'मोनसे गारां सायख\'';
 
   @override
-  String get accountTitle => 'Make it yours';
+  String get accountTitle => 'बेखौ गावनि खालाम';
 
   @override
-  String get continueButton => 'Continue';
+  String get continueButton => 'सालाय लांबाय';
 
   @override
-  String get skipForNow => 'Skip for now';
+  String get skipForNow => 'दानिया नागार';
 
   @override
-  String get appLanguage => 'App Language';
+  String get appLanguage => 'एपनि राव';
 
   @override
-  String get appLanguageDescription => 'Language for app interface';
+  String get appLanguageDescription => 'एप इन्टारफेसनि राव';
 
   @override
   String get homeTitle => 'नो';

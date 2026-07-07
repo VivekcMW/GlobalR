@@ -1,9 +1,7 @@
 {
   "@@locale": "ur",
   "@@last_modified": "2026-06-24T00:00:00.000Z",
-  
   "appName": "گلوبل ریڈیو",
-  
   "onboardingWelcome": "گلوبل ریڈیو میں خوش آمدید",
   "onboardingSubtitle": "آپ کی دلچسپیوں کے لیے ذاتی آڈیو",
   "onboardingSelectLanguages": "اپنی زبانیں منتخب کریں",
@@ -12,7 +10,6 @@
   "onboardingContinue": "جاری رکھیں",
   "onboardingGetStarted": "شروع کریں",
   "onboardingSkip": "چھوڑ دیں",
-  
   "homeTitle": "ہوم",
   "homeGreetingMorning": "صبح بخیر",
   "homeGreetingAfternoon": "سہ پہر بخیر",
@@ -22,7 +19,6 @@
   "homeTrendingNow": "ابھی ٹرینڈنگ",
   "homeRecentlyPlayed": "حال ہی میں چلایا گیا",
   "homeQuickPicks": "فوری انتخاب",
-  
   "libraryTitle": "لائبریری",
   "libraryFavorites": "پسندیدہ",
   "libraryDownloads": "ڈاؤن لوڈز",
@@ -33,7 +29,6 @@
   "libraryAddFavorites": "پسندیدہ میں شامل کرنے کے لیے ہارٹ آئیکن پر ٹیپ کریں",
   "libraryDownloadContent": "آف لائن سننے کے لیے مواد ڈاؤن لوڈ کریں",
   "libraryStartListening": "اپنی تاریخ دیکھنے کے لیے سننا شروع کریں",
-  
   "settingsTitle": "ترتیبات",
   "settingsAccount": "اکاؤنٹ",
   "settingsSignIn": "سائن ان کریں",
@@ -53,7 +48,6 @@
   "settingsFeedback": "رائے بھیجیں",
   "settingsRateApp": "ایپ کی درجہ بندی کریں",
   "settingsShareApp": "دوستوں کے ساتھ شیئر کریں",
-  
   "playerNowPlaying": "ابھی چل رہا ہے",
   "playerUpNext": "آگے",
   "playerPlaybackSpeed": "پلے بیک کی رفتار",
@@ -64,29 +58,24 @@
   "playerRemoveFromFavorites": "پسندیدہ سے ہٹائیں",
   "playerDownload": "ڈاؤن لوڈ کریں",
   "playerShare": "شیئر کریں",
-  
   "interestsTitle": "دلچسپیاں ترمیم کریں",
   "interestsSubtitle": "وہ موضوعات منتخب کریں جو آپ سننا چاہتے ہیں",
   "interestsSelected": "{count} منتخب",
   "interestsSave": "محفوظ کریں",
-  
   "languagesTitle": "زبانیں",
   "languagesSubtitle": "اپنی پسندیدہ زبانیں منتخب کریں",
   "languagesSave": "محفوظ کریں",
-  
   "searchTitle": "تلاش کریں",
   "searchHint": "مواد تلاش کریں...",
   "searchVoiceHint": "آواز سے تلاش کرنے کے لیے ٹیپ کریں",
   "searchNoResults": "کوئی نتائج نہیں ملے",
   "searchTryDifferent": "مختلف الفاظ آزمائیں",
-  
   "authSignInTitle": "سائن ان کریں",
   "authSignInSubtitle": "اپنی ترجیحات کو سنک کرنے کے لیے سائن ان کریں",
   "authContinueWithGoogle": "گوگل کے ساتھ جاری رکھیں",
   "authContinueWithApple": "ایپل کے ساتھ جاری رکھیں",
   "authContinueAsGuest": "مہمان کے طور پر جاری رکھیں",
   "authSignOutConfirm": "کیا آپ واقعی سائن آؤٹ کرنا چاہتے ہیں؟",
-  
   "premiumTitle": "پریمیم بنیں",
   "premiumSubtitle": "تمام فیچرز ان لاک کریں",
   "premiumFeature1": "اشتہار سے پاک سننا",
@@ -94,13 +83,11 @@
   "premiumFeature3": "پریمیم آوازیں",
   "premiumSubscribe": "{price} میں سبسکرائب کریں",
   "premiumRestore": "خریداری بحال کریں",
-  
   "errorGeneric": "کچھ غلط ہو گیا",
   "errorNetwork": "انٹرنیٹ کنیکشن نہیں ہے",
   "errorRetry": "دوبارہ کوشش کریں",
   "errorLoadingContent": "مواد لوڈ کرنے میں ناکام",
   "errorPlayback": "پلے بیک میں خرابی",
-  
   "commonCancel": "منسوخ کریں",
   "commonOk": "ٹھیک ہے",
   "commonSave": "محفوظ کریں",
@@ -109,24 +96,29 @@
   "commonDone": "ہو گیا",
   "commonLoading": "لوڈ ہو رہا ہے...",
   "commonRefresh": "ریفریش کریں",
-  
   "notificationDailyTitle": "آپ کا روزانہ آڈیو",
   "notificationDailyBody": "آپ کا ذاتی مواد تیار ہے",
-  
   "adSkipIn": "{seconds} سیکنڈ میں چھوڑیں",
   "adSkip": "اشتہار چھوڑیں",
   "adLabel": "اشتہار",
-  
   "offlineTitle": "آف لائن موڈ",
   "offlineMessage": "آپ آف لائن ہیں۔ صرف ڈاؤن لوڈ شدہ مواد دستیاب ہے۔",
   "offlineDownloadAvailable": "آف لائن سننے کے لیے ڈاؤن لوڈ کریں",
-  
   "feedbackTitle": "رائے بھیجیں",
   "feedbackHint": "ہمیں بتائیں آپ کیا سوچتے ہیں...",
   "feedbackSubmit": "جمع کرائیں",
   "feedbackThankYou": "آپ کی رائے کا شکریہ!",
-  
   "updateRequired": "اپ ڈیٹ ضروری ہے",
   "updateMessage": "نیا ورژن دستیاب ہے۔ براہ کرم جاری رکھنے کے لیے اپ ڈیٹ کریں۔",
-  "updateButton": "ابھی اپ ڈیٹ کریں"
+  "updateButton": "ابھی اپ ڈیٹ کریں",
+  "accountTitle": "اسے اپنا بنائیں",
+  "appLanguage": "ایپ کی زبان",
+  "appLanguageDescription": "ایپ انٹرفیس کی زبان",
+  "appLanguageSubtitle": "ایپ اسی زبان میں دکھائی جائے گی",
+  "appLanguageTitle": "ایپ کی زبان منتخب کریں",
+  "contentLanguagesSubtitle": "وہ زبانیں منتخب کریں جو آپ سننا چاہتے ہیں",
+  "contentLanguagesTitle": "مواد کی زبانیں منتخب کریں",
+  "continueButton": "جاری رکھیں",
+  "skipForNow": "فی الحال چھوڑ دیں",
+  "voiceTitle": "ایک آواز منتخب کریں"
 }

@@ -1,11 +1,21 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:just_audio/just_audio.dart' show ProcessingState;
 
 import '../../core/constants.dart';
+import '../../core/widget_service.dart';
 import '../../data/local/local_store.dart';
 import '../../data/models/catalog_item.dart';
 import '../../data/models/item_signals.dart';
+import '../../data/models/user_profile.dart';
 import '../../features/ads/ad_models.dart';
 import '../../features/ads/ad_provider.dart';
+import '../../features/engagement/engagement_service.dart';
+import '../../features/kids_mode/kids_mode_provider.dart';
+import '../../features/player/providers/sleep_timer_provider.dart';
+import '../../features/streaks/streaks_service.dart';
 import '../../radio_engine/radio_engine.dart';
 import 'providers.dart';
 
@@ -57,8 +67,48 @@ class RadioController extends Notifier<RadioState> {
   RadioEngine get _engine => ref.read(radioEngineProvider);
   LocalStore get _store => ref.read(localStoreProvider);
 
+  /// Set around user-initiated skips so the player-index listener doesn't
+  /// treat them as natural (gapless) advances.
+  bool _manualAdvance = false;
+
+  /// Whether the previous player index was an ad slot.
+  bool _lastWasAd = false;
+
+  /// Guards end-of-queue handling so it only fires once per session.
+  bool _queueEnded = false;
+
   @override
-  RadioState build() => const RadioState();
+  RadioState build() {
+    // Keep isPlaying synced with the real player state so the UI reflects
+    // playback started/paused from anywhere (lock screen, headphones, ads).
+    final handler = ref.read(audioHandlerProvider);
+    final playingSub = handler.playingStream.listen((playing) {
+      if (!playing) _saveResumePoint();
+      if (state.isPlaying != playing) {
+        state = state.copyWith(isPlaying: playing);
+      }
+    });
+
+    // Single source of truth for the current track: when just_audio advances
+    // (gapless auto-advance, lock-screen skip, ad ending), sync currentIndex,
+    // log completion signals, and feed the engine/ads/sleep-timer.
+    final indexSub =
+        handler.currentIndexStream.listen(_onPlayerIndexChanged);
+
+    // End of queue: the index stream doesn't fire when the last item ends.
+    final stateSub = handler.processingStateStream.listen((s) {
+      if (s == ProcessingState.completed) {
+        _onQueueCompleted();
+      }
+    });
+
+    ref.onDispose(() {
+      playingSub.cancel();
+      indexSub.cancel();
+      stateSub.cancel();
+    });
+    return const RadioState();
+  }
 
   Map<String, ItemSignals> _signals() => _store.loadAllSignals();
 
@@ -68,25 +118,63 @@ class RadioController extends Notifier<RadioState> {
   /// Build a fresh radio queue from the user's interests and start playing.
   Future<void> startRadio({List<String>? onlyInterests}) async {
     state = state.copyWith(loading: true);
-    final catalog = ref.read(catalogProvider).valueOrNull;
+    _queueEnded = false;
+    _manualAdvance = false;
+    _lastWasAd = false;
+    final catalog = ref.read(catalogProvider).value;
     var profile = ref.read(profileProvider);
-    print('[RadioController] startRadio() - Profile languages: ${profile.languages}, interests: ${profile.interests}');
-    print('[RadioController] startRadio() - Catalog items: ${catalog?.items.length ?? 0}');
+    debugPrint('[RadioController] startRadio() - Profile languages: ${profile.languages}, interests: ${profile.interests}');
+    debugPrint('[RadioController] startRadio() - Catalog items: ${catalog?.items.length ?? 0}');
     if (onlyInterests != null) {
       profile = profile.copyWith(interests: onlyInterests);
     }
+    // Kids Mode always wins: restrict every queue to kid-safe interests.
+    if (ref.read(kidsModeProvider)) {
+      profile = profile.copyWith(
+          interests: KidsModeController.kidSafeInterests);
+    }
     if (catalog == null) {
-      print('[RadioController] ERROR: Catalog is null!');
+      debugPrint('[RadioController] ERROR: Catalog is null!');
       state = state.copyWith(loading: false);
       return;
     }
 
     final queue = _engine.buildRadio(profile, catalog, _signals(),
         now: DateTime.now());
-    print('[RadioController] Built queue with ${queue.length} items');
+    debugPrint('[RadioController] Built queue with ${queue.length} items');
     if (queue.isEmpty) {
-      print('[RadioController] WARNING: Empty queue! Check if profile languages/interests match catalog items');
+      debugPrint('[RadioController] WARNING: Empty queue! Check if profile languages/interests match catalog items');
     }
+    await _launchQueue(queue, profile);
+  }
+
+  /// Start playback with an explicit, pre-built list of items — used by
+  /// Morning Brief, festival rooms, Listener's Choice, offline packs and
+  /// "continue listening".
+  Future<void> startRadioWithItems(List<CatalogItem> items) async {
+    if (items.isEmpty) return;
+    state = state.copyWith(loading: true);
+    _queueEnded = false;
+    _manualAdvance = false;
+    _lastWasAd = false;
+    var queue = items;
+    if (ref.read(kidsModeProvider)) {
+      final safe = items
+          .where((it) => it.interests
+              .any(KidsModeController.kidSafeInterests.contains))
+          .toList();
+      if (safe.isEmpty) {
+        state = state.copyWith(loading: false);
+        return;
+      }
+      queue = safe;
+    }
+    await _launchQueue(queue, ref.read(profileProvider));
+  }
+
+  /// Hand a built queue to the audio handler (ads, callbacks, playback).
+  Future<void> _launchQueue(
+      List<CatalogItem> queue, UserProfile profile) async {
     state = RadioState(queue: queue, currentIndex: 0, loading: false);
 
     final handler = ref.read(audioHandlerProvider);
@@ -101,13 +189,18 @@ class RadioController extends Notifier<RadioState> {
 
       final decision = adDecision.shouldShowPreRoll(
         state: sessionState,
-        isPremium: _adsDisabled,
+        isPremium: ref.read(profileProvider).isPremium,
+        isKidsMode: ref.read(kidsModeProvider),
+        inGracePeriod: ref.read(adGracePeriodProvider),
       );
 
       if (decision.show) {
         // Fetch the ad
         final adService = ref.read(adServiceProvider);
-        preRollAd = await adService.fetchAd(slotType: AdSlotType.preRoll);
+        preRollAd = await adService.fetchAd(
+          slotType: AdSlotType.preRoll,
+          lastAdId: sessionState.lastPlayedAdId,
+        );
 
         if (preRollAd != null) {
           sessionNotifier.onAdPlayed(preRollAd.id, isPreRoll: true);
@@ -128,13 +221,16 @@ class RadioController extends Notifier<RadioState> {
     );
     
     if (!success) {
-      print('[RadioController] Failed to set radio queue');
+      debugPrint('[RadioController] Failed to set radio queue');
       state = state.copyWith(loading: false, isPlaying: false);
       return;
     }
     
-    print('[RadioController] Queue set successfully, starting playback');
+    debugPrint('[RadioController] Queue set successfully, starting playback');
     await handler.play();
+
+    // Engagement: learn the habitual listening hour (best-effort).
+    unawaited(ref.read(engagementControllerProvider).onSessionStart());
 
     // If no pre-roll, fire play event for first content
     if (preRollAd == null) {
@@ -189,7 +285,7 @@ class RadioController extends Notifier<RadioState> {
 
   /// Called when an audio error occurs.
   void _onAudioError(Object error) {
-    print('[RadioController] Audio error: $error');
+    debugPrint('[RadioController] Audio error: $error');
     state = state.copyWith(loading: false);
     // Try to skip to next track on error
     skipNext();
@@ -197,11 +293,18 @@ class RadioController extends Notifier<RadioState> {
 
   Future<void> play() async {
     final handler = ref.read(audioHandlerProvider);
-    print('[RadioController] play() called, queue length: ${state.queue.length}, current index: ${state.currentIndex}');
-    print('[RadioController] Handler isReady: ${handler.isReady}, isLoading: ${handler.isLoading}');
+    if (_queueEnded) {
+      // The queue finished: restart from the top instead of a silent no-op.
+      _queueEnded = false;
+      _manualAdvance = true;
+      await handler.skipToQueueItem(handler.playerIndexForContent(0));
+      _advanceTo(0, rerank: false);
+    }
+    debugPrint('[RadioController] play() called, queue length: ${state.queue.length}, current index: ${state.currentIndex}');
+    debugPrint('[RadioController] Handler isReady: ${handler.isReady}, isLoading: ${handler.isLoading}');
     await handler.play();
     state = state.copyWith(isPlaying: true);
-    print('[RadioController] play() completed, isPlaying: ${handler.isPlaying}');
+    debugPrint('[RadioController] play() completed, isPlaying: ${handler.isPlaying}');
   }
 
   Future<void> pause() async {
@@ -216,19 +319,23 @@ class RadioController extends Notifier<RadioState> {
     // If currently playing an ad, use the skip ad method
     if (state.isPlayingAd) {
       final handler = ref.read(audioHandlerProvider);
+      _manualAdvance = true;
       final skipped = await handler.skipCurrentAd();
       if (!skipped) {
         // Ad cannot be skipped yet
+        _manualAdvance = false;
         return;
       }
-    } else {
-      final cur = state.current;
-      if (cur != null) _logEvent(RadioEvent.skip, cur);
-      await ref.read(audioHandlerProvider).skipToNext();
-
-      // Check for mid-roll ad insertion
-      await _maybeInsertMidRollAd();
+      return; // Index listener reconciles state when the ad slot is left.
     }
+
+    final cur = state.current;
+    if (cur != null) _logEvent(RadioEvent.skip, cur);
+    _manualAdvance = true;
+    await ref.read(audioHandlerProvider).skipToNext();
+
+    // Check for mid-roll ad insertion
+    await _maybeInsertMidRollAd();
     _advanceTo(state.currentIndex + 1, rerank: true);
   }
 
@@ -241,17 +348,27 @@ class RadioController extends Notifier<RadioState> {
     final sessionNotifier = ref.read(adSessionStateProvider.notifier);
     final sessionState = ref.read(adSessionStateProvider);
 
+    // Never interrupt a bedtime/sleep run with a mid-roll.
+    final isBedtimeRun =
+        state.current?.interests.contains('bedtime') ?? false;
+
     final decision = adDecision.shouldShowMidRoll(
       state: sessionState,
-      isPremium: _adsDisabled,
+      isPremium: ref.read(profileProvider).isPremium,
       currentItemIndex: state.currentIndex,
+      isKidsMode: ref.read(kidsModeProvider),
+      inGracePeriod: ref.read(adGracePeriodProvider),
+      isBedtimeContent: isBedtimeRun,
     );
 
     if (!decision.show) return;
 
     // Fetch the ad
     final adService = ref.read(adServiceProvider);
-    final ad = await adService.fetchAd(slotType: AdSlotType.midRoll);
+    final ad = await adService.fetchAd(
+      slotType: AdSlotType.midRoll,
+      lastAdId: sessionState.lastPlayedAdId,
+    );
 
     if (ad != null) {
       final handler = ref.read(audioHandlerProvider);
@@ -261,12 +378,24 @@ class RadioController extends Notifier<RadioState> {
   }
 
   Future<void> skipPrevious() async {
-    await ref.read(audioHandlerProvider).skipToPrevious();
+    final handler = ref.read(audioHandlerProvider);
+    // Standard transport behavior: restart the current track when more than
+    // 3 seconds in (or already at the first item); otherwise go back.
+    if (handler.position > const Duration(seconds: 3) ||
+        state.currentIndex == 0) {
+      await handler.seek(Duration.zero);
+      return;
+    }
+    _manualAdvance = true;
+    await handler.skipToPrevious();
     _advanceTo(state.currentIndex - 1, rerank: false);
   }
 
   Future<void> playAt(int index) async {
-    await ref.read(audioHandlerProvider).skipToQueueItem(index);
+    final handler = ref.read(audioHandlerProvider);
+    _queueEnded = false;
+    _manualAdvance = true;
+    await handler.skipToQueueItem(handler.playerIndexForContent(index));
     _advanceTo(index, rerank: false);
     await play();
   }
@@ -280,8 +409,7 @@ class RadioController extends Notifier<RadioState> {
 
     final cur = state.current;
     if (cur != null) {
-      _logEvent(RadioEvent.complete, cur);
-      _bumpComplete(cur.id);
+      _onItemCompleted(cur);
     }
 
     // Increment items since last ad
@@ -315,12 +443,67 @@ class RadioController extends Notifier<RadioState> {
   /// Get the current ad position for skip countdown.
   Duration get adPosition {
     final handler = ref.read(audioHandlerProvider);
-    return handler.isCurrentItemAd
-        ? handler.positionStream.first as Duration? ?? Duration.zero
-        : Duration.zero;
+    return handler.isCurrentItemAd ? handler.position : Duration.zero;
   }
 
   // ---- internals ------------------------------------------------------------
+
+  /// Reacts to every player queue-index change — the single source of truth
+  /// for [RadioState.currentIndex].
+  void _onPlayerIndexChanged(int? playerIndex) {
+    if (playerIndex == null || state.queue.isEmpty) return;
+    final handler = ref.read(audioHandlerProvider);
+    final wasAd = _lastWasAd;
+    final contentIndex = handler.contentIndexFor(playerIndex);
+    _lastWasAd = contentIndex == null;
+
+    if (contentIndex == null) return; // Ad slot — ad callbacks own the state.
+
+    if (_manualAdvance) {
+      // User-initiated skip: state was (or will be) updated by the caller;
+      // just reconcile if the player landed somewhere unexpected.
+      _manualAdvance = false;
+      if (contentIndex != state.currentIndex) {
+        state = state.copyWith(currentIndex: contentIndex);
+      }
+      return;
+    }
+
+    if (contentIndex == state.currentIndex) return;
+    _handleNaturalAdvance(contentIndex, previousWasAd: wasAd);
+  }
+
+  /// A track finished and just_audio advanced gaplessly: log the completion
+  /// (engine learning + streaks + ad pacing), notify the sleep timer, sync
+  /// state, then consider scheduling a mid-roll after the new item.
+  Future<void> _handleNaturalAdvance(int newIndex,
+      {required bool previousWasAd}) async {
+    if (!previousWasAd) {
+      final finished = state.current;
+      if (finished != null) {
+        _onItemCompleted(finished);
+        ref.read(adSessionStateProvider.notifier).onContentPlayed();
+        ref.read(sleepTimerProvider.notifier).onEpisodeComplete();
+      }
+    }
+    _advanceTo(newIndex, rerank: false);
+    if (!previousWasAd) {
+      await _maybeInsertMidRollAd();
+    }
+  }
+
+  /// The last item in the queue finished playing.
+  void _onQueueCompleted() {
+    if (_queueEnded || state.queue.isEmpty) return;
+    _queueEnded = true;
+    final cur = state.current;
+    if (cur != null && !state.isPlayingAd) {
+      _onItemCompleted(cur);
+    }
+    ref.read(sleepTimerProvider.notifier).onEpisodeComplete();
+    state = state.copyWith(isPlaying: false);
+    unawaited(ref.read(widgetServiceProvider).updateNowPlaying(null));
+  }
 
   void _advanceTo(int index, {required bool rerank}) {
     final clamped = index.clamp(0, (state.queue.length - 1).clamp(0, 1 << 30));
@@ -346,11 +529,52 @@ class RadioController extends Notifier<RadioState> {
       playCount: s.playCount + 1,
       lastPlayedAt: DateTime.now(),
     ));
+    // Keep the home-screen widget in step with playback (best-effort).
+    unawaited(
+        ref.read(widgetServiceProvider).updateNowPlaying(cur, isPlaying: true));
   }
 
   void _bumpComplete(String itemId) {
     final s = _store.signalsFor(itemId);
     _store.saveSignals(s.copyWith(completeCount: s.completeCount + 1));
+  }
+
+  /// Single funnel for a finished item: engine learning, local signals,
+  /// and streak/listening-time stats.
+  void _onItemCompleted(CatalogItem item) {
+    _logEvent(RadioEvent.complete, item);
+    _bumpComplete(item.id);
+    final minutes = (item.durationSec / 60).ceil().clamp(1, 120);
+    unawaited(ref
+        .read(listeningStatsProvider.notifier)
+        .recordListening(
+          minutes: minutes,
+          category: item.primaryInterest,
+          language: item.language,
+        )
+        .then((_) => ref.read(engagementControllerProvider).onItemListened()));
+  }
+
+  /// Persist where the listener left off so Home can offer "continue".
+  void _saveResumePoint() {
+    final cur = state.current;
+    if (cur == null || state.isPlayingAd) return;
+    final pos = ref.read(audioHandlerProvider).position;
+    if (pos < const Duration(seconds: 5)) return;
+    _store.putSetting(RadioController.resumePointKey, {
+      'itemId': cur.id,
+      'positionMs': pos.inMilliseconds,
+      'savedAt': DateTime.now().toIso8601String(),
+    });
+    ref.invalidate(resumePointProvider);
+  }
+
+  static const resumePointKey = 'resume_point';
+
+  /// Clear the stored resume point (after resuming or dismissing).
+  Future<void> clearResumePoint() async {
+    await _store.putSetting(RadioController.resumePointKey, null);
+    ref.invalidate(resumePointProvider);
   }
 
   void _logEvent(RadioEvent event, CatalogItem item) {
@@ -370,3 +594,21 @@ final favoritesProvider = Provider<List<ItemSignals>>(
     (ref) => ref.read(localStoreProvider).favorites());
 final recentlyPlayedProvider = Provider<List<ItemSignals>>(
     (ref) => ref.read(localStoreProvider).recentlyPlayed());
+
+/// Where the listener last stopped, for the "Continue listening" card.
+class ResumePoint {
+  final String itemId;
+  final Duration position;
+  const ResumePoint({required this.itemId, required this.position});
+}
+
+final resumePointProvider = Provider<ResumePoint?>((ref) {
+  final raw = ref
+      .read(localStoreProvider)
+      .getSetting<Map<dynamic, dynamic>>(RadioController.resumePointKey);
+  final itemId = raw?['itemId'] as String?;
+  final positionMs = raw?['positionMs'] as int?;
+  if (itemId == null || positionMs == null) return null;
+  return ResumePoint(
+      itemId: itemId, position: Duration(milliseconds: positionMs));
+});

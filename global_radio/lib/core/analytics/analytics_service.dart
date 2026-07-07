@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import 'analytics_events.dart';
 
 /// Abstract analytics service interface.
@@ -49,31 +51,31 @@ class NoopAnalyticsService implements AnalyticsService {
 class DebugAnalyticsService implements AnalyticsService {
   @override
   Future<void> initialize() async {
-    print('[Analytics] Initialized (debug mode)');
+    debugPrint('[Analytics] Initialized (debug mode)');
   }
 
   @override
   Future<void> logEvent(AnalyticsEvent event) async {
-    print('[Analytics] ${event.name}: ${event.parameters}');
+    debugPrint('[Analytics] ${event.name}: ${event.parameters}');
   }
 
   @override
   Future<void> setUserProperty(String name, String? value) async {
-    print('[Analytics] User property: $name = $value');
+    debugPrint('[Analytics] User property: $name = $value');
   }
 
   @override
   Future<void> setUserId(String? userId) async {
-    print('[Analytics] User ID: $userId');
+    debugPrint('[Analytics] User ID: $userId');
   }
 
   @override
   Future<void> setCurrentScreen(String screenName, {String? screenClass}) async {
-    print('[Analytics] Screen: $screenName ($screenClass)');
+    debugPrint('[Analytics] Screen: $screenName ($screenClass)');
   }
 
   @override
   Future<void> setAnalyticsCollectionEnabled(bool enabled) async {
-    print('[Analytics] Collection enabled: $enabled');
+    debugPrint('[Analytics] Collection enabled: $enabled');
   }
 }

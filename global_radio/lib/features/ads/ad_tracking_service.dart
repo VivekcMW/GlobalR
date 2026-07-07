@@ -193,6 +193,12 @@ class AdTrackingService {
             durationSeconds: ad.duration.inSeconds,
           ));
           break;
+        case 'AD_ERROR':
+          _analytics!.logEvent(AdFailEvent(
+            slotType: isSkippable ? 'skippable' : 'non_skippable',
+            reason: extra?['error']?.toString() ?? 'playback_error',
+          ));
+          break;
       }
     }
 

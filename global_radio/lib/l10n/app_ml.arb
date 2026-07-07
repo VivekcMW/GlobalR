@@ -1,9 +1,7 @@
 {
   "@@locale": "ml",
   "@@last_modified": "2026-06-24T00:00:00.000Z",
-  
   "appName": "ഗ്ലോബൽ റേഡിയോ",
-  
   "onboardingWelcome": "ഗ്ലോബൽ റേഡിയോയിലേക്ക് സ്വാഗതം",
   "onboardingSubtitle": "നിങ്ങളുടെ താൽപ്പര്യങ്ങൾക്കനുസരിച്ച് വ്യക്തിഗത ഓഡിയോ",
   "onboardingSelectLanguages": "നിങ്ങളുടെ ഭാഷകൾ തിരഞ്ഞെടുക്കുക",
@@ -12,7 +10,6 @@
   "onboardingContinue": "തുടരുക",
   "onboardingGetStarted": "ആരംഭിക്കുക",
   "onboardingSkip": "ഒഴിവാക്കുക",
-  
   "homeTitle": "ഹോം",
   "homeGreetingMorning": "സുപ്രഭാതം",
   "homeGreetingAfternoon": "ശുഭ ഉച്ച",
@@ -22,7 +19,6 @@
   "homeTrendingNow": "ഇപ്പോൾ ട്രെൻഡിംഗ്",
   "homeRecentlyPlayed": "അടുത്തിടെ പ്ലേ ചെയ്തത്",
   "homeQuickPicks": "ദ്രുത തിരഞ്ഞെടുപ്പുകൾ",
-  
   "libraryTitle": "ലൈബ്രറി",
   "libraryFavorites": "പ്രിയപ്പെട്ടവ",
   "libraryDownloads": "ഡൗൺലോഡുകൾ",
@@ -33,7 +29,6 @@
   "libraryAddFavorites": "പ്രിയപ്പെട്ടവയിലേക്ക് ചേർക്കാൻ ഹാർട്ട് ഐക്കൺ ടാപ്പ് ചെയ്യുക",
   "libraryDownloadContent": "ഓഫ്‌ലൈനിൽ കേൾക്കാൻ ഉള്ളടക്കം ഡൗൺലോഡ് ചെയ്യുക",
   "libraryStartListening": "നിങ്ങളുടെ ചരിത്രം കാണാൻ കേൾക്കാൻ തുടങ്ങുക",
-  
   "settingsTitle": "ക്രമീകരണങ്ങൾ",
   "settingsAccount": "അക്കൗണ്ട്",
   "settingsSignIn": "സൈൻ ഇൻ ചെയ്യുക",
@@ -53,7 +48,6 @@
   "settingsFeedback": "ഫീഡ്ബാക്ക് അയയ്ക്കുക",
   "settingsRateApp": "ആപ്പ് റേറ്റ് ചെയ്യുക",
   "settingsShareApp": "സുഹൃത്തുക്കളുമായി പങ്കിടുക",
-  
   "playerNowPlaying": "ഇപ്പോൾ പ്ലേ ചെയ്യുന്നു",
   "playerUpNext": "അടുത്തത്",
   "playerPlaybackSpeed": "പ്ലേബാക്ക് വേഗത",
@@ -64,29 +58,24 @@
   "playerRemoveFromFavorites": "പ്രിയപ്പെട്ടവയിൽ നിന്ന് നീക്കം ചെയ്യുക",
   "playerDownload": "ഡൗൺലോഡ് ചെയ്യുക",
   "playerShare": "പങ്കിടുക",
-  
   "interestsTitle": "താൽപ്പര്യങ്ങൾ എഡിറ്റ് ചെയ്യുക",
   "interestsSubtitle": "നിങ്ങൾ കേൾക്കാൻ ആഗ്രഹിക്കുന്ന വിഷയങ്ങൾ തിരഞ്ഞെടുക്കുക",
   "interestsSelected": "{count} തിരഞ്ഞെടുത്തു",
   "interestsSave": "സേവ് ചെയ്യുക",
-  
   "languagesTitle": "ഭാഷകൾ",
   "languagesSubtitle": "നിങ്ങളുടെ മുൻഗണന ഭാഷകൾ തിരഞ്ഞെടുക്കുക",
   "languagesSave": "സേവ് ചെയ്യുക",
-  
   "searchTitle": "തിരയുക",
   "searchHint": "ഉള്ളടക്കം തിരയുക...",
   "searchVoiceHint": "വോയ്സ് ഉപയോഗിച്ച് തിരയാൻ ടാപ്പ് ചെയ്യുക",
   "searchNoResults": "ഫലങ്ങൾ കണ്ടെത്തിയില്ല",
   "searchTryDifferent": "വ്യത്യസ്ത കീവേഡുകൾ ശ്രമിക്കുക",
-  
   "authSignInTitle": "സൈൻ ഇൻ ചെയ്യുക",
   "authSignInSubtitle": "നിങ്ങളുടെ മുൻഗണനകൾ സിങ്ക് ചെയ്യാൻ സൈൻ ഇൻ ചെയ്യുക",
   "authContinueWithGoogle": "Google ഉപയോഗിച്ച് തുടരുക",
   "authContinueWithApple": "Apple ഉപയോഗിച്ച് തുടരുക",
   "authContinueAsGuest": "അതിഥിയായി തുടരുക",
   "authSignOutConfirm": "നിങ്ങൾ തീർച്ചയായും സൈൻ ഔട്ട് ചെയ്യണോ?",
-  
   "premiumTitle": "പ്രീമിയം ആകുക",
   "premiumSubtitle": "എല്ലാ സവിശേഷതകളും അൺലോക്ക് ചെയ്യുക",
   "premiumFeature1": "പരസ്യമില്ലാത്ത കേൾവി",
@@ -94,13 +83,11 @@
   "premiumFeature3": "പ്രീമിയം വോയ്സുകൾ",
   "premiumSubscribe": "{price}-ന് സബ്സ്ക്രൈബ് ചെയ്യുക",
   "premiumRestore": "വാങ്ങൽ പുനഃസ്ഥാപിക്കുക",
-  
   "errorGeneric": "എന്തോ കുഴപ്പം സംഭവിച്ചു",
   "errorNetwork": "ഇന്റർനെറ്റ് കണക്ഷൻ ഇല്ല",
   "errorRetry": "വീണ്ടും ശ്രമിക്കുക",
   "errorLoadingContent": "ഉള്ളടക്കം ലോഡ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു",
   "errorPlayback": "പ്ലേബാക്ക് പിശക്",
-  
   "commonCancel": "റദ്ദാക്കുക",
   "commonOk": "ശരി",
   "commonSave": "സേവ് ചെയ്യുക",
@@ -109,24 +96,29 @@
   "commonDone": "പൂർത്തിയായി",
   "commonLoading": "ലോഡ് ചെയ്യുന്നു...",
   "commonRefresh": "പുതുക്കുക",
-  
   "notificationDailyTitle": "നിങ്ങളുടെ ദൈനിക ഓഡിയോ",
   "notificationDailyBody": "നിങ്ങളുടെ വ്യക്തിഗത ഉള്ളടക്കം തയ്യാറാണ്",
-  
   "adSkipIn": "{seconds} സെക്കൻഡിൽ ഒഴിവാക്കുക",
   "adSkip": "പരസ്യം ഒഴിവാക്കുക",
   "adLabel": "പരസ്യം",
-  
   "offlineTitle": "ഓഫ്‌ലൈൻ മോഡ്",
   "offlineMessage": "നിങ്ങൾ ഓഫ്‌ലൈനിലാണ്. ഡൗൺലോഡ് ചെയ്ത ഉള്ളടക്കം മാത്രമേ ലഭ്യമുള്ളൂ.",
   "offlineDownloadAvailable": "ഓഫ്‌ലൈനിൽ കേൾക്കാൻ ഡൗൺലോഡ് ചെയ്യുക",
-  
   "feedbackTitle": "ഫീഡ്ബാക്ക് അയയ്ക്കുക",
   "feedbackHint": "നിങ്ങളുടെ അഭിപ്രായം പറയുക...",
   "feedbackSubmit": "സമർപ്പിക്കുക",
   "feedbackThankYou": "നിങ്ങളുടെ ഫീഡ്ബാക്കിന് നന്ദി!",
-  
   "updateRequired": "അപ്ഡേറ്റ് ആവശ്യമാണ്",
   "updateMessage": "പുതിയ പതിപ്പ് ലഭ്യമാണ്. തുടരാൻ ദയവായി അപ്ഡേറ്റ് ചെയ്യുക.",
-  "updateButton": "ഇപ്പോൾ അപ്ഡേറ്റ് ചെയ്യുക"
+  "updateButton": "ഇപ്പോൾ അപ്ഡേറ്റ് ചെയ്യുക",
+  "accountTitle": "ഇത് നിങ്ങളുടേതാക്കൂ",
+  "appLanguage": "ആപ്പിന്റെ ഭാഷ",
+  "appLanguageDescription": "ആപ്പ് ഇന്റർഫേസിന്റെ ഭാഷ",
+  "appLanguageSubtitle": "ആപ്പ് ഈ ഭാഷയിൽ കാണിക്കും",
+  "appLanguageTitle": "ആപ്പിന്റെ ഭാഷ തിരഞ്ഞെടുക്കുക",
+  "contentLanguagesSubtitle": "കേൾക്കാൻ ആഗ്രഹിക്കുന്ന ഭാഷകൾ തിരഞ്ഞെടുക്കുക",
+  "contentLanguagesTitle": "ഉള്ളടക്ക ഭാഷകൾ തിരഞ്ഞെടുക്കുക",
+  "continueButton": "തുടരുക",
+  "skipForNow": "തൽക്കാലം ഒഴിവാക്കുക",
+  "voiceTitle": "ഒരു ശബ്ദം തിരഞ്ഞെടുക്കുക"
 }

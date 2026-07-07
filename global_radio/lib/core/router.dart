@@ -1,7 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/auth/sign_in_screen.dart';
+import '../features/car_mode/car_mode_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/intro/intro_splash_screen.dart';
 import '../features/library/library_screen.dart';
@@ -13,6 +15,7 @@ import '../features/settings/feedback_screen.dart';
 import '../features/settings/interests_screen.dart';
 import '../features/settings/legal_screen.dart';
 import '../features/settings/settings_screen.dart';
+import '../features/streaks/streaks_widgets.dart';
 import '../features/today/today_screen.dart';
 import '../shared/providers/providers.dart';
 import '../shared/widgets/scaffold_with_nav.dart';
@@ -50,7 +53,27 @@ GoRouter buildRouter(Ref ref) {
       ),
       GoRoute(
         path: '/player',
-        builder: (_, _) => const PlayerScreen(),
+        pageBuilder: (context, state) => CustomTransitionPage<void>(
+          key: state.pageKey,
+          fullscreenDialog: true,
+          transitionDuration: const Duration(milliseconds: 350),
+          reverseTransitionDuration: const Duration(milliseconds: 280),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            final curved = CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+              reverseCurve: Curves.easeInCubic,
+            );
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 1),
+                end: Offset.zero,
+              ).animate(curved),
+              child: child,
+            );
+          },
+          child: const PlayerScreen(),
+        ),
       ),
       GoRoute(
         path: '/signin',
@@ -79,6 +102,17 @@ GoRouter buildRouter(Ref ref) {
       GoRoute(
         path: '/parental',
         builder: (_, _) => const ParentalControlsScreen(),
+      ),
+      GoRoute(
+        path: '/car',
+        pageBuilder: (context, state) => const MaterialPage<void>(
+          fullscreenDialog: true,
+          child: CarModeScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/rewind',
+        builder: (_, _) => const WeeklyInsightsScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => ScaffoldWithNav(shell: shell),

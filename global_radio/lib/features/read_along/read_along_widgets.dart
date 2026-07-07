@@ -166,18 +166,38 @@ class _ReadAlongScreenState extends ConsumerState<ReadAlongScreen> {
           padding: EdgeInsets.only(
             top: segment.isParagraphStart ? 16 : 4,
           ),
-          child: AnimatedDefaultTextStyle(
-            duration: const Duration(milliseconds: 200),
-            style: TextStyle(
-              fontSize: settings.fontSize,
-              height: settings.lineSpacing,
-              color: textColor.withValues(alpha: opacity),
-              fontWeight: fontWeight,
-            ),
-            child: Text(
-              segment.text,
-              key: ValueKey('segment_$index'),
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 200),
+                style: TextStyle(
+                  fontSize: settings.fontSize,
+                  height: settings.lineSpacing,
+                  color: textColor.withValues(alpha: opacity),
+                  fontWeight: fontWeight,
+                ),
+                child: Text(
+                  segment.text,
+                  key: ValueKey('segment_$index'),
+                ),
+              ),
+              // Learning mode: translation under the active segment.
+              if (settings.showTranslation &&
+                  segment.translation != null &&
+                  isCurrent)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2, bottom: 4),
+                  child: Text(
+                    segment.translation!,
+                    style: TextStyle(
+                      fontSize: settings.fontSize - 4,
+                      fontStyle: FontStyle.italic,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+            ],
           ),
         );
       },
@@ -213,6 +233,15 @@ class _ReadAlongScreenState extends ConsumerState<ReadAlongScreen> {
             onSelected: (_) => ref
                 .read(readAlongSettingsProvider.notifier)
                 .toggleShowProgress(),
+          ),
+
+          // Learning mode: show translations when the transcript has them
+          FilterChip(
+            label: const Text('Translate'),
+            selected: settings.showTranslation,
+            onSelected: (_) => ref
+                .read(readAlongSettingsProvider.notifier)
+                .toggleShowTranslation(),
           ),
         ],
       ),

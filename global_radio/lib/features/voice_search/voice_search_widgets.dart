@@ -286,16 +286,60 @@ class _VoiceSearchSheetState extends ConsumerState<VoiceSearchSheet>
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
-          FilledButton.icon(
-            onPressed: () {
-              ref.read(voiceSearchControllerProvider).startListening();
-            },
-            icon: const Icon(Icons.refresh),
-            label: const Text('Try again'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              FilledButton.icon(
+                onPressed: () {
+                  ref.read(voiceSearchControllerProvider).startListening();
+                },
+                icon: const Icon(Icons.refresh),
+                label: const Text('Try again'),
+              ),
+              const SizedBox(width: 12),
+              OutlinedButton.icon(
+                onPressed: _showTypedInput,
+                icon: const Icon(Icons.keyboard),
+                label: const Text('Type instead'),
+              ),
+            ],
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _showTypedInput() async {
+    final controller = TextEditingController();
+    final query = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Ask the Radio'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          textInputAction: TextInputAction.search,
+          decoration: const InputDecoration(
+            hintText: 'e.g. "Play bedtime stories"',
+          ),
+          onSubmitted: (v) => Navigator.pop(ctx, v),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, controller.text),
+            child: const Text('Search'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (query != null && query.trim().isNotEmpty) {
+      ref.read(voiceSearchControllerProvider).submitTypedQuery(query);
+    }
   }
 
   Widget _buildMicButton(bool isListening) {

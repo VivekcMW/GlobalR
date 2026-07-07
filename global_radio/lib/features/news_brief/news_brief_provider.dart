@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../../data/models/catalog_item.dart';
 import '../../shared/providers/providers.dart';
@@ -98,7 +99,7 @@ final newsBriefServiceProvider = Provider<NewsBriefService?>((ref) {
   final catalogAsync = ref.watch(catalogProvider);
   final profile = ref.watch(profileProvider);
   
-  final catalog = catalogAsync.valueOrNull;
+  final catalog = catalogAsync.value;
   if (catalog == null) return null;
   
   return NewsBriefService(
