@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
@@ -164,14 +166,29 @@ class PackDownloaderService {
     );
 
     try {
-      // Simulate download (in real app, would download from CDN)
-      for (int i = 1; i <= 10; i++) {
-        await Future.delayed(const Duration(milliseconds: 200));
-        yield PackDownloadProgress(
-          packId: pack.id,
-          status: PackDownloadStatus.downloading,
-          progress: i / 10,
-        );
+      final dio = Dio();
+      final url = 'https://storage.googleapis.com/global_radio_assets/packs/${pack.id}.zip';
+      final savePath = '${_downloadDir!.path}/${pack.id}.zip';
+
+      final StreamController<PackDownloadProgress> progressController = StreamController();
+
+      dio.download(url, savePath, onReceiveProgress: (received, total) {
+        if (total != -1) {
+          progressController.add(PackDownloadProgress(
+            packId: pack.id,
+            status: PackDownloadStatus.downloading,
+            progress: received / total,
+          ));
+        }
+      }).then((_) {
+        progressController.close();
+      }).catchError((e) {
+        progressController.addError(e);
+        progressController.close();
+      });
+
+      await for (final progress in progressController.stream) {
+        yield progress;
       }
 
       // Mark as downloaded

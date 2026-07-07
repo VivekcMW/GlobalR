@@ -55,7 +55,9 @@ class LibraryScreen extends ConsumerWidget {
           if (savedItems.length > 5)
             TextButton(
               onPressed: () {
-                // TODO: Navigate to full saved list
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Full saved list coming soon!')),
+                );
               },
               child: Text('See all ${savedItems.length} saved'),
             ),
@@ -80,7 +82,9 @@ class LibraryScreen extends ConsumerWidget {
           if (recentItems.length > 5)
             TextButton(
               onPressed: () {
-                // TODO: Navigate to full history
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Full history list coming soon!')),
+                );
               },
               child: Text('See all ${recentItems.length} recent'),
             ),

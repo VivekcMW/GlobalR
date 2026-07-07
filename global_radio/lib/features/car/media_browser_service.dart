@@ -1,6 +1,11 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/offline/offline_content_service.dart';
+import '../../data/local/local_store.dart';
+import '../../data/repositories/catalog_repository.dart';
+import '../../shared/providers/providers.dart';
+
 /// Media browser structure for Android Auto / Apple CarPlay.
 /// Defines the hierarchy of browsable content.
 
@@ -54,6 +59,17 @@ class BrowsableItem {
 
 /// Service for providing media browser content to Android Auto / CarPlay.
 class MediaBrowserService {
+  final LocalStore _localStore;
+  final CatalogRepository _catalogRepository;
+  final OfflineContentService _offlineContentService;
+
+  MediaBrowserService({
+    required LocalStore localStore,
+    required CatalogRepository catalogRepository,
+    required OfflineContentService offlineContentService,
+  })  : _localStore = localStore,
+        _catalogRepository = catalogRepository,
+        _offlineContentService = offlineContentService;
   /// Get root items for the media browser.
   List<BrowsableItem> getRootItems() {
     return [
@@ -180,69 +196,103 @@ class MediaBrowserService {
     }
   }
 
-  /// Get recently played items (mock).
+  /// Get recently played items.
   Future<List<BrowsableItem>> _getRecentlyPlayedItems() async {
-    // In real implementation, fetch from history provider
-    return [
-      const BrowsableItem(
-        id: '${MediaBrowserIds.itemPrefix}recent_1',
-        title: 'Morning Bhajan',
-        subtitle: 'Devotional · Hindi',
+    final catalog = await _catalogRepository.loadInitial();
+    final items = _localStore.recentlyPlayed();
+
+    return items.map((signal) {
+      final matches = catalog.items.where((e) => e.id == signal.itemId);
+      final catalogItem = matches.isNotEmpty ? matches.first : null;
+
+      return BrowsableItem(
+        id: '${MediaBrowserIds.itemPrefix}${signal.itemId}',
+        title: catalogItem?.title ?? 'Unknown Item',
+        subtitle: catalogItem != null
+            ? '${catalogItem.primaryInterest} · ${catalogItem.language}'
+            : 'Unknown',
         playable: true,
         parentId: MediaBrowserIds.recentlyPlayed,
-      ),
-      const BrowsableItem(
-        id: '${MediaBrowserIds.itemPrefix}recent_2',
-        title: 'Kids Story Time',
-        subtitle: 'Stories · Tamil',
-        playable: true,
-        parentId: MediaBrowserIds.recentlyPlayed,
-      ),
-    ];
+      );
+    }).toList();
   }
 
-  /// Get favorite items (mock).
+  /// Get favorite items.
   Future<List<BrowsableItem>> _getFavoriteItems() async {
-    return [];
+    final catalog = await _catalogRepository.loadInitial();
+    final items = _localStore.favorites();
+
+    return items.map((signal) {
+      final matches = catalog.items.where((e) => e.id == signal.itemId);
+      final catalogItem = matches.isNotEmpty ? matches.first : null;
+
+      return BrowsableItem(
+        id: '${MediaBrowserIds.itemPrefix}${signal.itemId}',
+        title: catalogItem?.title ?? 'Unknown Item',
+        subtitle: catalogItem != null
+            ? '${catalogItem.primaryInterest} · ${catalogItem.language}'
+            : 'Unknown',
+        playable: true,
+        parentId: MediaBrowserIds.favorites,
+      );
+    }).toList();
   }
 
-  /// Get downloaded items (mock).
+  /// Get downloaded items.
   Future<List<BrowsableItem>> _getDownloadedItems() async {
-    return [];
+    final items = _offlineContentService.downloadedContent;
+
+    return items.map((item) {
+      return BrowsableItem(
+        id: '${MediaBrowserIds.itemPrefix}${item.id}',
+        title: item.title,
+        subtitle: '${item.interest} · Downloaded',
+        playable: true,
+        parentId: MediaBrowserIds.downloads,
+      );
+    }).toList();
   }
 
   /// Get items for a specific category.
   Future<List<BrowsableItem>> _getItemsForCategory(String category) async {
-    // In real implementation, fetch from catalog
-    return [
-      BrowsableItem(
-        id: '${MediaBrowserIds.itemPrefix}${category}_1',
-        title: 'Sample ${category.replaceAll('_', ' ')} 1',
-        subtitle: category,
+    final catalog = await _catalogRepository.loadInitial();
+    final items = catalog.items.where((e) => e.interests.contains(category)).toList();
+
+    return items.map((item) {
+      return BrowsableItem(
+        id: '${MediaBrowserIds.itemPrefix}${item.id}',
+        title: item.title,
+        subtitle: item.language,
         playable: true,
         parentId: '${MediaBrowserIds.categoryPrefix}$category',
-      ),
-    ];
+      );
+    }).toList();
   }
 
   /// Get items for a specific language.
   Future<List<BrowsableItem>> _getItemsForLanguage(String language) async {
-    // In real implementation, fetch from catalog
-    return [
-      BrowsableItem(
-        id: '${MediaBrowserIds.itemPrefix}${language}_1',
-        title: 'Sample $language Content',
-        subtitle: language,
+    final catalog = await _catalogRepository.loadInitial();
+    final items = catalog.items.where((e) => e.language == language).toList();
+
+    return items.map((item) {
+      return BrowsableItem(
+        id: '${MediaBrowserIds.itemPrefix}${item.id}',
+        title: item.title,
+        subtitle: item.primaryInterest,
         playable: true,
         parentId: '${MediaBrowserIds.languagePrefix}$language',
-      ),
-    ];
+      );
+    }).toList();
   }
 }
 
 /// Provider for media browser service.
 final mediaBrowserServiceProvider = Provider<MediaBrowserService>((ref) {
-  return MediaBrowserService();
+  return MediaBrowserService(
+    localStore: ref.read(localStoreProvider),
+    catalogRepository: ref.read(catalogRepositoryProvider),
+    offlineContentService: ref.read(offlineContentServiceProvider),
+  );
 });
 
 /// Extension to add media browser support to the audio handler.

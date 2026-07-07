@@ -81,7 +81,7 @@ class AppConfig {
   /// --dart-define=USE_FIREBASE_AUTH=true
   static const bool useFirebaseAuth = bool.fromEnvironment(
     'USE_FIREBASE_AUTH',
-    defaultValue: false,
+    defaultValue: true,
   );
 
   /// When true, the app subscribes to FCM topics for the daily-astrology push

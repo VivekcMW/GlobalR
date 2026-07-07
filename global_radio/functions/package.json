@@ -1,0 +1,17 @@
+{
+  "name": "global-radio-functions",
+  "description": "Server-side purchase verification for Global Radio premium entitlement.",
+  "engines": {
+    "node": "20"
+  },
+  "main": "index.js",
+  "scripts": {
+    "deploy": "gcloud functions deploy verifyPurchase --gen2 --runtime=nodejs20 --region=us-central1 --source=. --entry-point=verifyPurchase --trigger-http --no-allow-unauthenticated --service-account=play-billing-verifier@globalir.iam.gserviceaccount.com --set-secrets=APPLE_SHARED_SECRET=apple-shared-secret:latest"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.0",
+    "firebase-functions": "^6.0.0",
+    "googleapis": "^144.0.0"
+  },
+  "private": true
+}

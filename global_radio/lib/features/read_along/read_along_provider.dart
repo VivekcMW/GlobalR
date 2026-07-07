@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../shared/providers/providers.dart';
@@ -40,16 +43,111 @@ class ReadAlongSettingsNotifier extends StateNotifier<ReadAlongSettings> {
   }
 }
 
+/// Parses a VTT file content into a SyncedTranscript.
+SyncedTranscript? _parseVtt(String vttContent, String itemId) {
+  final lines = vttContent.split('\n');
+  final segments = <TextSegment>[];
+  int index = 0;
+
+  Duration? currentStart;
+  Duration? currentEnd;
+  final textBuffer = StringBuffer();
+
+  Duration parseTime(String time) {
+    final parts = time.trim().split(':');
+    if (parts.length == 3) {
+      final secParts = parts[2].split('.');
+      return Duration(
+        hours: int.parse(parts[0]),
+        minutes: int.parse(parts[1]),
+        seconds: int.parse(secParts[0]),
+        milliseconds: secParts.length > 1 ? int.parse(secParts[1]) : 0,
+      );
+    } else if (parts.length == 2) {
+      final secParts = parts[1].split('.');
+      return Duration(
+        minutes: int.parse(parts[0]),
+        seconds: int.parse(secParts[0]),
+        milliseconds: secParts.length > 1 ? int.parse(secParts[1]) : 0,
+      );
+    }
+    return Duration.zero;
+  }
+
+  for (var line in lines) {
+    line = line.trim();
+    if (line == 'WEBVTT') continue;
+
+    if (line.isEmpty) {
+      if (currentStart != null && textBuffer.isNotEmpty) {
+        segments.add(TextSegment(
+          index: index++,
+          text: textBuffer.toString().trim(),
+          startTime: currentStart!,
+          endTime: currentEnd ?? currentStart! + const Duration(seconds: 2),
+        ));
+        textBuffer.clear();
+        currentStart = null;
+        currentEnd = null;
+      }
+      continue;
+    }
+
+    if (line.contains('-->')) {
+      final times = line.split('-->');
+      currentStart = parseTime(times[0]);
+      currentEnd = parseTime(times[1]);
+      textBuffer.clear();
+    } else if (currentStart != null) {
+      if (textBuffer.isNotEmpty) textBuffer.write(' ');
+      textBuffer.write(line);
+    }
+  }
+
+  if (currentStart != null && textBuffer.isNotEmpty) {
+    segments.add(TextSegment(
+      index: index++,
+      text: textBuffer.toString().trim(),
+      startTime: currentStart!,
+      endTime: currentEnd ?? currentStart! + const Duration(seconds: 2),
+    ));
+  }
+
+  if (segments.isEmpty) return null;
+
+  return SyncedTranscript(
+    itemId: itemId,
+    language: 'en',
+    segments: segments,
+    fullText: segments.map((s) => s.text).join(' '),
+    totalDuration: segments.last.endTime,
+  );
+}
+
 /// Provider for the transcript of the current item.
-/// Note: Transcript sync is a premium feature and requires server-side support.
-/// This provider returns null until transcript integration is implemented.
 final currentTranscriptProvider = FutureProvider<SyncedTranscript?>((ref) async {
   final radioState = ref.watch(radioControllerProvider);
   final currentItem = radioState.current;
   if (currentItem == null) return null;
 
-  // TODO: Implement transcript loading from backend or local cache.
-  // For now, read-along feature is not available without transcript data.
+  try {
+    final dio = Dio();
+    final audioId = currentItem.id;
+    final url = 'https://api.globalradio.app/transcripts/$audioId.vtt';
+    
+    final response = await dio.get<String>(url);
+    if (response.statusCode == 200 && response.data != null) {
+      try {
+        final json = jsonDecode(response.data!);
+        return SyncedTranscript.fromJson(json);
+      } catch (_) {
+        return _parseVtt(response.data!, audioId);
+      }
+    }
+  } catch (e) {
+    // Return null if transcript not available or network error
+    return null;
+  }
   return null;
 });
 

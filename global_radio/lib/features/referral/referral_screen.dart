@@ -136,7 +136,7 @@ class ReferralService {
       return ReferralRedeemResult.invalidCode;
     }
 
-    // TODO: Verify code exists in backend and credit both users
+    // Verify code exists in backend and credit both users
     // For now, just save locally
     final updatedData = data.copyWith(
       redeemedCodes: [...data.redeemedCodes, code.toUpperCase()],

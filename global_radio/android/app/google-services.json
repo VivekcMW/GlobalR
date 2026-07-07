@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "229658503186",
+    "project_id": "globalir",
+    "storage_bucket": "globalir.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:229658503186:android:12392305ba819ff482d0cb",
+        "android_client_info": {
+          "package_name": "com.globalradio.global_radio"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "229658503186-gm0m2iou8hvh243mo4sejvfj44477iro.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.globalradio.global_radio",
+            "certificate_hash": "807effbc01e935b6a6963468d1625abc919f97ae"
+          }
+        },
+        {
+          "client_id": "229658503186-ts7ab8ieuc85mcbn84a403tqoh74m1lk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.globalradio.global_radio",
+            "certificate_hash": "cc3fc45eb929ceaaf4413a7a7d81f6fdfa255a36"
+          }
+        },
+        {
+          "client_id": "229658503186-h79a6rrf8vgdcoe1tfhe0c6soplddogq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_PYKUZbMMIPkg-Bu6lJoBUXct1yHFv68"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "229658503186-h79a6rrf8vgdcoe1tfhe0c6soplddogq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

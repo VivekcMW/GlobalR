@@ -15,7 +15,8 @@ class ShareButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final shareService = ref.read(shareServiceProvider);
-    final referralCode = ref.watch(referralCodeProvider);
+    final referralCodeAsync = ref.watch(referralCodeProvider);
+    final referralCode = referralCodeAsync.valueOrNull;
 
     return IconButton(
       icon: const Icon(Icons.share),
@@ -36,7 +37,8 @@ class ShareSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final shareService = ref.read(shareServiceProvider);
-    final referralCode = ref.watch(referralCodeProvider);
+    final referralCodeAsync = ref.watch(referralCodeProvider);
+    final referralCode = referralCodeAsync.valueOrNull;
     final link = shareService.generateItemLink(item.id, referralCode: referralCode);
 
     return SafeArea(
@@ -114,8 +116,10 @@ class ReferralScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final shareService = ref.read(shareServiceProvider);
-    final referralCode = ref.watch(referralCodeProvider);
-    final stats = ref.watch(referralStatsProvider);
+    final referralCodeAsync = ref.watch(referralCodeProvider);
+    final statsAsync = ref.watch(referralStatsProvider);
+    final referralCode = referralCodeAsync.valueOrNull ?? '...';
+    final stats = statsAsync.valueOrNull ?? const ReferralStats();
     final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(

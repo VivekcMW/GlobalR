@@ -53,3 +53,7 @@ echo "   (Default builds omit the flag and keep using the local dev auth.)"
 
 echo -e "\n${GREEN}Done. Phone/Google work on simulators once configured; Apple sign-in"
 echo -e "is best verified on a real device.${NC}"
+
+echo -e "\n${BLUE}Next: run tools/setup_gcp_backend.sh${NC} to create the Firestore"
+echo "database + security rules and (optionally) the server-side purchase"
+echo "verification Cloud Function."

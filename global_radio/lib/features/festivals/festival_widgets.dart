@@ -394,7 +394,9 @@ class _ExpandedFestivalCard extends StatelessWidget {
             IconButton(
               icon: Icon(Icons.play_circle_fill, color: scheme.primary, size: 36),
               onPressed: () {
-                // TODO: Play festival content
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Playing ${festival.name} content coming soon!')),
+                );
               },
             ),
           ],

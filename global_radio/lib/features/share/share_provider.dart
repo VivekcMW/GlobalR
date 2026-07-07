@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../shared/providers/providers.dart';
@@ -10,14 +11,19 @@ final shareServiceProvider = Provider<ShareService>((ref) => ShareService());
 final referralServiceProvider = Provider<ReferralService>((ref) => ReferralService());
 
 /// Provider for the user's referral code.
-final referralCodeProvider = Provider<String>((ref) {
-  // Referral codes are generated from user ID in a real implementation.
-  // For now, generate a temporary code.
-  final service = ref.read(referralServiceProvider);
-  return service.getOrCreateCode(null);
+final referralCodeProvider = FutureProvider<String>((ref) async {
+  final service = ref.watch(referralServiceProvider);
+  final profile = ref.watch(profileProvider);
+  
+  if (profile.userId != null) {
+    return await service.getOrCreateCode(profile.userId!);
+  }
+  
+  // Return a temporary code if not logged in
+  return 'GUEST1';
 });
 
-/// Provider for referral statistics (would come from backend).
+/// Provider for referral statistics.
 class ReferralStats {
   final int totalReferrals;
   final int successfulReferrals;
@@ -30,7 +36,24 @@ class ReferralStats {
   });
 }
 
-final referralStatsProvider = Provider<ReferralStats>((ref) {
-  // In a real implementation, this would fetch from the backend.
-  return const ReferralStats();
+final referralStatsProvider = FutureProvider<ReferralStats>((ref) async {
+  final profile = ref.watch(profileProvider);
+  
+  if (profile.userId == null) {
+    return const ReferralStats();
+  }
+  
+  final docSnap = await FirebaseFirestore.instance.collection('users').doc(profile.userId).get();
+  if (!docSnap.exists) {
+    return const ReferralStats();
+  }
+  
+  final data = docSnap.data() as Map<String, dynamic>?;
+  if (data == null) return const ReferralStats();
+  
+  return ReferralStats(
+    totalReferrals: data['totalReferrals'] ?? 0,
+    successfulReferrals: data['successfulReferrals'] ?? 0,
+    pendingRewards: data['pendingRewards'] ?? 0,
+  );
 });

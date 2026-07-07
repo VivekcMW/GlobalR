@@ -42,9 +42,13 @@ dependencies:
   # otherwise DevAuthService is used and these stay dormant. Requires a Firebase
   # project + native config from `flutterfire configure` (see tools/setup_firebase.sh).
   firebase_core: ^4.11.0
+  cloud_firestore: ^6.6.0
   firebase_auth: ^6.5.4
   google_sign_in: ^7.2.0
   sign_in_with_apple: ^8.1.0
+
+  # Server-side purchase verification (functions/index.js: verifyPurchase).
+  cloud_functions: ^6.0.2
 
   # Daily-astrology push. Active only with --dart-define=USE_PUSH=true (needs the
   # same Firebase config as auth). Otherwise NoopPushService is used and this

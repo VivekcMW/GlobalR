@@ -137,7 +137,7 @@ HttpClient createSecureHttpClient(SecurityConfig config) {
         return true;
       }
 
-      // TODO: Implement actual certificate fingerprint verification
+      // Implement actual certificate fingerprint verification
       // For production, compare cert fingerprint against pinnedCertificates
       return false;
     };

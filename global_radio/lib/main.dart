@@ -139,6 +139,7 @@ class GlobalRadioApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
     final locale = ref.watch(appLocaleProvider);
+    ref.watch(premiumSyncProvider); // keeps isPremium synced from Firestore
     return MaterialApp.router(
       title: 'Global Radio',
       debugShowCheckedModeBanner: false,

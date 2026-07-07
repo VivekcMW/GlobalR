@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../data/models/catalog_item.dart';
@@ -92,6 +93,7 @@ Download the app to explore more personalized audio content in your language.
 /// Manages referral codes and tracking.
 class ReferralService {
   final String Function() _generateCode;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   
   ReferralService({String Function()? generateCode})
       : _generateCode = generateCode ?? _defaultGenerateCode;
@@ -103,13 +105,21 @@ class ReferralService {
     return List.generate(6, (_) => chars[random.nextInt(chars.length)]).join();
   }
 
-  /// Get or create the user's referral code.
-  /// In a real implementation, this would be stored in Hive/Firebase.
-  String getOrCreateCode(String? existingCode) {
-    if (existingCode != null && existingCode.isNotEmpty) {
-      return existingCode;
+  /// Get or create the user's referral code from Firestore.
+  Future<String> getOrCreateCode(String userId) async {
+    final docRef = _firestore.collection('users').doc(userId);
+    final docSnap = await docRef.get();
+    
+    if (docSnap.exists) {
+      final data = docSnap.data() as Map<String, dynamic>?;
+      if (data != null && data.containsKey('referralCode') && data['referralCode'] != null) {
+        return data['referralCode'];
+      }
     }
-    return _generateCode();
+    
+    final newCode = _generateCode();
+    await docRef.set({'referralCode': newCode}, SetOptions(merge: true));
+    return newCode;
   }
 
   /// Validate a referral code format.
@@ -118,12 +128,33 @@ class ReferralService {
     return RegExp(r'^[A-Z0-9]+$').hasMatch(code);
   }
 
-  /// Track a referral (would call backend in real implementation).
+  /// Track a referral using Firestore.
   Future<void> trackReferral(String referralCode, String newUserId) async {
-    // In a real implementation, this would:
-    // 1. Validate the referral code
-    // 2. Credit the referrer
-    // 3. Give bonus to new user
-    // For now, this is a stub.
+    if (!isValidCode(referralCode)) return;
+    
+    // Find referrer
+    final snapshot = await _firestore.collection('users')
+        .where('referralCode', isEqualTo: referralCode)
+        .limit(1)
+        .get();
+        
+    if (snapshot.docs.isNotEmpty) {
+      final referrerId = snapshot.docs.first.id;
+      
+      // Credit referrer
+      await _firestore.collection('users').doc(referrerId).update({
+        'totalReferrals': FieldValue.increment(1),
+        'successfulReferrals': FieldValue.increment(1),
+        'pendingRewards': FieldValue.increment(1),
+      });
+      
+      // Log referral
+      await _firestore.collection('referrals').add({
+        'referrerId': referrerId,
+        'newUserId': newUserId,
+        'referralCode': referralCode,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    }
   }
 }

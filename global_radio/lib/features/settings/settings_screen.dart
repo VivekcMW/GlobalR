@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/constants.dart';
 import '../../data/services/legal_service.dart';
+import '../../data/services/payment_service.dart' show PaymentException;
 import '../../shared/providers/providers.dart';
 import '../../shared/widgets/voice_preview_button.dart';
 import '../auth/profile_setup_sheet.dart';
@@ -354,9 +355,15 @@ class SettingsScreen extends ConsumerWidget {
             FilledButton.icon(
               icon: const Icon(Icons.shop),
               onPressed: () async {
-                final ok = await ref.read(paymentServiceProvider).purchaseInApp();
-                if (ok) {
-                  await ref.read(profileProvider.notifier).setPremium(true);
+                // Purchasing only starts the store flow; entitlement is
+                // granted once the server verifies the receipt and the
+                // Firestore-backed premiumSyncProvider picks it up.
+                try {
+                  await ref.read(paymentServiceProvider).purchaseInApp();
+                } on PaymentException catch (e) {
+                  if (ctx.mounted) {
+                    ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text(e.message)));
+                  }
                 }
                 if (ctx.mounted) Navigator.pop(ctx);
               },

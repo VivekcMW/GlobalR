@@ -16,6 +16,7 @@ import '../../data/services/catalog_sync_service.dart';
 import '../../data/services/firebase_auth_service.dart';
 import '../../data/services/payment_service.dart';
 import '../../data/services/push_service.dart';
+import '../../data/services/user_db_service.dart';
 import '../../radio_engine/radio_engine.dart';
 
 /// Overridden in main() with the initialized singletons.
@@ -26,16 +27,19 @@ final audioHandlerProvider = Provider<GlobalRadioAudioHandler>(
   (ref) => throw UnimplementedError('audioHandlerProvider must be overridden'),
 );
 
-/// Local dev auth by default; swap to FirebaseAuthService once configured
-/// (see SETUP.md). Gated by [AppConfig.useFirebaseAuth].
 final authServiceProvider = Provider<AuthService>((ref) {
-  // Firebase backend only when explicitly enabled AND configured; otherwise the
-  // local dev stub keeps the app fully functional with no backend.
-  return AppConfig.useFirebaseAuth ? FirebaseAuthService() : DevAuthService();
+  return FirebaseAuthService();
 });
 
-final paymentServiceProvider =
-    Provider<PaymentService>((ref) => StubPaymentService());
+final userDbServiceProvider = Provider<UserDbService>((ref) {
+  return FirestoreUserDbService();
+});
+
+final paymentServiceProvider = Provider<PaymentService>((ref) {
+  final service = StorePaymentService();
+  ref.onDispose(service.dispose);
+  return service;
+});
 
 /// Daily-astrology push. Real FCM only when explicitly enabled AND Firebase is
 /// configured; otherwise a no-op so the app runs with no backend.
@@ -81,6 +85,7 @@ class ProfileController extends Notifier<UserProfile> {
   Future<void> _save(UserProfile p) async {
     state = p;
     await ref.read(localStoreProvider).saveProfile(p);
+    await ref.read(userDbServiceProvider).saveProfile(p);
   }
 
   Future<void> setLanguages(List<String> langs) async {
@@ -110,7 +115,16 @@ class ProfileController extends Notifier<UserProfile> {
   Future<void> setAvatar(String? avatar) => _save(state.copyWith(avatar: avatar));
   Future<void> setProfile({String? name, String? avatar}) =>
       _save(state.copyWith(name: name, avatar: avatar));
-  Future<void> setPremium(bool v) => _save(state.copyWith(isPremium: v));
+  /// Mirrors the server-verified entitlement (see [premiumSyncProvider]) into
+  /// the local profile. Updates local storage only — never writes back to
+  /// Firestore, since `isPremium` there is already the source this value came
+  /// from and the field is read-only to clients by rule.
+  Future<void> applyRemoteEntitlement(bool isPremium) async {
+    if (state.isPremium == isPremium) return;
+    final updated = state.copyWith(isPremium: isPremium);
+    state = updated;
+    await ref.read(localStoreProvider).saveProfile(updated);
+  }
   Future<void> setAppLocale(String? localeCode) =>
       _save(state.copyWith(appLocale: localeCode));
   Future<void> completeOnboarding() =>
@@ -124,6 +138,15 @@ class ProfileController extends Notifier<UserProfile> {
         email: user.email ?? state.email,
         signInProvider: user.provider,
         name: state.name ?? user.displayName,
+      ));
+
+  /// Merges a profile fetched from Firestore with the authenticated identity.
+  Future<void> applyFetchedProfile(UserProfile fetched, AuthUser user) => _save(fetched.copyWith(
+        userId: user.uid,
+        phone: user.phone ?? fetched.phone ?? state.phone,
+        email: user.email ?? fetched.email ?? state.email,
+        signInProvider: user.provider,
+        name: fetched.name ?? user.displayName ?? state.name,
       ));
 
   /// Drop account identity, keep on-device preferences.
@@ -148,20 +171,30 @@ class AuthController extends Notifier<void> {
 
   Future<String> sendOtp(String phone) => _auth.sendOtp(phone);
 
+  Future<void> _handleAuthUser(AuthUser user) async {
+    final dbService = ref.read(userDbServiceProvider);
+    final existingProfile = await dbService.fetchProfile(user.uid);
+    if (existingProfile != null) {
+      await ref.read(profileProvider.notifier).applyFetchedProfile(existingProfile, user);
+    } else {
+      await ref.read(profileProvider.notifier).applyAuth(user);
+    }
+  }
+
   Future<void> verifyOtp(String verificationId, String code,
       {String? phone}) async {
     final user = await _auth.verifyOtp(verificationId, code, phone: phone);
-    await ref.read(profileProvider.notifier).applyAuth(user);
+    await _handleAuthUser(user);
   }
 
   Future<void> signInWithGoogle() async {
     final user = await _auth.signInWithGoogle();
-    await ref.read(profileProvider.notifier).applyAuth(user);
+    await _handleAuthUser(user);
   }
 
   Future<void> signInWithApple() async {
     final user = await _auth.signInWithApple();
-    await ref.read(profileProvider.notifier).applyAuth(user);
+    await _handleAuthUser(user);
   }
 
   Future<void> signOut() async {
@@ -177,6 +210,29 @@ class AuthController extends Notifier<void> {
 
 final authControllerProvider =
     NotifierProvider<AuthController, void>(AuthController.new);
+
+/// Server-verified premium flag for [userId]. Firestore rules make the
+/// `verifyPurchase` Cloud Function the only writer of this field, so this
+/// stream — not any local flag — is the actual source of truth.
+final premiumStatusProvider = StreamProvider.family<bool, String>((ref, userId) {
+  return ref.read(userDbServiceProvider).watchPremiumStatus(userId);
+});
+
+/// Activates the sync from [premiumStatusProvider] into [profileProvider]
+/// (see [ProfileController.applyRemoteEntitlement]). Must be `watch`ed
+/// somewhere always-alive (the app root) to take effect.
+final premiumSyncProvider = Provider<void>((ref) {
+  final userId = ref.watch(profileProvider.select((p) => p.userId));
+  if (userId == null) return;
+  ref.listen<AsyncValue<bool>>(
+    premiumStatusProvider(userId),
+    (previous, next) {
+      next.whenData(
+          (isPremium) => ref.read(profileProvider.notifier).applyRemoteEntitlement(isPremium));
+    },
+    fireImmediately: true,
+  );
+});
 
 /// Catalog: serve cached/bundled immediately, then refresh from CDN.
 /// 
