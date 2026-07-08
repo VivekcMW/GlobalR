@@ -22,8 +22,12 @@ concurrency:
   cancel-in-progress: true
 
 # Production build flags — keep in sync with the Android release workflow.
-# DEMO_AUDIO must be false or every catalog item plays the bundled demo clip
-# instead of the real CDN URL (see CHANGELOG.md / lib/core/constants.dart).
+# DEMO_AUDIO stays true until the real CDN (tools/build_catalog.py output,
+# deployed via tools/deploy_r2.sh) is actually live — cdn.globalradio.app
+# doesn't currently resolve at all. Flipping this to false with no real CDN
+# behind it means every item fails to load and radio_controller.dart's error
+# handler just skips to the next one forever, so nothing plays. Flip once
+# real content is deployed (see tools/README.md).
 env:
   DART_DEFINES: >-
     --dart-define=USE_FIREBASE_AUTH=true
@@ -31,7 +35,7 @@ env:
     --dart-define=USE_CRASHLYTICS=true
     --dart-define=USE_REMOTE_CONFIG=true
     --dart-define=USE_PUSH=true
-    --dart-define=DEMO_AUDIO=false
+    --dart-define=DEMO_AUDIO=true
 
 jobs:
   # Runs on every push/PR with no Apple credentials required — verifies the
