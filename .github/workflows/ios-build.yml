@@ -177,8 +177,16 @@ jobs:
           path: global_radio/build/ios/ipa/*.ipa
           if-no-files-found: error
 
+      - name: Check for TestFlight upload secrets
+        id: testflight_check
+        env:
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+        # `secrets` can't be referenced directly in a step `if:` — route the
+        # check through an output instead.
+        run: echo "enabled=$([ -n "$KEY_ID" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
       - name: Upload to TestFlight
-        if: ${{ secrets.APP_STORE_CONNECT_KEY_ID != '' }}
+        if: steps.testflight_check.outputs.enabled == 'true'
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
