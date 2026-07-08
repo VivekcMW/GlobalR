@@ -17,9 +17,20 @@ class AppConfig {
   );
 
   /// Remote catalog.json location (delta-updated, cached on device daily).
+  /// Ignored when [useFirestoreCatalog] is true.
   static const String catalogUrl = String.fromEnvironment(
     'CATALOG_URL',
     defaultValue: '$cdnBase/catalog.json',
+  );
+
+  /// When true, the catalog is read from the Firestore `catalog_items`
+  /// collection (see tools/deploy_content.sh) instead of fetching
+  /// [catalogUrl] as a static JSON file. Requires Firebase to be configured
+  /// (implies useFirebase). Audio files themselves are unaffected — they
+  /// still stream from [cdnBase] either way.
+  static const bool useFirestoreCatalog = bool.fromEnvironment(
+    'USE_FIRESTORE_CATALOG',
+    defaultValue: false,
   );
 
   /// Base URL for legal documents (privacy policy, terms).
@@ -130,7 +141,7 @@ class AppConfig {
   );
 
   /// Firebase must be initialized for auth, push, analytics, or crashlytics.
-  static const bool useFirebase = useFirebaseAuth || usePush || useAnalytics || useCrashlytics || useRemoteConfig;
+  static const bool useFirebase = useFirebaseAuth || usePush || useAnalytics || useCrashlytics || useRemoteConfig || useFirestoreCatalog;
 }
 
 /// Listening interests. `id` is the stable key used in the catalog + storage.

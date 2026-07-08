@@ -1,0 +1,13 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Catalog audio is public content — same file served to every listener,
+    // meant to be cached/CDN'd. Uploads only happen server-side (gsutil /
+    // the content pipeline with a project-owner identity), never from the app.
+    match /audio/{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

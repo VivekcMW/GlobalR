@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
@@ -8,18 +9,23 @@ import '../local/local_store.dart';
 import '../models/catalog_item.dart';
 
 /// Loads the catalog with a resilient fallback chain:
-///   remote CDN (delta by version) → on-device cache → bundled seed asset.
+///   remote source (Firestore or static CDN JSON, delta by version) →
+///   on-device cache → bundled seed asset.
 /// Works on a first slow connection and fully offline.
 class CatalogRepository {
   final Dio _dio;
   final LocalStore _store;
+  final FirebaseFirestore? _firestore;
 
-  CatalogRepository(this._store, {Dio? dio})
+  CatalogRepository(this._store, {Dio? dio, FirebaseFirestore? firestore})
       : _dio = dio ??
             Dio(BaseOptions(
               connectTimeout: const Duration(seconds: 8),
               receiveTimeout: const Duration(seconds: 8),
-            ));
+            )),
+        _firestore = AppConfig.useFirestoreCatalog
+            ? (firestore ?? FirebaseFirestore.instance)
+            : null;
 
   /// Returns the best catalog available immediately (cache or bundled), without
   /// blocking on the network. Call [refresh] separately to update.
@@ -35,7 +41,10 @@ class CatalogRepository {
 
   /// Fetch the remote catalog; cache it if the version changed. Returns null if
   /// the network failed or the version is unchanged (caller keeps current).
-  Future<Catalog?> refresh() async {
+  Future<Catalog?> refresh() =>
+      _firestore != null ? _refreshFromFirestore() : _refreshFromCdn();
+
+  Future<Catalog?> _refreshFromCdn() async {
     try {
       final res = await _dio.get<String>(
         AppConfig.catalogUrl,
@@ -50,6 +59,33 @@ class CatalogRepository {
       return Catalog.fromJson(json);
     } catch (_) {
       return null; // offline / CDN down → caller keeps cached catalog
+    }
+  }
+
+  /// Same contract as [_refreshFromCdn], sourced from the `catalog_items`
+  /// Firestore collection instead of a static JSON file (see
+  /// tools/deploy_content.sh). Version is the newest `publishedDate` present,
+  /// so any item addition/update bumps it.
+  Future<Catalog?> _refreshFromFirestore() async {
+    try {
+      final snapshot = await _firestore!.collection('catalog_items').get();
+      if (snapshot.docs.isEmpty) return null;
+      final items = snapshot.docs
+          .map((d) => CatalogItem.fromJson({...d.data(), 'id': d.id}))
+          .toList();
+      final version = items
+          .map((i) => i.publishedDate)
+          .whereType<DateTime>()
+          .fold<DateTime?>(null, (latest, d) =>
+              latest == null || d.isAfter(latest) ? d : latest)
+          ?.toIso8601String() ??
+          'unknown';
+      if (version == _store.cachedCatalogVersion()) return null; // no delta
+      final catalog = Catalog(version: version, items: items);
+      await _store.cacheCatalog(jsonEncode(catalog.toJson()), version);
+      return catalog;
+    } catch (_) {
+      return null; // offline / Firestore down → caller keeps cached catalog
     }
   }
 

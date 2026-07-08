@@ -48,6 +48,12 @@ how to generate them, and [`ios/RELEASE_SETUP.md`](./ios/RELEASE_SETUP.md) for
 the full Apple-side walkthrough. Android's signing secrets are generated with
 [`tools/setup_android_keystore.sh`](./tools/setup_android_keystore.sh).
 
+Both release builds currently point at a **free interim CDN** for real
+narrated audio (`raw.githubusercontent.com`, not demo clips) — see
+[`tools/FUTURE_FIREBASE_SETUP.md`](./tools/FUTURE_FIREBASE_SETUP.md) for the
+plan to migrate to Firebase Storage + Firestore once billing/access are
+sorted on the real project.
+
 ## Legal note
 
 Content sourcing follows the license rules in

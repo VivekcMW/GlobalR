@@ -10,12 +10,14 @@ permissions:
   contents: write # required by softprops/action-gh-release to publish a release
 
 # Production build flags — keep in sync with .github/workflows/ios-build.yml.
-# DEMO_AUDIO stays true until the real CDN (tools/build_catalog.py output,
-# deployed via tools/deploy_r2.sh) is actually live — cdn.globalradio.app
-# doesn't currently resolve at all. Flipping this to false with no real CDN
-# behind it means every item fails to load and radio_controller.dart's error
-# handler just skips to the next one forever, so nothing plays. Flip once
-# real content is deployed (see tools/README.md).
+# CDN_BASE/CATALOG_URL point at a free interim GitHub CDN (real narrated
+# audio, not demo clips) — see global_radio/tools/FUTURE_FIREBASE_SETUP.md
+# for the plan to migrate to Firebase Storage once billing is enabled on the
+# real project. Verified working via
+# test/streaming/cdn_streaming_path_test.dart before enabling this — do not
+# flip DEMO_AUDIO without re-running that test against whatever CDN_BASE is
+# set to; the previous CDN_BASE (cdn.globalradio.app) didn't resolve at all
+# and shipped two broken releases (v1.0.1, v1.0.2) before this was caught.
 env:
   DART_DEFINES: >-
     --dart-define=USE_FIREBASE_AUTH=true
@@ -23,7 +25,9 @@ env:
     --dart-define=USE_CRASHLYTICS=true
     --dart-define=USE_REMOTE_CONFIG=true
     --dart-define=USE_PUSH=true
-    --dart-define=DEMO_AUDIO=true
+    --dart-define=DEMO_AUDIO=false
+    --dart-define=CDN_BASE=https://raw.githubusercontent.com/prince11jose/globalradio-cdn-content/main
+    --dart-define=CATALOG_URL=https://raw.githubusercontent.com/prince11jose/globalradio-cdn-content/main/catalog.json
 
 jobs:
   build_and_release:
