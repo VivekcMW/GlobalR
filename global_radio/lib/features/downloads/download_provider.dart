@@ -105,7 +105,7 @@ class DownloadsController extends Notifier<DownloadsState> {
     if (!state.autoDownload) return;
     
     final profile = ref.read(profileProvider);
-    final catalog = ref.read(catalogProvider).valueOrNull;
+    final catalog = ref.read(catalogProvider).value;
     if (catalog == null) return;
 
     // Get items matching user's interests that aren't downloaded

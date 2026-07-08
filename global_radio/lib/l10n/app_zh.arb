@@ -1,9 +1,7 @@
 {
   "@@locale": "zh",
   "@@last_modified": "2026-06-24T00:00:00.000Z",
-  
   "appName": "全球广播",
-  
   "onboardingWelcome": "欢迎使用全球广播",
   "onboardingSubtitle": "为您的兴趣量身定制的音频",
   "onboardingSelectLanguages": "选择您的语言",
@@ -12,7 +10,6 @@
   "onboardingContinue": "继续",
   "onboardingGetStarted": "开始",
   "onboardingSkip": "跳过",
-  
   "homeTitle": "首页",
   "homeGreetingMorning": "早上好",
   "homeGreetingAfternoon": "下午好",
@@ -22,7 +19,6 @@
   "homeTrendingNow": "当前热门",
   "homeRecentlyPlayed": "最近播放",
   "homeQuickPicks": "快速精选",
-  
   "libraryTitle": "资料库",
   "libraryFavorites": "收藏",
   "libraryDownloads": "下载",
@@ -33,7 +29,6 @@
   "libraryAddFavorites": "点击心形图标添加到收藏",
   "libraryDownloadContent": "下载内容以便离线收听",
   "libraryStartListening": "开始收听以查看您的历史记录",
-  
   "settingsTitle": "设置",
   "settingsAccount": "账户",
   "settingsSignIn": "登录",
@@ -53,7 +48,6 @@
   "settingsFeedback": "发送反馈",
   "settingsRateApp": "评价应用",
   "settingsShareApp": "与朋友分享",
-  
   "playerNowPlaying": "正在播放",
   "playerUpNext": "接下来",
   "playerPlaybackSpeed": "播放速度",
@@ -64,29 +58,24 @@
   "playerRemoveFromFavorites": "从收藏中移除",
   "playerDownload": "下载",
   "playerShare": "分享",
-  
   "interestsTitle": "编辑兴趣",
   "interestsSubtitle": "选择您想收听的主题",
   "interestsSelected": "已选择 {count} 个",
   "interestsSave": "保存",
-  
   "languagesTitle": "语言",
   "languagesSubtitle": "选择您偏好的语言",
   "languagesSave": "保存",
-  
   "searchTitle": "搜索",
   "searchHint": "搜索内容...",
   "searchVoiceHint": "点击使用语音搜索",
   "searchNoResults": "未找到结果",
   "searchTryDifferent": "尝试不同的关键词",
-  
   "authSignInTitle": "登录",
   "authSignInSubtitle": "登录以同步您的偏好设置",
   "authContinueWithGoogle": "使用 Google 继续",
   "authContinueWithApple": "使用 Apple 继续",
   "authContinueAsGuest": "以访客身份继续",
   "authSignOutConfirm": "您确定要退出吗？",
-  
   "premiumTitle": "升级高级版",
   "premiumSubtitle": "解锁所有功能",
   "premiumFeature1": "无广告收听",
@@ -94,13 +83,11 @@
   "premiumFeature3": "高级语音",
   "premiumSubscribe": "以 {price} 订阅",
   "premiumRestore": "恢复购买",
-  
   "errorGeneric": "出现错误",
   "errorNetwork": "无网络连接",
   "errorRetry": "重试",
   "errorLoadingContent": "内容加载失败",
   "errorPlayback": "播放错误",
-  
   "commonCancel": "取消",
   "commonOk": "确定",
   "commonSave": "保存",
@@ -109,24 +96,29 @@
   "commonDone": "完成",
   "commonLoading": "加载中...",
   "commonRefresh": "刷新",
-  
   "notificationDailyTitle": "您的每日音频",
   "notificationDailyBody": "您的个性化内容已准备就绪",
-  
   "adSkipIn": "{seconds} 秒后跳过",
   "adSkip": "跳过广告",
   "adLabel": "广告",
-  
   "offlineTitle": "离线模式",
   "offlineMessage": "您当前处于离线状态。仅已下载的内容可用。",
   "offlineDownloadAvailable": "下载以便离线收听",
-  
   "feedbackTitle": "发送反馈",
   "feedbackHint": "告诉我们您的想法...",
   "feedbackSubmit": "提交",
   "feedbackThankYou": "感谢您的反馈！",
-  
   "updateRequired": "需要更新",
   "updateMessage": "新版本可用。请更新以继续使用。",
-  "updateButton": "立即更新"
+  "updateButton": "立即更新",
+  "accountTitle": "打造专属体验",
+  "appLanguage": "应用语言",
+  "appLanguageDescription": "应用界面语言",
+  "appLanguageSubtitle": "应用将以此语言显示",
+  "appLanguageTitle": "选择应用语言",
+  "contentLanguagesSubtitle": "选择您想收听的语言",
+  "contentLanguagesTitle": "选择内容语言",
+  "continueButton": "继续",
+  "skipForNow": "暂时跳过",
+  "voiceTitle": "选择一种声音"
 }

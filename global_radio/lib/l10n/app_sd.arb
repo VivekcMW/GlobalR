@@ -1,9 +1,7 @@
 {
   "@@locale": "sd",
   "@@last_modified": "2026-06-24T00:00:00.000Z",
-  
   "appName": "گلوبل ريڊيو",
-  
   "onboardingWelcome": "گلوبل ريڊيو ۾ ڀليڪار",
   "onboardingSubtitle": "توھان جي دلچسپين لاءِ ذاتي آڊيو",
   "onboardingSelectLanguages": "پنھنجيون ٻوليون چونڊيو",
@@ -12,7 +10,6 @@
   "onboardingContinue": "جاري رکو",
   "onboardingGetStarted": "شروع ڪريو",
   "onboardingSkip": "ڇڏيو",
-  
   "homeTitle": "گھر",
   "homeGreetingMorning": "صبح جو سلام",
   "homeGreetingAfternoon": "منجھند جو سلام",
@@ -22,7 +19,6 @@
   "homeTrendingNow": "ھاڻي ٽرينڊنگ",
   "homeRecentlyPlayed": "تازو ھلايو ويو",
   "homeQuickPicks": "جلدي چونڊيو",
-  
   "libraryTitle": "لائبريري",
   "libraryFavorites": "پسنديده",
   "libraryDownloads": "ڊائونلوڊ",
@@ -33,7 +29,6 @@
   "libraryAddFavorites": "پسنديدن ۾ شامل ڪرڻ لاءِ ھارٽ آئڪن ٽيپ ڪريو",
   "libraryDownloadContent": "آف لائن ٻڌڻ لاءِ مواد ڊائونلوڊ ڪريو",
   "libraryStartListening": "پنھنجي تاريخ ڏسڻ لاءِ ٻڌڻ شروع ڪريو",
-  
   "settingsTitle": "سيٽنگون",
   "settingsAccount": "اڪائونٽ",
   "settingsSignIn": "سائن ان ڪريو",
@@ -53,7 +48,6 @@
   "settingsFeedback": "راءِ موڪليو",
   "settingsRateApp": "ايپ کي ريٽ ڪريو",
   "settingsShareApp": "دوستن سان شيئر ڪريو",
-  
   "playerNowPlaying": "ھاڻي ھلي رھيو آھي",
   "playerUpNext": "اڳيان",
   "playerPlaybackSpeed": "پلي بيڪ رفتار",
@@ -64,29 +58,24 @@
   "playerRemoveFromFavorites": "پسنديدن مان هٽايو",
   "playerDownload": "ڊائونلوڊ ڪريو",
   "playerShare": "شيئر ڪريو",
-  
   "interestsTitle": "دلچسپيون ايڊٽ ڪريو",
   "interestsSubtitle": "اھي موضوع چونڊيو جيڪي توھان ٻڌڻ چاھيو ٿا",
   "interestsSelected": "{count} چونڊيل",
   "interestsSave": "محفوظ ڪريو",
-  
   "languagesTitle": "ٻوليون",
   "languagesSubtitle": "پنھنجون پسنديده ٻوليون چونڊيو",
   "languagesSave": "محفوظ ڪريو",
-  
   "searchTitle": "ڳوليو",
   "searchHint": "مواد ڳوليو...",
   "searchVoiceHint": "آواز سان ڳولڻ لاءِ ٽيپ ڪريو",
   "searchNoResults": "ڪا نتيجا نه مليا",
   "searchTryDifferent": "مختلف لفظ آزمايو",
-  
   "authSignInTitle": "سائن ان ڪريو",
   "authSignInSubtitle": "پنھنجون ترجيحون سنڪ ڪرڻ لاءِ سائن ان ڪريو",
   "authContinueWithGoogle": "گوگل سان جاري رکو",
   "authContinueWithApple": "ايپل سان جاري رکو",
   "authContinueAsGuest": "مھمان طور جاري رکو",
   "authSignOutConfirm": "ڇا توھان يقينن سائن آئوٽ ڪرڻ چاھيو ٿا؟",
-  
   "premiumTitle": "پريميئم ٿيو",
   "premiumSubtitle": "سڀ خاصيتون ان لاڪ ڪريو",
   "premiumFeature1": "اشتهار کان سواءِ ٻڌڻ",
@@ -94,13 +83,11 @@
   "premiumFeature3": "پريميئم آوازون",
   "premiumSubscribe": "{price} ۾ سبسڪرائب ڪريو",
   "premiumRestore": "خريداري واپس آڻيو",
-  
   "errorGeneric": "ڪجھ غلط ٿي ويو",
   "errorNetwork": "انٽرنيٽ ڪنيڪشن ناهي",
   "errorRetry": "ٻيهر ڪوشش ڪريو",
   "errorLoadingContent": "مواد لوڊ ڪرڻ ۾ ناڪام",
   "errorPlayback": "پلي بيڪ غلطي",
-  
   "commonCancel": "رد ڪريو",
   "commonOk": "ٺيڪ آھي",
   "commonSave": "محفوظ ڪريو",
@@ -109,24 +96,29 @@
   "commonDone": "ٿي ويو",
   "commonLoading": "لوڊ ٿي رھيو آھي...",
   "commonRefresh": "ريفريش ڪريو",
-  
   "notificationDailyTitle": "توھان جو روزانو آڊيو",
   "notificationDailyBody": "توھان جو ذاتي مواد تيار آھي",
-  
   "adSkipIn": "{seconds} سيڪنڊن ۾ ڇڏيو",
   "adSkip": "اشتهار ڇڏيو",
   "adLabel": "اشتهار",
-  
   "offlineTitle": "آف لائن موڊ",
   "offlineMessage": "توھان آف لائن آھيو. صرف ڊائونلوڊ ڪيل مواد دستياب آھي.",
   "offlineDownloadAvailable": "آف لائن ٻڌڻ لاءِ ڊائونلوڊ ڪريو",
-  
   "feedbackTitle": "راءِ موڪليو",
   "feedbackHint": "اسان کي ٻڌايو توھان ڇا سوچيو ٿا...",
   "feedbackSubmit": "جمع ڪرايو",
   "feedbackThankYou": "توھان جي راءِ جي مهرباني!",
-  
   "updateRequired": "اپڊيٽ گھربل آھي",
   "updateMessage": "نئون ورزن دستياب آھي. جاري رکڻ لاءِ مهرباني ڪري اپڊيٽ ڪريو.",
-  "updateButton": "ھاڻي اپڊيٽ ڪريو"
+  "updateButton": "ھاڻي اپڊيٽ ڪريو",
+  "accountTitle": "ھن کي پنھنجو بڻايو",
+  "appLanguage": "ايپ جي ٻولي",
+  "appLanguageDescription": "ايپ انٽرفيس جي ٻولي",
+  "appLanguageSubtitle": "ايپ ھن ٻوليءَ ۾ ڏيکاربي",
+  "appLanguageTitle": "ايپ جي ٻولي چونڊيو",
+  "contentLanguagesSubtitle": "اھي ٻوليون چونڊيو جيڪي توھان ٻڌڻ چاھيو ٿا",
+  "contentLanguagesTitle": "مواد جون ٻوليون چونڊيو",
+  "continueButton": "اڳتي وڌو",
+  "skipForNow": "في الحال ڇڏي ڏيو",
+  "voiceTitle": "ھڪ آواز چونڊيو"
 }

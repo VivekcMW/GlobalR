@@ -36,38 +36,38 @@ class AppLocalizationsDoi extends AppLocalizations {
   String get onboardingSkip => 'छोड़ो';
 
   @override
-  String get appLanguageTitle => 'Select app language';
+  String get appLanguageTitle => 'ऐप दी भाशा चुनो';
 
   @override
-  String get appLanguageSubtitle => 'The app will display in this language';
+  String get appLanguageSubtitle => 'ऐप इस भाशा च दिक्खेआ जाग';
 
   @override
-  String get contentLanguagesTitle => 'Choose content languages';
+  String get contentLanguagesTitle => 'सामग्री दियां भाशां चुनो';
 
   @override
   String get contentLanguagesSubtitle =>
-      'Select languages you want to listen to';
+      'जेह्ड़ियां भाशां तुस सुनना चांह्दे ओ, ओह् चुनो';
 
   @override
   String get interestsTitle => 'दिलचस्पियां संपादित करो';
 
   @override
-  String get voiceTitle => 'Pick a voice';
+  String get voiceTitle => 'इक अवाज़ चुनो';
 
   @override
-  String get accountTitle => 'Make it yours';
+  String get accountTitle => 'एह् अपना बनाओ';
 
   @override
-  String get continueButton => 'Continue';
+  String get continueButton => 'अग्गें बधो';
 
   @override
-  String get skipForNow => 'Skip for now';
+  String get skipForNow => 'हाल्ली छोड़ो';
 
   @override
-  String get appLanguage => 'App Language';
+  String get appLanguage => 'ऐप दी भाशा';
 
   @override
-  String get appLanguageDescription => 'Language for app interface';
+  String get appLanguageDescription => 'ऐप इंटरफेस दी भाशा';
 
   @override
   String get homeTitle => 'घर';

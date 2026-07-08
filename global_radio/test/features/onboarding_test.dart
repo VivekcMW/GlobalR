@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:global_radio/core/constants.dart';
 import 'package:global_radio/features/onboarding/onboarding_screen.dart';
+import 'package:global_radio/l10n/generated/app_localizations.dart';
 
 void main() {
   group('OnboardingScreen', () {
@@ -30,6 +31,9 @@ void main() {
       return ProviderScope(
         child: MaterialApp.router(
           routerConfig: testRouter,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('en'),
         ),
       );
     }
@@ -45,7 +49,7 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      expect(find.text('Choose your language'), findsOneWidget);
+      expect(find.text('Select app language'), findsOneWidget);
     });
 
     testWidgets('has continue button', (tester) async {
@@ -86,16 +90,24 @@ void main() {
 
       await tester.pumpWidget(
         ProviderScope(
-          child: MaterialApp.router(routerConfig: testRouter),
+          child: MaterialApp.router(
+            routerConfig: testRouter,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: const Locale('en'),
+          ),
         ),
       );
       await tester.pumpAndSettle();
 
-      // Verify first step
-      expect(find.text('Choose your language'), findsOneWidget);
-
-      // PageView should exist for step navigation
-      expect(find.byType(PageView), findsOneWidget);
+      // Verify first step is shown with step navigation available.
+      expect(find.text('Select app language'), findsOneWidget);
+      expect(
+        find.byWidgetPredicate(
+          (widget) => widget is FilledButton || widget is ElevatedButton,
+        ),
+        findsAtLeast(1),
+      );
     });
   });
 

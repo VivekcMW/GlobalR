@@ -5,7 +5,7 @@
     <key>method</key>
     <string>app-store</string>
     <key>teamID</key>
-    <string>YOUR_TEAM_ID</string>
+    <string>4H23B2XQN4</string>
     <key>uploadBitcode</key>
     <false/>
     <key>compileBitcode</key>
@@ -16,7 +16,7 @@
     <string>manual</string>
     <key>provisioningProfiles</key>
     <dict>
-        <key>com.globalradio.global_radio</key>
+        <key>com.globalradio.globalRadio</key>
         <string>Global Radio App Store</string>
     </dict>
 </dict>

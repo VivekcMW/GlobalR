@@ -1,9 +1,7 @@
 {
   "@@locale": "es",
   "@@last_modified": "2026-06-24T00:00:00.000Z",
-  
   "appName": "Global Radio",
-  
   "onboardingWelcome": "Bienvenido a Global Radio",
   "onboardingSubtitle": "Audio personalizado para tus intereses",
   "onboardingSelectLanguages": "Elige tus idiomas",
@@ -12,7 +10,6 @@
   "onboardingContinue": "Continuar",
   "onboardingGetStarted": "Comenzar",
   "onboardingSkip": "Omitir",
-  
   "homeTitle": "Inicio",
   "homeGreetingMorning": "Buenos días",
   "homeGreetingAfternoon": "Buenas tardes",
@@ -22,7 +19,6 @@
   "homeTrendingNow": "Tendencias ahora",
   "homeRecentlyPlayed": "Reproducido recientemente",
   "homeQuickPicks": "Selección rápida",
-  
   "libraryTitle": "Biblioteca",
   "libraryFavorites": "Favoritos",
   "libraryDownloads": "Descargas",
@@ -33,7 +29,6 @@
   "libraryAddFavorites": "Toca el icono de corazón para agregar a favoritos",
   "libraryDownloadContent": "Descarga contenido para escuchar sin conexión",
   "libraryStartListening": "Comienza a escuchar para ver tu historial",
-  
   "settingsTitle": "Configuración",
   "settingsAccount": "Cuenta",
   "settingsSignIn": "Iniciar sesión",
@@ -53,7 +48,6 @@
   "settingsFeedback": "Enviar comentarios",
   "settingsRateApp": "Calificar la app",
   "settingsShareApp": "Compartir con amigos",
-  
   "playerNowPlaying": "Reproduciendo ahora",
   "playerUpNext": "A continuación",
   "playerPlaybackSpeed": "Velocidad de reproducción",
@@ -64,29 +58,24 @@
   "playerRemoveFromFavorites": "Quitar de favoritos",
   "playerDownload": "Descargar",
   "playerShare": "Compartir",
-  
   "interestsTitle": "Editar intereses",
   "interestsSubtitle": "Elige los temas que quieres escuchar",
   "interestsSelected": "{count} seleccionados",
   "interestsSave": "Guardar",
-  
   "languagesTitle": "Idiomas",
   "languagesSubtitle": "Elige tus idiomas preferidos",
   "languagesSave": "Guardar",
-  
   "searchTitle": "Buscar",
   "searchHint": "Buscar contenido...",
   "searchVoiceHint": "Toca para buscar por voz",
   "searchNoResults": "No se encontraron resultados",
   "searchTryDifferent": "Prueba con palabras diferentes",
-  
   "authSignInTitle": "Iniciar sesión",
   "authSignInSubtitle": "Inicia sesión para sincronizar tus preferencias",
   "authContinueWithGoogle": "Continuar con Google",
   "authContinueWithApple": "Continuar con Apple",
   "authContinueAsGuest": "Continuar como invitado",
   "authSignOutConfirm": "¿Estás seguro de que quieres cerrar sesión?",
-  
   "premiumTitle": "Hazte Premium",
   "premiumSubtitle": "Desbloquea todas las funciones",
   "premiumFeature1": "Escucha sin anuncios",
@@ -94,13 +83,11 @@
   "premiumFeature3": "Voces premium",
   "premiumSubscribe": "Suscribirse por {price}",
   "premiumRestore": "Restaurar compras",
-  
   "errorGeneric": "Algo salió mal",
   "errorNetwork": "Sin conexión a internet",
   "errorRetry": "Reintentar",
   "errorLoadingContent": "Error al cargar contenido",
   "errorPlayback": "Error de reproducción",
-  
   "commonCancel": "Cancelar",
   "commonOk": "Aceptar",
   "commonSave": "Guardar",
@@ -109,24 +96,29 @@
   "commonDone": "Listo",
   "commonLoading": "Cargando...",
   "commonRefresh": "Actualizar",
-  
   "notificationDailyTitle": "Tu audio diario",
   "notificationDailyBody": "Tu contenido personalizado está listo",
-  
   "adSkipIn": "Omitir en {seconds} segundos",
   "adSkip": "Omitir anuncio",
   "adLabel": "Anuncio",
-  
   "offlineTitle": "Modo sin conexión",
   "offlineMessage": "Estás sin conexión. Solo el contenido descargado está disponible.",
   "offlineDownloadAvailable": "Descarga para escuchar sin conexión",
-  
   "feedbackTitle": "Enviar comentarios",
   "feedbackHint": "Cuéntanos qué piensas...",
   "feedbackSubmit": "Enviar",
   "feedbackThankYou": "¡Gracias por tus comentarios!",
-  
   "updateRequired": "Actualización requerida",
   "updateMessage": "Nueva versión disponible. Por favor actualiza para continuar.",
-  "updateButton": "Actualizar ahora"
+  "updateButton": "Actualizar ahora",
+  "accountTitle": "Hazla tuya",
+  "appLanguage": "Idioma de la aplicación",
+  "appLanguageDescription": "Idioma de la interfaz de la aplicación",
+  "appLanguageSubtitle": "La aplicación se mostrará en este idioma",
+  "appLanguageTitle": "Selecciona el idioma de la aplicación",
+  "contentLanguagesSubtitle": "Selecciona los idiomas que quieres escuchar",
+  "contentLanguagesTitle": "Elige los idiomas del contenido",
+  "continueButton": "Continuar",
+  "skipForNow": "Omitir por ahora",
+  "voiceTitle": "Elige una voz"
 }

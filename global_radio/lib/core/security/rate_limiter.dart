@@ -11,6 +11,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
 
+import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
@@ -137,9 +138,11 @@ HttpClient createSecureHttpClient(SecurityConfig config) {
         return true;
       }
 
-      // Implement actual certificate fingerprint verification
-      // For production, compare cert fingerprint against pinnedCertificates
-      return false;
+      // Compare the certificate's SHA-256 fingerprint against the pinned set.
+      final fingerprint = sha256.convert(cert.der).toString().toUpperCase();
+      return config.pinnedCertificates
+          .map((p) => p.replaceAll(':', '').toUpperCase())
+          .contains(fingerprint);
     };
   }
 

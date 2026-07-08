@@ -149,7 +149,7 @@ class DownloadsScreen extends ConsumerWidget {
           const SizedBox(height: 8),
           ...state.downloaded.map((item) => _DownloadedItemTile(
                 item: item,
-                catalog: ref.read(catalogProvider).valueOrNull,
+                catalog: ref.read(catalogProvider).value,
                 onDelete: () => controller.delete(item.itemId, item.voice),
               )),
         ],

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../audio/audio_handler.dart';
@@ -257,7 +258,7 @@ class CatalogController extends AsyncNotifier<Catalog> {
     };
     _syncService!.onDeadUrlsFound = (deadIds) {
       // Log dead URLs for monitoring
-      print('[Catalog] Dead URLs found: ${deadIds.length}');
+      debugPrint('[Catalog] Dead URLs found: ${deadIds.length}');
     };
     
     // Start auto-sync in background

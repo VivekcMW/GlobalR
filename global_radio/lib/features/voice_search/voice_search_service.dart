@@ -192,7 +192,27 @@ class VoiceSearchService {
   }
 
   void _onError(dynamic error) {
-    _setState(VoiceSearchError(error.toString()));
+    final raw = error.toString();
+    final String friendly;
+    if (raw.contains('error_no_match')) {
+      friendly = "Didn't catch that — try speaking again.";
+    } else if (raw.contains('error_retry') || raw.contains('permanent: true')) {
+      friendly =
+          'Speech recognition is unavailable on this device. Try typing instead.';
+    } else {
+      friendly = raw;
+    }
+    _setState(VoiceSearchError(friendly));
+  }
+
+  /// Process a typed query as if it were spoken (fallback when the
+  /// microphone or speech recognition is unavailable).
+  void submitTypedQuery(String text) {
+    final transcript = text.trim();
+    if (transcript.isEmpty) return;
+    _setState(VoiceSearchProcessing(transcript));
+    final intent = IntentParser.parse(transcript, _language);
+    _setState(VoiceSearchResult(transcript, intent));
   }
 
   /// Dispose resources.

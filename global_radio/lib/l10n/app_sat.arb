@@ -1,9 +1,7 @@
 {
   "@@locale": "sat",
   "@@last_modified": "2026-06-24T00:00:00.000Z",
-  
   "appName": "ᱜᱞᱳᱵᱟᱞ ᱨᱮᱰᱤᱭᱳ",
-  
   "onboardingWelcome": "ᱜᱞᱳᱵᱟᱞ ᱨᱮᱰᱤᱭᱳ ᱨᱮ ᱥᱮᱱᱚᱛᱤᱭᱟᱹ",
   "onboardingSubtitle": "ᱟᱢᱟᱜ ᱥᱚᱠᱷᱟᱱ ᱞᱟᱹᱜᱤᱫ ᱟᱹᱰᱤ ᱟᱹᱰᱤᱭᱳ",
   "onboardingSelectLanguages": "ᱟᱢᱟᱜ ᱯᱟᱹᱨᱥᱤ ᱵᱟᱪᱷᱟᱣ ᱢᱮ",
@@ -12,7 +10,6 @@
   "onboardingContinue": "ᱡᱟᱹᱨᱤ",
   "onboardingGetStarted": "ᱮᱛᱚᱦᱚᱵ ᱢᱮ",
   "onboardingSkip": "ᱪᱷᱟᱰᱟᱣ ᱢᱮ",
-  
   "homeTitle": "ᱚᱲᱟᱜ",
   "homeGreetingMorning": "ᱥᱮᱛᱟᱜ ᱥᱩᱠ",
   "homeGreetingAfternoon": "ᱛᱤᱠᱷᱩᱨ ᱥᱩᱠ",
@@ -22,7 +19,6 @@
   "homeTrendingNow": "ᱱᱤᱛ ᱴᱨᱮᱱᱰᱤᱝ",
   "homeRecentlyPlayed": "ᱱᱟᱶᱟ ᱪᱟᱞᱟᱜ ᱠᱟᱱᱟ",
   "homeQuickPicks": "ᱦᱩᱭᱩᱜ ᱵᱟᱪᱷᱟᱣ",
-  
   "libraryTitle": "ᱞᱟᱭᱵᱨᱮᱨᱤ",
   "libraryFavorites": "ᱞᱟᱹᱭ ᱞᱟᱜᱟᱣ",
   "libraryDownloads": "ᱰᱟᱣᱱᱞᱳᱰ",
@@ -33,7 +29,6 @@
   "libraryAddFavorites": "ᱞᱟᱹᱭ ᱞᱟᱜᱟᱣ ᱨᱮ ᱥᱮᱞᱮᱫ ᱞᱟᱹᱜᱤᱫ ᱦᱟᱹᱨᱴ ᱟᱭᱠᱚᱱ ᱴᱮᱯ ᱢᱮ",
   "libraryDownloadContent": "ᱚᱯᱷᱞᱟᱭᱱ ᱨᱮ ᱟᱹᱨᱤᱡ ᱞᱟᱹᱜᱤᱫ ᱰᱟᱣᱱᱞᱳᱰ ᱢᱮ",
   "libraryStartListening": "ᱟᱢᱟᱜ ᱦᱤᱥᱴᱚᱨᱤ ᱧᱮᱞ ᱞᱟᱹᱜᱤᱫ ᱟᱹᱨᱤᱡ ᱮᱛᱚᱦᱚᱵ ᱢᱮ",
-  
   "settingsTitle": "ᱥᱮᱴᱤᱝ",
   "settingsAccount": "ᱮᱠᱟᱣᱱᱴ",
   "settingsSignIn": "ᱥᱟᱭᱱ ᱤᱱ ᱢᱮ",
@@ -53,7 +48,6 @@
   "settingsFeedback": "ᱯᱷᱤᱰᱵᱮᱠ ᱯᱟᱴᱷᱟᱣ ᱢᱮ",
   "settingsRateApp": "ᱮᱯ ᱨᱮᱴ ᱢᱮ",
   "settingsShareApp": "ᱜᱤᱫᱽᱨᱟᱹ ᱥᱟᱶ ᱥᱮᱭᱟᱨ ᱢᱮ",
-  
   "playerNowPlaying": "ᱱᱤᱛ ᱪᱟᱞᱟᱜ ᱠᱟᱱᱟ",
   "playerUpNext": "ᱛᱟᱭᱚᱢ",
   "playerPlaybackSpeed": "ᱯᱞᱮᱵᱮᱠ ᱥᱤᱠᱟᱹᱲ",
@@ -64,29 +58,24 @@
   "playerRemoveFromFavorites": "ᱞᱟᱹᱭ ᱞᱟᱜᱟᱣ ᱠᱷᱚᱱ ᱚᱪᱚᱜ ᱢᱮ",
   "playerDownload": "ᱰᱟᱣᱱᱞᱳᱰ ᱢᱮ",
   "playerShare": "ᱥᱮᱭᱟᱨ ᱢᱮ",
-  
   "interestsTitle": "ᱥᱚᱠᱷᱟᱱ ᱥᱚᱢᱯᱟᱫᱚᱱ ᱢᱮ",
   "interestsSubtitle": "ᱟᱢ ᱟᱹᱨᱤᱡ ᱢᱮᱱᱟᱜ ᱵᱤᱥᱚᱭ ᱵᱟᱪᱷᱟᱣ ᱢᱮ",
   "interestsSelected": "{count} ᱵᱟᱪᱷᱟᱣ",
   "interestsSave": "ᱥᱮᱵ ᱢᱮ",
-  
   "languagesTitle": "ᱯᱟᱹᱨᱥᱤ",
   "languagesSubtitle": "ᱟᱢᱟᱜ ᱯᱟᱥᱟᱱᱫ ᱯᱟᱹᱨᱥᱤ ᱵᱟᱪᱷᱟᱣ ᱢᱮ",
   "languagesSave": "ᱥᱮᱵ ᱢᱮ",
-  
   "searchTitle": "ᱥᱮᱱᱫᱽᱨᱟᱹ",
   "searchHint": "ᱠᱚᱱᱴᱮᱱᱴ ᱥᱮᱱᱫᱽᱨᱟᱹ ᱢᱮ...",
   "searchVoiceHint": "ᱨᱚᱲ ᱥᱮᱱᱫᱽᱨᱟᱹ ᱞᱟᱹᱜᱤᱫ ᱴᱮᱯ ᱢᱮ",
   "searchNoResults": "ᱡᱟᱦᱟᱸᱱ ᱯᱷᱚᱞ ᱵᱟᱹᱱ ᱧᱟᱢ",
   "searchTryDifferent": "ᱵᱟᱹᱲᱛᱤ ᱠᱟᱴᱷᱟ ᱠᱚᱥᱤᱥ ᱢᱮ",
-  
   "authSignInTitle": "ᱥᱟᱭᱱ ᱤᱱ ᱢᱮ",
   "authSignInSubtitle": "ᱟᱢᱟᱜ ᱯᱟᱥᱟᱱᱫ ᱥᱤᱸᱠ ᱞᱟᱹᱜᱤᱫ ᱥᱟᱭᱱ ᱤᱱ ᱢᱮ",
   "authContinueWithGoogle": "ᱜᱩᱜᱞ ᱥᱟᱶ ᱡᱟᱹᱨᱤ",
   "authContinueWithApple": "ᱮᱯᱞ ᱥᱟᱶ ᱡᱟᱹᱨᱤ",
   "authContinueAsGuest": "ᱦᱤᱢᱟᱞ ᱞᱮᱠᱟ ᱡᱟᱹᱨᱤ",
   "authSignOutConfirm": "ᱪᱮᱫ ᱟᱢ ᱥᱟᱪ ᱨᱮ ᱥᱟᱭᱱ ᱟᱣᱴ ᱥᱟᱱᱟᱢ ᱢᱮᱱᱟᱜᱼᱟ?",
-  
   "premiumTitle": "ᱯᱨᱤᱢᱤᱭᱟᱢ ᱦᱩᱭ ᱢᱮ",
   "premiumSubtitle": "ᱡᱚᱛᱚ ᱯᱷᱤᱪᱟᱨ ᱠᱷᱚᱞᱟᱣ ᱢᱮ",
   "premiumFeature1": "ᱵᱤᱜᱭᱟᱯᱚᱱ ᱵᱟᱹᱲᱛᱤ ᱟᱹᱨᱤᱡ",
@@ -94,13 +83,11 @@
   "premiumFeature3": "ᱯᱨᱤᱢᱤᱭᱟᱢ ᱨᱚᱲ",
   "premiumSubscribe": "{price} ᱨᱮ ᱥᱟᱵᱥᱠᱨᱟᱭᱵ ᱢᱮ",
   "premiumRestore": "ᱜᱤᱨᱵ ᱯᱷᱤᱨᱟᱣ ᱢᱮ",
-  
   "errorGeneric": "ᱡᱟᱦᱟᱸᱱ ᱵᱷᱩᱞ ᱦᱩᱭ ᱮᱱᱟ",
   "errorNetwork": "ᱤᱱᱴᱟᱨᱱᱮᱴ ᱠᱚᱱᱮᱠᱥᱚᱱ ᱵᱟᱹᱱᱩᱜ",
   "errorRetry": "ᱯᱷᱮᱨᱟ ᱠᱚᱥᱤᱥ ᱢᱮ",
   "errorLoadingContent": "ᱠᱚᱱᱴᱮᱱᱴ ᱞᱳᱰ ᱵᱷᱩᱞ",
   "errorPlayback": "ᱯᱞᱮᱵᱮᱠ ᱵᱷᱩᱞ",
-  
   "commonCancel": "ᱵᱟᱛᱤᱞ ᱢᱮ",
   "commonOk": "ᱴᱷᱤᱠ",
   "commonSave": "ᱥᱮᱵ ᱢᱮ",
@@ -109,24 +96,29 @@
   "commonDone": "ᱦᱩᱭ ᱮᱱᱟ",
   "commonLoading": "ᱞᱳᱰ ᱦᱩᱭ ᱠᱟᱱᱟ...",
   "commonRefresh": "ᱨᱤᱯᱷᱨᱮᱥ ᱢᱮ",
-  
   "notificationDailyTitle": "ᱟᱢᱟᱜ ᱫᱤᱱᱟᱹᱢ ᱟᱹᱰᱤᱭᱳ",
   "notificationDailyBody": "ᱟᱢᱟᱜ ᱟᱹᱰᱤ ᱠᱚᱱᱴᱮᱱᱴ ᱛᱟᱭᱟᱨ ᱢᱮᱱᱟᱜ",
-  
   "adSkipIn": "{seconds} ᱥᱮᱠᱮᱱᱰ ᱨᱮ ᱪᱷᱟᱰᱟᱣ ᱢᱮ",
   "adSkip": "ᱵᱤᱜᱭᱟᱯᱚᱱ ᱪᱷᱟᱰᱟᱣ ᱢᱮ",
   "adLabel": "ᱵᱤᱜᱭᱟᱯᱚᱱ",
-  
   "offlineTitle": "ᱚᱯᱷᱞᱟᱭᱱ ᱢᱳᱰ",
   "offlineMessage": "ᱟᱢ ᱚᱯᱷᱞᱟᱭᱱ ᱢᱮᱱᱟᱜᱼᱟ᱾ ᱠᱷᱟᱞᱤ ᱰᱟᱣᱱᱞᱳᱰ ᱠᱚᱱᱴᱮᱱᱴ ᱢᱮᱱᱟᱜᱼᱟ᱾",
   "offlineDownloadAvailable": "ᱚᱯᱷᱞᱟᱭᱱ ᱨᱮ ᱟᱹᱨᱤᱡ ᱞᱟᱹᱜᱤᱫ ᱰᱟᱣᱱᱞᱳᱰ ᱢᱮ",
-  
   "feedbackTitle": "ᱯᱷᱤᱰᱵᱮᱠ ᱯᱟᱴᱷᱟᱣ ᱢᱮ",
   "feedbackHint": "ᱟᱢ ᱪᱮᱫ ᱢᱚᱱᱮ ᱠᱟᱱᱟ ᱩᱫᱩᱜ ᱢᱮ...",
   "feedbackSubmit": "ᱡᱚᱢᱟ ᱢᱮ",
   "feedbackThankYou": "ᱟᱢᱟᱜ ᱯᱷᱤᱰᱵᱮᱠ ᱞᱟᱹᱜᱤᱫ ᱥᱟᱨᱦᱟᱣ!",
-  
   "updateRequired": "ᱟᱯᱰᱮᱴ ᱞᱟᱹᱠᱛᱤ",
   "updateMessage": "ᱱᱟᱶᱟ ᱵᱷᱟᱨᱥᱚᱱ ᱢᱮᱱᱟᱜᱼᱟ᱾ ᱡᱟᱹᱨᱤ ᱞᱟᱹᱜᱤᱫ ᱟᱯᱰᱮᱴ ᱢᱮ᱾",
-  "updateButton": "ᱱᱤᱛ ᱟᱯᱰᱮᱴ ᱢᱮ"
+  "updateButton": "ᱱᱤᱛ ᱟᱯᱰᱮᱴ ᱢᱮ",
+  "accountTitle": "ᱱᱚᱶᱟ ᱟᱢᱟᱜ ᱵᱮᱱᱟᱣ ᱢᱮ",
+  "appLanguage": "ᱮᱯ ᱯᱟᱹᱨᱥᱤ",
+  "appLanguageDescription": "ᱮᱯ ᱤᱱᱴᱚᱨᱯᱷᱮᱥ ᱯᱟᱹᱨᱥᱤ",
+  "appLanguageSubtitle": "ᱮᱯ ᱱᱚᱶᱟ ᱯᱟᱹᱨᱥᱤ ᱛᱮ ᱧᱮᱞᱚᱜ-ᱟ",
+  "appLanguageTitle": "ᱮᱯ ᱯᱟᱹᱨᱥᱤ ᱵᱟᱪᱷᱟᱣ ᱢᱮ",
+  "contentLanguagesSubtitle": "ᱟᱢ ᱟᱸᱡᱚᱢ ᱥᱟᱱᱟᱢ ᱯᱟᱹᱨᱥᱤ ᱠᱚ ᱵᱟᱪᱷᱟᱣ ᱢᱮ",
+  "contentLanguagesTitle": "ᱡᱤᱱᱤᱥ ᱨᱮᱭᱟᱜ ᱯᱟᱹᱨᱥᱤ ᱠᱚ ᱵᱟᱪᱷᱟᱣ ᱢᱮ",
+  "continueButton": "ᱞᱟᱦᱟ ᱢᱮ",
+  "skipForNow": "ᱱᱤᱛᱚᱜ ᱵᱟᱹᱜᱤ ᱢᱮ",
+  "voiceTitle": "ᱢᱤᱫ ᱟᱲᱟᱝ ᱵᱟᱪᱷᱟᱣ ᱢᱮ"
 }

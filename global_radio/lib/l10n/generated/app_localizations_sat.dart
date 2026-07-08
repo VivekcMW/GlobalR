@@ -36,38 +36,37 @@ class AppLocalizationsSat extends AppLocalizations {
   String get onboardingSkip => 'ᱪᱷᱟᱰᱟᱣ ᱢᱮ';
 
   @override
-  String get appLanguageTitle => 'Select app language';
+  String get appLanguageTitle => 'ᱮᱯ ᱯᱟᱹᱨᱥᱤ ᱵᱟᱪᱷᱟᱣ ᱢᱮ';
 
   @override
-  String get appLanguageSubtitle => 'The app will display in this language';
+  String get appLanguageSubtitle => 'ᱮᱯ ᱱᱚᱶᱟ ᱯᱟᱹᱨᱥᱤ ᱛᱮ ᱧᱮᱞᱚᱜ-ᱟ';
 
   @override
-  String get contentLanguagesTitle => 'Choose content languages';
+  String get contentLanguagesTitle => 'ᱡᱤᱱᱤᱥ ᱨᱮᱭᱟᱜ ᱯᱟᱹᱨᱥᱤ ᱠᱚ ᱵᱟᱪᱷᱟᱣ ᱢᱮ';
 
   @override
-  String get contentLanguagesSubtitle =>
-      'Select languages you want to listen to';
+  String get contentLanguagesSubtitle => 'ᱟᱢ ᱟᱸᱡᱚᱢ ᱥᱟᱱᱟᱢ ᱯᱟᱹᱨᱥᱤ ᱠᱚ ᱵᱟᱪᱷᱟᱣ ᱢᱮ';
 
   @override
   String get interestsTitle => 'ᱥᱚᱠᱷᱟᱱ ᱥᱚᱢᱯᱟᱫᱚᱱ ᱢᱮ';
 
   @override
-  String get voiceTitle => 'Pick a voice';
+  String get voiceTitle => 'ᱢᱤᱫ ᱟᱲᱟᱝ ᱵᱟᱪᱷᱟᱣ ᱢᱮ';
 
   @override
-  String get accountTitle => 'Make it yours';
+  String get accountTitle => 'ᱱᱚᱶᱟ ᱟᱢᱟᱜ ᱵᱮᱱᱟᱣ ᱢᱮ';
 
   @override
-  String get continueButton => 'Continue';
+  String get continueButton => 'ᱞᱟᱦᱟ ᱢᱮ';
 
   @override
-  String get skipForNow => 'Skip for now';
+  String get skipForNow => 'ᱱᱤᱛᱚᱜ ᱵᱟᱹᱜᱤ ᱢᱮ';
 
   @override
-  String get appLanguage => 'App Language';
+  String get appLanguage => 'ᱮᱯ ᱯᱟᱹᱨᱥᱤ';
 
   @override
-  String get appLanguageDescription => 'Language for app interface';
+  String get appLanguageDescription => 'ᱮᱯ ᱤᱱᱴᱚᱨᱯᱷᱮᱥ ᱯᱟᱹᱨᱥᱤ';
 
   @override
   String get homeTitle => 'ᱚᱲᱟᱜ';

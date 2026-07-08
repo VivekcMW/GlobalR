@@ -38,38 +38,38 @@ class AppLocalizationsMl extends AppLocalizations {
   String get onboardingSkip => 'ഒഴിവാക്കുക';
 
   @override
-  String get appLanguageTitle => 'Select app language';
+  String get appLanguageTitle => 'ആപ്പിന്റെ ഭാഷ തിരഞ്ഞെടുക്കുക';
 
   @override
-  String get appLanguageSubtitle => 'The app will display in this language';
+  String get appLanguageSubtitle => 'ആപ്പ് ഈ ഭാഷയിൽ കാണിക്കും';
 
   @override
-  String get contentLanguagesTitle => 'Choose content languages';
+  String get contentLanguagesTitle => 'ഉള്ളടക്ക ഭാഷകൾ തിരഞ്ഞെടുക്കുക';
 
   @override
   String get contentLanguagesSubtitle =>
-      'Select languages you want to listen to';
+      'കേൾക്കാൻ ആഗ്രഹിക്കുന്ന ഭാഷകൾ തിരഞ്ഞെടുക്കുക';
 
   @override
   String get interestsTitle => 'താൽപ്പര്യങ്ങൾ എഡിറ്റ് ചെയ്യുക';
 
   @override
-  String get voiceTitle => 'Pick a voice';
+  String get voiceTitle => 'ഒരു ശബ്ദം തിരഞ്ഞെടുക്കുക';
 
   @override
-  String get accountTitle => 'Make it yours';
+  String get accountTitle => 'ഇത് നിങ്ങളുടേതാക്കൂ';
 
   @override
-  String get continueButton => 'Continue';
+  String get continueButton => 'തുടരുക';
 
   @override
-  String get skipForNow => 'Skip for now';
+  String get skipForNow => 'തൽക്കാലം ഒഴിവാക്കുക';
 
   @override
-  String get appLanguage => 'App Language';
+  String get appLanguage => 'ആപ്പിന്റെ ഭാഷ';
 
   @override
-  String get appLanguageDescription => 'Language for app interface';
+  String get appLanguageDescription => 'ആപ്പ് ഇന്റർഫേസിന്റെ ഭാഷ';
 
   @override
   String get homeTitle => 'ഹോം';

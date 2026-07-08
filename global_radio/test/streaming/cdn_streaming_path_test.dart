@@ -18,12 +18,21 @@ import 'package:global_radio/data/models/catalog_item.dart';
 ///     --dart-define=CDN_BASE=http://localhost:8787 \
 ///     --dart-define=CATALOG_URL=http://localhost:8787/catalog.json
 void main() {
+  // These tests require a live CDN origin (or tools/serve_cdn.py) and the
+  // dart-defines above. Skip in the default `flutter test` run, where
+  // DEMO_AUDIO is still true.
+  final skipReason = AppConfig.demoAudio
+      ? 'Requires a live CDN: run with --dart-define=DEMO_AUDIO=false '
+          '--dart-define=CDN_BASE=... against tools/serve_cdn.py'
+      : null;
+
   final dio = Dio(BaseOptions(
     connectTimeout: const Duration(seconds: 8),
     receiveTimeout: const Duration(seconds: 8),
   ));
 
-  test('DEMO_AUDIO is disabled for the real streaming path', () {
+  group('CDN streaming path', () {
+    test('DEMO_AUDIO is disabled for the real streaming path', () {
     expect(AppConfig.demoAudio, isFalse,
         reason: 'pass --dart-define=DEMO_AUDIO=false');
     expect(AppConfig.cdnBase, startsWith('http'));
@@ -88,4 +97,5 @@ void main() {
     final url = item.audioUrlFor('no_such_voice');
     expect(url, contains('/${item.defaultVoice}/'));
   });
+  }, skip: skipReason);
 }

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:just_audio/just_audio.dart';
 
 import '../../core/constants.dart';
+import '../../core/design_tokens.dart';
 import '../providers/providers.dart';
 import '../providers/radio_controller.dart';
 
@@ -30,40 +32,60 @@ class MiniPlayer extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             // Progress bar at top (2px)
-            StreamBuilder<Duration>(
-              stream: audioHandler.positionStream,
-              builder: (context, snapshot) {
-                final position = snapshot.data ?? Duration.zero;
-                final duration = Duration(seconds: current.durationSec);
-                final progress = duration.inMilliseconds > 0
-                    ? (position.inMilliseconds / duration.inMilliseconds)
-                        .clamp(0.0, 1.0)
-                    : 0.0;
+            StreamBuilder<Duration?>(
+              stream: audioHandler.durationStream,
+              builder: (context, durationSnapshot) {
+                // Prefer the decoder-reported duration; fall back to catalog.
+                final duration = durationSnapshot.data ??
+                    Duration(seconds: current.durationSec);
+                return StreamBuilder<Duration>(
+                  stream: audioHandler.positionStream,
+                  builder: (context, snapshot) {
+                    final position = snapshot.data ?? Duration.zero;
+                    final progress = duration.inMilliseconds > 0
+                        ? (position.inMilliseconds / duration.inMilliseconds)
+                            .clamp(0.0, 1.0)
+                        : 0.0;
 
-                return Container(
-                  height: 2,
-                  color: scheme.surfaceContainerHighest,
-                  child: FractionallySizedBox(
-                    alignment: Alignment.centerLeft,
-                    widthFactor: progress,
-                    child: Container(color: scheme.primary),
-                  ),
+                    return Container(
+                      height: 2,
+                      color: scheme.surfaceContainerHighest,
+                      child: FractionallySizedBox(
+                        alignment: Alignment.centerLeft,
+                        widthFactor: progress,
+                        child: Container(color: scheme.primary),
+                      ),
+                    );
+                  },
                 );
               },
             ),
             // Main content (62px to keep total at 64px)
             Container(
               height: 62,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.only(right: 12),
               child: Row(
                 children: [
+                  // Category hue edge — teaches the color language.
+                  Container(
+                    width: 3,
+                    color: DesignTokens.interestHue(current.primaryInterest),
+                  ),
+                  const SizedBox(width: 9),
                   // Waveform indicator when playing, interest icon when paused
                   SizedBox(
                     width: 36,
                     height: 36,
-                    child: radio.isPlaying
-                        ? _WaveformIndicator(color: scheme.primary)
-                        : _InterestIcon(interestId: current.primaryInterest),
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      child: radio.isPlaying
+                          ? _WaveformIndicator(
+                              key: const ValueKey('wave'),
+                              color: scheme.primary)
+                          : _InterestIcon(
+                              key: const ValueKey('icon'),
+                              interestId: current.primaryInterest),
+                    ),
                   ),
                   const SizedBox(width: 10),
                   // Title only (single line)
@@ -103,18 +125,33 @@ class MiniPlayer extends ConsumerWidget {
                       
                       return IconButton(
                         iconSize: 32,
-                        icon: Icon(radio.isPlaying
-                            ? Icons.pause_circle_filled
-                            : Icons.play_circle_filled),
+                        icon: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 200),
+                          transitionBuilder: (child, anim) =>
+                              ScaleTransition(scale: anim, child: child),
+                          child: Icon(
+                            radio.isPlaying
+                                ? Icons.pause_circle_filled
+                                : Icons.play_circle_filled,
+                            key: ValueKey<bool>(radio.isPlaying),
+                            size: 32,
+                          ),
+                        ),
                         color: scheme.primary,
-                        onPressed: controller.togglePlayPause,
+                        onPressed: () {
+                          HapticFeedback.mediumImpact();
+                          controller.togglePlayPause();
+                        },
                       );
                     },
                   ),
                   // Skip next button
                   IconButton(
                     icon: const Icon(Icons.skip_next),
-                    onPressed: controller.skipNext,
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      controller.skipNext();
+                    },
                   ),
                 ],
               ),
@@ -130,7 +167,7 @@ class MiniPlayer extends ConsumerWidget {
 class _InterestIcon extends StatelessWidget {
   final String interestId;
 
-  const _InterestIcon({required this.interestId});
+  const _InterestIcon({super.key, required this.interestId});
 
   @override
   Widget build(BuildContext context) {
@@ -207,7 +244,7 @@ class _VoiceBadge extends StatelessWidget {
 class _WaveformIndicator extends StatefulWidget {
   final Color color;
 
-  const _WaveformIndicator({required this.color});
+  const _WaveformIndicator({super.key, required this.color});
 
   @override
   State<_WaveformIndicator> createState() => _WaveformIndicatorState();

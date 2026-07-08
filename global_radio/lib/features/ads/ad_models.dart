@@ -225,18 +225,44 @@ class VastResponse {
 }
 
 /// Configuration for ad behavior.
+/// All knobs are driven by Firebase Remote Config (see `adConfigProvider`);
+/// the compiled-in defaults ship with ads dark (kill switch off).
 class AdConfig {
+  /// Global kill switch. Launch state is OFF; flipped remotely in Phase 2.
+  final bool enabled;
+
   /// Maximum ads per listening session.
   final int maxAdsPerSession;
 
+  /// Maximum ads per rolling hour.
+  final int maxAdsPerHour;
+
   /// Minimum content items between mid-roll ads.
   final int minItemsBetweenAds;
+
+  /// Minimum wall-clock gap between ads. Both this AND
+  /// [minItemsBetweenAds] must be satisfied (whichever is later wins),
+  /// so long items don't get an ad after every single track.
+  final Duration minGapBetweenAds;
 
   /// Enable pre-roll on first play of session.
   final bool enablePreRoll;
 
   /// Enable mid-roll ads between content.
   final bool enableMidRoll;
+
+  /// Days after first launch with no ads at all (day-0 grace period).
+  final int gracePeriodDays;
+
+  /// Suppress mid-rolls once a bedtime item starts a run.
+  final bool suppressDuringBedtime;
+
+  /// Share of ad slots reserved for house creatives (premium promo etc.).
+  /// 0.25 = every 4th served ad is a house ad.
+  final double houseAdRatio;
+
+  /// Production VAST tag URL. Empty = use the built-in test tag.
+  final String vastTagUrl;
 
   /// Skip offset in seconds (0 = non-skippable).
   final int skipOffsetSeconds;
@@ -248,10 +274,17 @@ class AdConfig {
   final bool useFallbackOnError;
 
   const AdConfig({
-    this.maxAdsPerSession = 3,
+    this.enabled = false,
+    this.maxAdsPerSession = 6,
+    this.maxAdsPerHour = 4,
     this.minItemsBetweenAds = 4,
+    this.minGapBetweenAds = const Duration(minutes: 12),
     this.enablePreRoll = true,
     this.enableMidRoll = true,
+    this.gracePeriodDays = 1,
+    this.suppressDuringBedtime = true,
+    this.houseAdRatio = 0.25,
+    this.vastTagUrl = '',
     this.skipOffsetSeconds = 5,
     this.vastTimeout = const Duration(seconds: 5),
     this.useFallbackOnError = true,

@@ -1,0 +1,26 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["TEAMID.com.globalradio.globalRadio"],
+        "components": [
+          { "/": "/content/*", "comment": "Play shared content item" },
+          { "/": "/item/*" },
+          { "/": "/play/*" },
+          { "/": "/category/*" },
+          { "/": "/interest/*" },
+          { "/": "/invite/*", "comment": "Referral links" },
+          { "/": "/ref/*" },
+          { "/": "/today" },
+          { "/": "/today/*" },
+          { "/": "/premium" },
+          { "/": "/settings" }
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": ["TEAMID.com.globalradio.globalRadio"]
+  },
+  "_TODO": "Replace TEAMID with the Apple Developer Team ID (App Store Connect > Membership) before deploy, then delete this key."
+}

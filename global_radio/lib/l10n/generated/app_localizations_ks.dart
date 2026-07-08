@@ -36,38 +36,38 @@ class AppLocalizationsKs extends AppLocalizations {
   String get onboardingSkip => 'چھوڈو';
 
   @override
-  String get appLanguageTitle => 'Select app language';
+  String get appLanguageTitle => 'ایپہٕ زبان ژٲریو';
 
   @override
-  String get appLanguageSubtitle => 'The app will display in this language';
+  String get appLanguageSubtitle => 'ایپ گژھِ یتھ زبانی منٛز ظٲہر';
 
   @override
-  String get contentLanguagesTitle => 'Choose content languages';
+  String get contentLanguagesTitle => 'موادہٕ زبانہٕ ژٲریو';
 
   @override
   String get contentLanguagesSubtitle =>
-      'Select languages you want to listen to';
+      'ژٲریو تِمہ زبانہٕ یِمہ توہیہ بوزنہٕ یِژھان چھِو';
 
   @override
   String get interestsTitle => 'دِلچَسپِیہٕ ترمیم کَرو';
 
   @override
-  String get voiceTitle => 'Pick a voice';
+  String get voiceTitle => 'اَکھ آواز ژٲریو';
 
   @override
-  String get accountTitle => 'Make it yours';
+  String get accountTitle => 'یِہ بَناویو پَنُن';
 
   @override
-  String get continueButton => 'Continue';
+  String get continueButton => 'برونٛہہ پکیو';
 
   @override
-  String get skipForNow => 'Skip for now';
+  String get skipForNow => 'وُنی ترٛاویو';
 
   @override
-  String get appLanguage => 'App Language';
+  String get appLanguage => 'ایپہٕ زبان';
 
   @override
-  String get appLanguageDescription => 'Language for app interface';
+  String get appLanguageDescription => 'ایپ اِنٹرفیسہٕ زبان';
 
   @override
   String get homeTitle => 'ہوم';

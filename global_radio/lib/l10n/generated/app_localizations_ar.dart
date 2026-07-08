@@ -36,38 +36,37 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onboardingSkip => 'تخطي';
 
   @override
-  String get appLanguageTitle => 'Select app language';
+  String get appLanguageTitle => 'اختر لغة التطبيق';
 
   @override
-  String get appLanguageSubtitle => 'The app will display in this language';
+  String get appLanguageSubtitle => 'سيظهر التطبيق بهذه اللغة';
 
   @override
-  String get contentLanguagesTitle => 'Choose content languages';
+  String get contentLanguagesTitle => 'اختر لغات المحتوى';
 
   @override
-  String get contentLanguagesSubtitle =>
-      'Select languages you want to listen to';
+  String get contentLanguagesSubtitle => 'اختر اللغات التي تريد الاستماع إليها';
 
   @override
   String get interestsTitle => 'تعديل الاهتمامات';
 
   @override
-  String get voiceTitle => 'Pick a voice';
+  String get voiceTitle => 'اختر صوتًا';
 
   @override
-  String get accountTitle => 'Make it yours';
+  String get accountTitle => 'اجعله ملكك';
 
   @override
-  String get continueButton => 'Continue';
+  String get continueButton => 'متابعة';
 
   @override
-  String get skipForNow => 'Skip for now';
+  String get skipForNow => 'تخطَّ الآن';
 
   @override
-  String get appLanguage => 'App Language';
+  String get appLanguage => 'لغة التطبيق';
 
   @override
-  String get appLanguageDescription => 'Language for app interface';
+  String get appLanguageDescription => 'لغة واجهة التطبيق';
 
   @override
   String get homeTitle => 'الرئيسية';

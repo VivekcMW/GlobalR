@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<!-- Temp helper: screenshot at 1200x630 to produce img/og-image.png, not deployed -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; box-sizing: border-box; }
+    body {
+      width: 1200px; height: 630px; overflow: hidden;
+      background:
+        radial-gradient(900px 500px at 78% -10%, rgba(224,169,59,0.22), transparent 65%),
+        linear-gradient(180deg, #2A1A2E 0%, #12100D 80%);
+      color: #F2EAD9; font-family: "Noto Sans", sans-serif;
+      display: flex; align-items: center; padding: 0 80px; gap: 60px;
+    }
+    .left { flex: 1; }
+    .brand { display: flex; align-items: center; gap: 16px; margin-bottom: 36px; }
+    .brand img { width: 64px; height: 64px; border-radius: 16px; }
+    .brand span { font-family: "Baloo 2", sans-serif; font-weight: 700; font-size: 34px; }
+    h1 { font-family: "Baloo 2", sans-serif; font-size: 58px; line-height: 1.15; margin-bottom: 20px; }
+    p { font-size: 26px; color: #B8AE9C; }
+    .langs { margin-top: 30px; font-family: "Baloo 2", sans-serif; font-size: 26px; color: #E0A93B; }
+    .phone { width: 270px; border-radius: 40px; border: 9px solid #2B2620; overflow: hidden;
+             box-shadow: 0 30px 80px rgba(0,0,0,.6), 0 0 120px rgba(224,169,59,.25); flex-shrink: 0; margin-top: 240px; }
+    .phone img { width: 100%; display: block; }
+  </style>
+</head>
+<body>
+  <div class="left">
+    <div class="brand"><img src="logo_mark.svg" alt=""><span>Global Radio</span></div>
+    <h1>Radio that follows the Indian day.</h1>
+    <p>Daily astrology, devotion, kids stories &amp; news — free, in 10 Indian languages.</p>
+    <div class="langs">हिन्दी · English · मराठी · বাংলা · தமிழ் · తెలుగు +4</div>
+  </div>
+  <div class="phone"><img src="screenshot-home.png" alt=""></div>
+</body>
+</html>

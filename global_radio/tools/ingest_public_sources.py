@@ -6,14 +6,23 @@ Sources:
   1. LibriVox - Public domain audiobooks (CC0/Public Domain)
   2. Internet Archive - Diverse audio content (various CC licenses)
   3. Wikimedia Commons - Educational audio (CC licenses)
+  4. Pratham StoryWeaver - CC BY 4.0 children's stories (TEXT -> our TTS)
+  5. Project Gutenberg (gutendex API) - public-domain texts (TEXT -> our TTS)
 
-Outputs catalog-compatible items to cdn_dist/ structure:
+Audio sources output catalog-compatible items to cdn_dist/ structure:
     cdn_dist/{language}/{voice}/{item_id}.mp3
     cdn_dist/catalog.json (updated with new items)
+
+Text sources output DRAFT library items for human review:
+    tools/content/library/drafts/{source}-{lang}.json
+After review, move approved items into tools/content/library/<category>.json
+and run build_catalog.py to synthesise audio.
 
 Usage:
     python ingest_public_sources.py --source librivox --language hindi --limit 10
     python ingest_public_sources.py --source archive --collection indian_languages
+    python ingest_public_sources.py --source storyweaver --language hindi --limit 25
+    python ingest_public_sources.py --source gutenberg --query "aesop fables"
     python ingest_public_sources.py --verify-health   # Check all URLs still work
 """
 from __future__ import annotations
@@ -21,11 +30,13 @@ from __future__ import annotations
 import argparse
 import asyncio
 import hashlib
+import html
 import json
 import os
 import re
 import subprocess
 import sys
+import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -45,6 +56,9 @@ LIBRIVOX_API = "https://librivox.org/api/feed/audiobooks"
 ARCHIVE_API = "https://archive.org/advancedsearch.php"
 ARCHIVE_METADATA = "https://archive.org/metadata"
 ARCHIVE_DOWNLOAD = "https://archive.org/download"
+STORYWEAVER_API = "https://storyweaver.org.in/api/v1/books-search"
+GUTENDEX_API = "https://gutendex.com/books"
+DRAFTS_DIR = CONTENT / "library" / "drafts"
 
 # Language mappings (ISO 639-1 to our catalog format)
 LANG_MAP = {
@@ -319,6 +333,353 @@ class InternetArchiveIngester:
         return matched[:3] if matched else ["education"]
 
 
+class StoryWeaverIngester:
+    """Ingest CC BY 4.0 children's story TEXTS from Pratham StoryWeaver.
+
+    Produces draft library items (title + text + attribution) for human
+    review — audio is synthesised later by build_catalog.py.
+    """
+
+    # StoryWeaver language names as the API expects them.
+    SW_LANG = {
+        "hindi": "Hindi", "english": "English", "bengali": "Bengali",
+        "marathi": "Marathi", "telugu": "Telugu", "tamil": "Tamil",
+        "kannada": "Kannada", "malayalam": "Malayalam",
+        "gujarati": "Gujarati", "urdu": "Urdu", "punjabi": "Punjabi",
+        "odia": "Odia", "assamese": "Assamese",
+    }
+
+    def __init__(self, language: str = "hindi"):
+        self.language = language
+
+    def search(self, limit: int = 20, query: str | None = None,
+               page: int = 1) -> list[dict]:
+        params = {
+            "page": page,
+            "per_page": min(limit, 24),
+            "languages[]": self.SW_LANG.get(self.language, "Hindi"),
+            "sort": "Ratings",
+        }
+        if query:
+            params["query"] = query
+        try:
+            resp = requests.get(STORYWEAVER_API, params=params, timeout=30)
+            resp.raise_for_status()
+            return resp.json().get("data", [])[:limit]
+        except Exception as e:
+            print(f"[StoryWeaver] search failed: {e}")
+            return []
+
+    def search_bulk(self, pages: int = 5, per_page: int = 24,
+                    query: str | None = None) -> list[dict]:
+        """Paginate through up to `pages` result pages (top-rated first),
+        de-duplicated by slug. ~24 stories/page -> 120 stories at defaults."""
+        seen: dict[str, dict] = {}
+        for page in range(1, pages + 1):
+            batch = self.search(limit=per_page, query=query, page=page)
+            if not batch:
+                break
+            for book in batch:
+                slug = book.get("slug")
+                if slug and slug not in seen:
+                    seen[slug] = book
+            time.sleep(0.5)  # be polite to the API
+        return list(seen.values())
+
+    def fetch_story_text(self, slug: str, max_chars: int = 6000) -> str:
+        """Fetch the full story text from the StoryWeaver reader API and
+        strip page HTML down to plain narration. Returns '' on failure
+        (callers fall back to the synopsis)."""
+        url = f"https://storyweaver.org.in/api/v1/stories/{slug}/read"
+        try:
+            resp = requests.get(url, timeout=30)
+            resp.raise_for_status()
+            pages = (resp.json().get("data") or {}).get("pages", [])
+        except Exception as e:
+            print(f"[StoryWeaver] read failed for {slug}: {e}")
+            return ""
+        chunks: list[str] = []
+        for p in pages:
+            html_content = p.get("html") or p.get("content") or ""
+            text = re.sub(r"<[^>]+>", " ", html_content)
+            text = html.unescape(text)
+            text = re.sub(r"\s+", " ", text).strip()
+            if text:
+                chunks.append(text)
+        return " ".join(chunks)[:max_chars]
+
+    def to_draft(self, book: dict, fetch_text: bool = False) -> dict | None:
+        """Convert a search hit into a draft library item. With
+        fetch_text=True the full story text is pulled from the reader API
+        (falling back to the synopsis when unavailable)."""
+        title = (book.get("title") or "").strip()
+        slug = book.get("slug", "")
+        synopsis = (book.get("synopsis") or "").strip()
+        if not title or not slug:
+            return None
+        text = ""
+        if fetch_text:
+            text = self.fetch_story_text(slug)
+        full_text = bool(text)
+        if not text:
+            text = synopsis
+        authors = ", ".join(a.get("name", "") for a in book.get("authors", []))
+        base_id = "kids-sw-" + re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")[:48]
+        note = ("REVIEW: verify CC BY licence on the story page, check the "
+                "text reads well for TTS, then move to the category file "
+                "and delete _draft/_sourceUrl/_note.") if full_text else (
+                "REVIEW: replace text with full story from _sourceUrl, "
+                "verify CC BY licence on the story page, then move to "
+                "the category file and delete _draft/_sourceUrl/_note.")
+        return {
+            "base_id": base_id,
+            "interests": ["kids"],
+            "voices": ["kids_story"],
+            "defaultVoice": "kids_story",
+            "attribution": (f"'{title}' by {authors}, Pratham Books StoryWeaver, "
+                            "CC BY 4.0."),
+            "popularity": 50,
+            "titles": {self.language: title},
+            "text": {self.language: text},
+            "_draft": True,
+            "_fullText": full_text,
+            "_sourceUrl": f"https://storyweaver.org.in/en/stories/{slug}",
+            "_note": note,
+        }
+
+
+class WikisourceIngester:
+    """Ingest PUBLIC-DOMAIN texts from Wikisource via the open MediaWiki API.
+
+    Wikisource hosts proofread public-domain literature in every Global Radio
+    language (hi/bn/ta/te/kn/ml/mr/gu/ur/en wikis) — Premchand, Panchatantra,
+    Aesop translations, devotional classics — with no bot-blocking, making it
+    the most reliable bulk text source. Produces draft library items.
+    """
+
+    WS_LANG = {
+        "hindi": "hi", "english": "en", "bengali": "bn", "marathi": "mr",
+        "telugu": "te", "tamil": "ta", "kannada": "kn", "malayalam": "ml",
+        "gujarati": "gu", "urdu": "ur",
+    }
+    HEADERS = {"User-Agent": "GlobalRadioContentBot/1.0 "
+                             "(public-domain story sourcing; contact: repo)"}
+
+    # Subclasses override these to target other MediaWiki sites.
+    SITE = "wikisource.org"
+    PREFIX = "ws"
+    DEFAULT_INTERESTS = ["folklore"]
+    LICENCE_TEXT = "public domain"
+    REVIEW_NOTE = ("REVIEW: confirm the work is public domain (author died "
+                   ">60 years ago), trim to 60-120s of narration, fix "
+                   "category/voice, then move to the category file and "
+                   "delete _draft/_sourceUrl/_note.")
+
+    def __init__(self, language: str = "hindi"):
+        self.language = language
+        code = self.WS_LANG.get(language, "hi")
+        self.api = f"https://{code}.{self.SITE}/w/api.php"
+
+    def _get(self, params: dict, retries: int = 3) -> dict | None:
+        """GET with exponential backoff on 429 rate-limits."""
+        for attempt in range(retries):
+            try:
+                resp = requests.get(self.api, params=params,
+                                    headers=self.HEADERS, timeout=30)
+                if resp.status_code == 429:
+                    wait = 10 * (attempt + 1)
+                    print(f"[Wikisource] rate-limited, waiting {wait}s...")
+                    time.sleep(wait)
+                    continue
+                resp.raise_for_status()
+                return resp.json()
+            except Exception as e:
+                print(f"[Wikisource] request failed: {e}")
+                return None
+        return None
+
+    def search(self, query: str, limit: int = 20, offset: int = 0) -> list[dict]:
+        params = {
+            "action": "query", "list": "search", "srsearch": query,
+            "srlimit": min(limit, 50), "sroffset": offset,
+            "srnamespace": 0, "format": "json",
+        }
+        data = self._get(params)
+        if not data:
+            return []
+        return data.get("query", {}).get("search", [])[:limit]
+
+    def search_bulk(self, query: str, pages: int = 4,
+                    per_page: int = 50) -> list[dict]:
+        """Paginate search results, de-duplicated by pageid."""
+        seen: dict[int, dict] = {}
+        for i in range(pages):
+            batch = self.search(query, limit=per_page, offset=i * per_page)
+            if not batch:
+                break
+            for hit in batch:
+                seen.setdefault(hit["pageid"], hit)
+            time.sleep(0.3)
+        return list(seen.values())
+
+    def fetch_text(self, title: str, max_chars: int = 8000) -> str:
+        """Fetch page content via action=parse (TextExtracts is unreliable on
+        Wikisource subpages) and strip the HTML down to plain narration."""
+        params = {
+            "action": "parse", "page": title, "prop": "text",
+            "format": "json", "redirects": 1, "disabletoc": 1,
+        }
+        data = self._get(params)
+        if not data:
+            return ""
+        html_content = (data.get("parse") or {}).get("text", {}).get("*", "")
+        # Drop nav/metadata blocks, then strip tags.
+        html_content = re.sub(
+            r"<(table|style|script)[^>]*>.*?</\1>", " ",
+            html_content, flags=re.S)
+        html_content = re.sub(
+            r'<(div|span)[^>]*class="[^"]*(noprint|mw-editsection|ws-noexport'
+            r'|header)[^"]*"[^>]*>.*?</\1>', " ", html_content, flags=re.S)
+        text = re.sub(r"<[^>]+>", " ", html_content)
+        text = html.unescape(text)
+        text = re.sub(r"\[\s*\d+\s*\]", " ", text)  # footnote markers
+        text = re.sub(r"\s+", " ", text).strip()
+        return text[:max_chars]
+
+    def to_draft(self, hit: dict, interests: list[str] | None = None) -> dict | None:
+        title = (hit.get("title") or "").strip()
+        if not title or ":" in title:  # skip non-main-namespace leftovers
+            return None
+        text = self.fetch_text(title)
+        if len(text.split()) < 40:  # index/disambiguation pages are short
+            return None
+        slug = re.sub(r"[^a-z0-9]+", "-",
+                      re.sub(r"[^\w\s-]", "", title.lower()))[:48].strip("-")
+        if not slug:  # non-Latin titles (Devanagari etc.) -> use the page id
+            slug = f"p{hit.get('pageid', abs(hash(title)) % 10**8)}"
+        base_id = f"{self.PREFIX}-{self.WS_LANG.get(self.language, 'xx')}-{slug}"
+        url_title = title.replace(" ", "_")
+        code = self.WS_LANG.get(self.language, "hi")
+        return {
+            "base_id": base_id,
+            "interests": interests or list(self.DEFAULT_INTERESTS),
+            "voices": ["male_story"],
+            "defaultVoice": "male_story",
+            "attribution": (f"'{title}', {self.LICENCE_TEXT}, "
+                            f"via {code}.{self.SITE}."),
+            "popularity": 50,
+            "titles": {self.language: title},
+            "text": {self.language: text},
+            "_draft": True,
+            "_sourceUrl": f"https://{code}.{self.SITE}/wiki/{url_title}",
+            "_note": self.REVIEW_NOTE,
+        }
+
+
+class WikipediaIngester(WikisourceIngester):
+    """Education/GK drafts from Wikipedia (CC BY-SA 4.0) — biographies,
+    history, science explainers in every Global Radio language."""
+
+    SITE = "wikipedia.org"
+    PREFIX = "wp"
+    DEFAULT_INTERESTS = ["education"]
+    LICENCE_TEXT = "CC BY-SA 4.0"
+    REVIEW_NOTE = ("REVIEW: summarise/retell in our own words for a 60-120s "
+                   "narration (CC BY-SA requires attribution + share-alike "
+                   "for verbatim use), fix category/voice, then move to the "
+                   "category file and delete _draft/_sourceUrl/_note.")
+
+
+class WikiquoteIngester(WikisourceIngester):
+    """Motivational quote-collection drafts from Wikiquote (CC BY-SA 4.0)."""
+
+    SITE = "wikiquote.org"
+    PREFIX = "wq"
+    DEFAULT_INTERESTS = ["motivation"]
+    LICENCE_TEXT = "CC BY-SA 4.0"
+    REVIEW_NOTE = ("REVIEW: pick 8-12 strong quotes, verify attribution of "
+                   "each quote, weave into a short narration, then move to "
+                   "the category file and delete _draft/_sourceUrl/_note.")
+
+
+class GutenbergIngester:
+    """Ingest public-domain TEXTS from Project Gutenberg via gutendex.
+
+    Produces draft library items; the plain-text book is downloaded and
+    truncated for editors to carve into short items.
+    """
+
+    def __init__(self, language: str = "english"):
+        self.language = language
+
+    def search(self, query: str, limit: int = 10) -> list[dict]:
+        params = {
+            "search": query,
+            "languages": LANG_CODES.get(self.language, "en"),
+            "copyright": "false",  # public domain only
+        }
+        try:
+            resp = requests.get(GUTENDEX_API, params=params, timeout=30)
+            resp.raise_for_status()
+            return resp.json().get("results", [])[:limit]
+        except Exception as e:
+            print(f"[Gutenberg] search failed: {e}")
+            return []
+
+    def fetch_text(self, book: dict, max_chars: int = 20000) -> str:
+        formats = book.get("formats", {})
+        url = (formats.get("text/plain; charset=us-ascii")
+               or formats.get("text/plain; charset=utf-8")
+               or formats.get("text/plain"))
+        if not url:
+            return ""
+        try:
+            resp = requests.get(url, timeout=60)
+            resp.raise_for_status()
+            return resp.text[:max_chars]
+        except Exception as e:
+            print(f"[Gutenberg] text fetch failed: {e}")
+            return ""
+
+    def to_draft(self, book: dict) -> dict | None:
+        title = (book.get("title") or "").strip()
+        if not title:
+            return None
+        authors = ", ".join(a.get("name", "") for a in book.get("authors", []))
+        base_id = "pd-gut-" + re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")[:48]
+        excerpt = self.fetch_text(book)
+        return {
+            "base_id": base_id,
+            "interests": ["kids"],
+            "voices": ["kids_story"],
+            "defaultVoice": "kids_story",
+            "attribution": f"'{title}' by {authors} (public domain, Project "
+                           "Gutenberg) — retold in our own words.",
+            "popularity": 50,
+            "titles": {self.language: title},
+            "text": {self.language: excerpt},
+            "_draft": True,
+            "_sourceUrl": f"https://www.gutenberg.org/ebooks/{book.get('id')}",
+            "_note": "REVIEW: carve the raw excerpt into 60-90 second items, "
+                     "retell in our own words, then move to the category "
+                     "file and delete _draft/_sourceUrl/_note.",
+        }
+
+
+def write_drafts(drafts: list[dict], source: str, language: str) -> Path:
+    """Write draft library items for editorial review."""
+    DRAFTS_DIR.mkdir(parents=True, exist_ok=True)
+    path = DRAFTS_DIR / f"{source}-{language}.json"
+    payload = {
+        "_comment": ("DRAFTS — not built until reviewed and moved into a "
+                     "category file in tools/content/library/."),
+        "items": drafts,
+    }
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(payload, f, ensure_ascii=False, indent=2)
+    return path
+
+
 class HealthChecker:
     """Verify audio URLs are still reachable."""
 
@@ -467,7 +828,8 @@ def main():
     parser = argparse.ArgumentParser(description="Ingest public audio sources")
     parser.add_argument(
         "--source",
-        choices=["librivox", "archive", "all"],
+        choices=["librivox", "archive", "storyweaver", "gutenberg",
+                 "wikisource", "wikipedia", "wikiquote", "all"],
         default="archive",
         help="Source to ingest from",
     )
@@ -475,6 +837,11 @@ def main():
     parser.add_argument("--collection", help="Archive.org collection ID")
     parser.add_argument("--query", help="Search query")
     parser.add_argument("--limit", type=int, default=20, help="Max items to fetch")
+    parser.add_argument("--bulk", action="store_true",
+                        help="StoryWeaver: paginate + fetch FULL story text; "
+                             "--language all harvests every supported language")
+    parser.add_argument("--pages", type=int, default=5,
+                        help="Bulk mode: result pages per language (~24/page)")
     parser.add_argument("--download", action="store_true", help="Download audio files")
     parser.add_argument("--verify-health", action="store_true", help="Verify all URLs")
     parser.add_argument("--out", type=Path, default=CDN_DIST, help="Output directory")
@@ -484,6 +851,106 @@ def main():
 
     if args.verify_health:
         verify_health(catalog_path)
+        return
+
+    # Text sources -> draft library items (no catalog/audio changes).
+    wiki_sources = {
+        "wikisource": WikisourceIngester,
+        "wikipedia": WikipediaIngester,
+        "wikiquote": WikiquoteIngester,
+    }
+    if args.source in wiki_sources:
+        cls = wiki_sources[args.source]
+        langs = (list(WikisourceIngester.WS_LANG.keys())
+                 if args.language == "all" else [args.language])
+        # Default queries tuned per pipeline goals; override with --query.
+        default_queries = {
+            "wikisource": {
+                "hindi": "पंचतंत्र कहानी", "english": "fable moral story",
+                "bengali": "গল্প", "marathi": "गोष्ट", "telugu": "कथ",
+                "tamil": "கதை", "kannada": "ಕಥೆ", "malayalam": "കഥ",
+                "gujarati": "વાર્તા", "urdu": "کہانی",
+            },
+            "wikipedia": {
+                "hindi": "स्वतंत्रता सेनानी", "english": "Indian scientist",
+                "bengali": "বিজ্ঞানী", "marathi": "स्वातंत्र्यसैनिक",
+                "telugu": "స్వాతంత్ర్య సమరయోధుడు", "tamil": "விஞ்ஞானி",
+                "kannada": "ಸ್ವಾತಂತ್ರ್ಯ ಹೋರಾಟಗಾರ", "malayalam": "ശാസ്ത്രജ്ഞൻ",
+                "gujarati": "સ્વતંત્રતા સેનાની", "urdu": "سائنسدان",
+            },
+            "wikiquote": {
+                "hindi": "महात्मा गांधी", "english": "Swami Vivekananda",
+                "bengali": "রবীন্দ্রনাথ", "marathi": "शिवाजी",
+                "telugu": "గాంధీ", "tamil": "திருக்குறள்", "kannada": "ಗಾಂಧಿ",
+                "malayalam": "ഗാന്ധി", "gujarati": "ગાંધી", "urdu": "اقبال",
+            },
+        }[args.source]
+        grand_total = 0
+        for lang in langs:
+            ws = cls(lang)
+            query = args.query or default_queries.get(lang, "story")
+            hits = (ws.search_bulk(query, pages=args.pages) if args.bulk
+                    else ws.search(query, limit=args.limit))
+            print(f"[{args.source}:{lang}] Found {len(hits)} pages for '{query}'")
+            lang_drafts = []
+            for hit in hits:
+                d = ws.to_draft(hit)
+                if d:
+                    lang_drafts.append(d)
+                time.sleep(1.0)  # stay under the API rate limit
+            if lang_drafts:
+                path = write_drafts(lang_drafts, args.source, lang)
+                print(f"[Drafts:{lang}] {len(lang_drafts)} drafts -> {path}")
+                grand_total += len(lang_drafts)
+        print(f"\n[{args.source}] {grand_total} total drafts. Review, then move "
+              "approved items into tools/content/library/<category>.json "
+              "and run build_catalog.py.")
+        return
+
+    if args.source in ("storyweaver", "gutenberg"):
+        drafts: list[dict] = []
+        if args.source == "storyweaver" and args.bulk:
+            langs = (list(StoryWeaverIngester.SW_LANG.keys())
+                     if args.language == "all" else [args.language])
+            grand_total = 0
+            for lang in langs:
+                sw = StoryWeaverIngester(lang)
+                books = sw.search_bulk(pages=args.pages, query=args.query)
+                print(f"[StoryWeaver:{lang}] Found {len(books)} stories")
+                lang_drafts = []
+                for book in books:
+                    d = sw.to_draft(book, fetch_text=True)
+                    if d and len(d["text"].get(lang, "").split()) >= 15:
+                        lang_drafts.append(d)
+                    time.sleep(0.3)
+                if lang_drafts:
+                    path = write_drafts(lang_drafts, "storyweaver", lang)
+                    full = sum(1 for d in lang_drafts if d.get("_fullText"))
+                    print(f"[Drafts:{lang}] {len(lang_drafts)} drafts "
+                          f"({full} with full text) -> {path}")
+                    grand_total += len(lang_drafts)
+            print(f"\n[Bulk] {grand_total} total drafts. Review, then move "
+                  "approved items into tools/content/library/<category>.json "
+                  "and run build_catalog.py.")
+            return
+        if args.source == "storyweaver":
+            sw = StoryWeaverIngester(args.language)
+            books = sw.search(limit=args.limit, query=args.query)
+            print(f"[StoryWeaver] Found {len(books)} stories")
+            drafts = [d for d in (sw.to_draft(b) for b in books) if d]
+        else:
+            gut = GutenbergIngester(args.language)
+            books = gut.search(args.query or "fables", limit=args.limit)
+            print(f"[Gutenberg] Found {len(books)} books")
+            drafts = [d for d in (gut.to_draft(b) for b in books) if d]
+        if drafts:
+            path = write_drafts(drafts, args.source, args.language)
+            print(f"[Drafts] Wrote {len(drafts)} draft items -> {path}")
+            print("Review, edit, move approved items into "
+                  "tools/content/library/<category>.json, then run "
+                  "build_catalog.py.")
+        else:
+            print("[Drafts] Nothing ingested.")
         return
 
     all_items: list[IngestedItem] = []

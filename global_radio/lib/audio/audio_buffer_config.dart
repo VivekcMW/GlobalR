@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:just_audio/just_audio.dart';
 
@@ -149,7 +150,7 @@ class NetworkQualityMonitor {
       _currentQuality = newQuality;
       _qualityController.add(newQuality);
       onQualityChanged?.call(newQuality);
-      print('[NetworkQuality] Changed to: $newQuality');
+      debugPrint('[NetworkQuality] Changed to: $newQuality');
     }
   }
 
@@ -224,7 +225,7 @@ class AudioPrefetchManager {
   /// Call this when the current track changes to prefetch upcoming items.
   Future<void> prefetchAhead(List<String> urls, {int startIndex = 0}) async {
     if (_networkMonitor.currentQuality == NetworkQuality.offline) {
-      print('[Prefetch] Offline, skipping prefetch');
+      debugPrint('[Prefetch] Offline, skipping prefetch');
       return;
     }
 
@@ -239,11 +240,11 @@ class AudioPrefetchManager {
     }
 
     if (urlsToPrefetch.isEmpty) {
-      print('[Prefetch] All upcoming items already cached');
+      debugPrint('[Prefetch] All upcoming items already cached');
       return;
     }
 
-    print('[Prefetch] Prefetching ${urlsToPrefetch.length} items');
+    debugPrint('[Prefetch] Prefetching ${urlsToPrefetch.length} items');
 
     // Prefetch in parallel with concurrency limit
     await Future.wait(
@@ -257,7 +258,7 @@ class AudioPrefetchManager {
     if (_prefetchingUrls.contains(url)) return;
 
     _prefetchingUrls.add(url);
-    print('[Prefetch] Starting: ${url.split('/').last}');
+    debugPrint('[Prefetch] Starting: ${url.split('/').last}');
 
     try {
       // Download to cache
@@ -267,10 +268,10 @@ class AudioPrefetchManager {
       );
 
       _prefetchedUrls.add(url);
-      print('[Prefetch] Completed: ${url.split('/').last} (${fileInfo.file.lengthSync()} bytes)');
+      debugPrint('[Prefetch] Completed: ${url.split('/').last} (${fileInfo.file.lengthSync()} bytes)');
       onPrefetchComplete?.call(url, true);
     } catch (e) {
-      print('[Prefetch] Failed: ${url.split('/').last} - $e');
+      debugPrint('[Prefetch] Failed: ${url.split('/').last} - $e');
       onPrefetchComplete?.call(url, false);
     } finally {
       _prefetchingUrls.remove(url);
@@ -299,7 +300,7 @@ class AudioPrefetchManager {
   /// Evict old cached files to free space.
   Future<void> evictOldFiles({int maxAgeDays = 7}) async {
     await _cacheManager.emptyCache();
-    print('[Prefetch] Cache cleared');
+    debugPrint('[Prefetch] Cache cleared');
   }
 }
 
@@ -362,6 +363,6 @@ extension AudioPlayerBufferExtension on AudioPlayer {
   Future<void> applyBufferConfig(AudioBufferConfig config) async {
     // Note: Buffer configuration is applied when setting audio source,
     // not dynamically. This is a convenience method for documentation.
-    print('[Buffer] Config applied: ${config.quality}');
+    debugPrint('[Buffer] Config applied: ${config.quality}');
   }
 }

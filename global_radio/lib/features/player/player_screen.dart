@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:just_audio/just_audio.dart';
 
+import '../../audio/audio_handler.dart';
 import '../../core/constants.dart';
+import '../../core/design_tokens.dart';
+import '../../core/network/network_error_handler.dart';
 import '../../shared/providers/providers.dart';
 import '../../shared/providers/radio_controller.dart';
-import '../../shared/utils/interest_icons.dart';
-import 'providers/sleep_timer_provider.dart';
+import '../share/share_service.dart';
+import 'widgets/diya_disc.dart';
+import 'widgets/seek_bar.dart';
 import 'widgets/sleep_timer_sheet.dart';
 import 'widgets/speed_selector.dart';
+import 'widgets/up_next_sheet.dart';
 
 /// Full-screen player: big art, title, controls, "why this", favorite.
 class PlayerScreen extends ConsumerWidget {
@@ -39,125 +46,183 @@ class PlayerScreen extends ConsumerWidget {
           onPressed: () => Navigator.of(context).maybePop(),
         ),
         title: const Text('Now Playing'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.directions_car_outlined),
+            tooltip: 'Car Mode',
+            onPressed: () => context.push('/car'),
+          ),
+          IconButton(
+            icon: const Icon(Icons.queue_music),
+            tooltip: 'Up Next',
+            onPressed: () => UpNextSheet.show(context),
+          ),
+        ],
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            children: [
-              const Spacer(),
-              // Waveform-pulse stand-in for cover art.
-              Container(
-                width: 220,
-                height: 220,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      scheme.primary.withValues(alpha: 0.5),
-                      scheme.secondary.withValues(alpha: 0.25),
-                    ],
-                  ),
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onVerticalDragEnd: (details) {
+          // Swipe down to dismiss.
+          if ((details.primaryVelocity ?? 0) > 300) {
+            Navigator.of(context).maybePop();
+          }
+        },
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+            child: Column(
+              children: [
+                const Spacer(),
+                DiyaDisc(
+                  ringHue: DesignTokens.interestHue(item.primaryInterest),
+                  isPlaying: radio.isPlaying,
+                  motifSeed: interest?.category ?? item.primaryInterest,
+                  size: 240,
                 ),
-                child: Center(
-                  child: interest != null
-                      ? Icon(
-                          interestIcon(interest.id),
-                          size: 72,
-                          color: interestCategoryColor(interest.category),
-                        )
-                      : Icon(
-                          Icons.headphones_rounded,
-                          size: 72,
-                          color: scheme.primary,
+                const SizedBox(height: 28),
+                Text(item.title,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.headlineSmall),
+                const SizedBox(height: 8),
+                Text(
+                  '${interest?.label ?? item.primaryInterest} · ${AppLanguage.nativeNameFor(item.language)}',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _WhyThisChip(isDaily: item.isDaily),
+                    const SizedBox(width: 8),
+                    const _DataBadge(),
+                  ],
+                ),
+                const Spacer(),
+
+                // Seek bar with position/duration
+                SeekBar(audioHandler: audioHandler),
+                const SizedBox(height: 4),
+
+                // Speed control
+                StreamBuilder<double>(
+                  stream: audioHandler.speedStream,
+                  initialData: audioHandler.speed,
+                  builder: (context, snapshot) {
+                    final speed = snapshot.data ?? 1.0;
+                    return SpeedButton(
+                      speed: speed,
+                      onTap: () => _showSpeedSheet(context, speed, audioHandler),
+                    );
+                  },
+                ),
+                const SizedBox(height: 8),
+
+                // Transport controls
+                StreamBuilder<ProcessingState>(
+                  stream: audioHandler.processingStateStream,
+                  builder: (context, snapshot) {
+                    final processing = snapshot.data ?? ProcessingState.idle;
+                    final isLoading = processing == ProcessingState.loading ||
+                        processing == ProcessingState.buffering;
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        IconButton(
+                          iconSize: 36,
+                          icon: const Icon(Icons.skip_previous),
+                          onPressed: () {
+                            HapticFeedback.lightImpact();
+                            controller.skipPrevious();
+                          },
                         ),
-                ),
-              ),
-              const SizedBox(height: 32),
-              Text(item.title,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineSmall),
-              const SizedBox(height: 8),
-              Text(
-                '${interest?.label ?? item.primaryInterest} · ${AppLanguage.nativeNameFor(item.language)}',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 8),
-              _WhyThisChip(item: item, isDaily: item.isDaily),
-              const Spacer(),
-
-              // Speed control
-              StreamBuilder<double>(
-                stream: audioHandler.speedStream,
-                initialData: audioHandler.speed,
-                builder: (context, snapshot) {
-                  final speed = snapshot.data ?? 1.0;
-                  return SpeedButton(
-                    speed: speed,
-                    onTap: () => _showSpeedSheet(context, speed, audioHandler),
-                  );
-                },
-              ),
-              const SizedBox(height: 8),
-
-              // Controls
-              StreamBuilder<bool>(
-                stream: audioHandler.processingStateStream.map((state) => 
-                  state == ProcessingState.loading || state == ProcessingState.buffering),
-                initialData: false,
-                builder: (context, loadingSnapshot) {
-                  final isLoading = loadingSnapshot.data ?? false;
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      IconButton(
-                        iconSize: 40,
-                        icon: const Icon(Icons.skip_previous),
-                        onPressed: isLoading ? null : controller.skipPrevious,
-                      ),
-                      isLoading
-                          ? const SizedBox(
-                              width: 80,
-                              height: 80,
-                              child: Center(
-                                child: CircularProgressIndicator(strokeWidth: 3),
+                        IconButton(
+                          iconSize: 30,
+                          icon: const Icon(Icons.replay_10),
+                          onPressed: () {
+                            HapticFeedback.lightImpact();
+                            audioHandler.seekBy(const Duration(seconds: -10));
+                          },
+                        ),
+                        isLoading
+                            ? const SizedBox(
+                                width: 76,
+                                height: 76,
+                                child: Center(
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 3),
+                                ),
+                              )
+                            : IconButton(
+                                iconSize: 76,
+                                color: scheme.primary,
+                                onPressed: () {
+                                  HapticFeedback.mediumImpact();
+                                  controller.togglePlayPause();
+                                },
+                                icon: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 200),
+                                  transitionBuilder: (child, anim) =>
+                                      ScaleTransition(
+                                          scale: anim, child: child),
+                                  child: Icon(
+                                    radio.isPlaying
+                                        ? Icons.pause_circle_filled
+                                        : Icons.play_circle_filled,
+                                    key: ValueKey<bool>(radio.isPlaying),
+                                    size: 76,
+                                  ),
+                                ),
                               ),
-                            )
-                          : IconButton(
-                              iconSize: 80,
-                              color: scheme.primary,
-                              icon: Icon(radio.isPlaying
-                                  ? Icons.pause_circle_filled
-                                  : Icons.play_circle_filled),
-                              onPressed: controller.togglePlayPause,
-                            ),
-                      IconButton(
-                        iconSize: 40,
-                        icon: const Icon(Icons.skip_next),
-                        onPressed: isLoading ? null : controller.skipNext,
-                      ),
-                    ],
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  TextButton.icon(
-                    onPressed: () => controller.toggleFavorite(item.id),
-                    icon: Icon(isFav ? Icons.favorite : Icons.favorite_border),
-                    label: Text(isFav ? 'Favorited' : 'Favorite'),
-                  ),
-                  const SleepTimerButton(),
-                  TextButton.icon(
-                    onPressed: () => _showAttribution(context, item.attribution),
-                    icon: const Icon(Icons.info_outline),
-                    label: const Text('Source'),
-                  ),
-                ],
-              ),
-            ],
+                        IconButton(
+                          iconSize: 30,
+                          icon: const Icon(Icons.forward_10),
+                          onPressed: () {
+                            HapticFeedback.lightImpact();
+                            audioHandler.seekBy(const Duration(seconds: 10));
+                          },
+                        ),
+                        IconButton(
+                          iconSize: 36,
+                          icon: const Icon(Icons.skip_next),
+                          onPressed: () {
+                            HapticFeedback.lightImpact();
+                            controller.skipNext();
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    IconButton(
+                      tooltip: isFav ? 'Favorited' : 'Favorite',
+                      onPressed: () {
+                        HapticFeedback.selectionClick();
+                        controller.toggleFavorite(item.id);
+                      },
+                      icon: Icon(isFav ? Icons.favorite : Icons.favorite_border),
+                    ),
+                    IconButton(
+                      tooltip: 'Share this moment',
+                      onPressed: () => ShareService()
+                          .shareItem(item, at: audioHandler.position),
+                      icon: const Icon(Icons.share_outlined),
+                    ),
+                    const SleepTimerButton(),
+                    IconButton(
+                      tooltip: 'Source',
+                      onPressed: () => _showAttribution(context, item.attribution),
+                      icon: const Icon(Icons.info_outline),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -183,8 +248,8 @@ class PlayerScreen extends ConsumerWidget {
     );
   }
 
-  void _showSpeedSheet(
-      BuildContext context, double currentSpeed, dynamic audioHandler) {
+  void _showSpeedSheet(BuildContext context, double currentSpeed,
+      GlobalRadioAudioHandler audioHandler) {
     showModalBottomSheet(
       context: context,
       builder: (_) => SpeedSelectorSheet(
@@ -196,15 +261,48 @@ class PlayerScreen extends ConsumerWidget {
 }
 
 class _WhyThisChip extends StatelessWidget {
-  final dynamic item;
   final bool isDaily;
-  const _WhyThisChip({required this.item, required this.isDaily});
+  const _WhyThisChip({required this.isDaily});
 
   @override
   Widget build(BuildContext context) {
     return Chip(
       avatar: const Icon(Icons.auto_awesome, size: 16),
       label: Text(isDaily ? "Today's pick for you" : 'Matches your interests'),
+    );
+  }
+}
+
+/// Data-frugality badge: approximate hourly data use, or offline state.
+class _DataBadge extends ConsumerWidget {
+  const _DataBadge();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isOnline = ref.watch(isOnlineProvider);
+    final lowData = ref.watch(profileProvider).lowDataMode;
+    final scheme = Theme.of(context).colorScheme;
+
+    final (icon, label) = !isOnline
+        ? (Icons.cloud_off_rounded, 'Offline · saved audio')
+        // 48 kbps ≈ 21 MB/hr (low-data), 64 kbps ≈ 28 MB/hr.
+        : lowData
+            ? (Icons.data_saver_on_rounded, '~21 MB/hr')
+            : (Icons.network_cell_rounded, '~28 MB/hr');
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: scheme.onSurfaceVariant),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: Theme.of(context)
+              .textTheme
+              .labelSmall
+              ?.copyWith(color: scheme.onSurfaceVariant),
+        ),
+      ],
     );
   }
 }

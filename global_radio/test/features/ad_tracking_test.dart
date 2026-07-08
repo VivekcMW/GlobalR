@@ -13,14 +13,14 @@ void main() {
     AdCreative createTestAd({
       String id = 'test-ad-1',
       Duration duration = const Duration(seconds: 30),
-      bool isSkippable = true,
+      AdSkipPolicy skipPolicy = AdSkipPolicy.skippableAfter5s,
     }) {
       return AdCreative(
         id: id,
         title: 'Test Ad',
         mediaUrl: 'https://example.com/ad.mp3',
         duration: duration,
-        isSkippable: isSkippable,
+        skipPolicy: skipPolicy,
         skipOffset: const Duration(seconds: 5),
       );
     }
@@ -103,12 +103,12 @@ void main() {
       });
     });
 
-    group('clearTracking', () {
+    group('clearTrackingState', () {
       test('allows re-firing events after clear', () async {
         final ad = createTestAd();
         
         await service.trackImpression(ad);
-        service.clearTracking(ad.id);
+        service.clearTrackingState(ad.id);
         
         // Should be able to fire again
         await service.trackImpression(ad);

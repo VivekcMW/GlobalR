@@ -1,6 +1,22 @@
 {
   "sources": [
     {
+      "id": "pib_english",
+      "name": "PIB Press Releases",
+      "language": "english",
+      "url": "https://www.pib.gov.in/RssMain.aspx?ModId=6&Lang=1&Regid=3",
+      "category": "government",
+      "enabled": true
+    },
+    {
+      "id": "pib_hindi",
+      "name": "PIB Hindi",
+      "language": "hindi",
+      "url": "https://www.pib.gov.in/RssMain.aspx?ModId=6&Lang=2&Regid=3",
+      "category": "government",
+      "enabled": true
+    },
+    {
       "id": "pti_hindi",
       "name": "PTI Hindi",
       "language": "hindi",

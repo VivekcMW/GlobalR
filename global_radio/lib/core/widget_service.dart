@@ -1,8 +1,8 @@
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../data/models/catalog_item.dart';
+import '../data/models/catalog_item.dart';
 
 /// Data to display in the home screen widget.
 class WidgetData {
@@ -80,9 +80,7 @@ class WidgetService {
       await _channel.invokeMethod('updateWidget', data.toJson());
     } on PlatformException catch (e) {
       // Widget update failed - likely widget not installed or platform issue
-      if (kDebugMode) {
-        print('Widget update failed: ${e.message}');
-      }
+      debugPrint('Widget update failed: ${e.message}');
     }
   }
 
@@ -114,9 +112,9 @@ class WidgetService {
     try {
       await _channel.invokeMethod('requestAddWidget');
     } on PlatformException catch (e) {
-      if (kDebugMode) {
-        print('Request add widget failed: ${e.message}');
-      }
+      debugPrint('Request add widget failed: ${e.message}');
     }
   }
 }
+
+final widgetServiceProvider = Provider<WidgetService>((ref) => WidgetService());

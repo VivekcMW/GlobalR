@@ -1,0 +1,10 @@
+# app-ads.txt — Global Radio (globalradio.app)
+# https://iabtechlab.com/app-ads-txt/
+#
+# Programmatic ads are OFF at launch (Remote Config kill switch).
+# Before enabling any programmatic demand, add the real seller records below
+# and verify this file is reachable at https://globalradio.app/app-ads.txt.
+#
+# Google Ad Manager / AdMob — replace pub-0000000000000000 with the real
+# publisher ID from the AdMob console, then uncomment:
+# google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0

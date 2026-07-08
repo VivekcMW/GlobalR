@@ -87,16 +87,41 @@ def check_catalog(catalog: dict, source_name: str) -> list[str]:
     return issues
 
 
-def check_library(library: dict) -> list[str]:
-    """Check the source library.json (pre-rendered items)."""
+def check_library(library: dict, source: str = "library.json") -> list[str]:
+    """Check a source library file (pre-rendered items)."""
     issues: list[str] = []
     for item in library.get("items", []):
         base_id = item.get("base_id", "???")
         attr = item.get("attribution", "")
         ok, reason = check_attribution(attr)
         if not ok:
-            issues.append(f"[library.json] {base_id}: {reason} — {attr!r}")
+            issues.append(f"[{source}] {base_id}: {reason} — {attr!r}")
+        # Structural checks for split-library authoring.
+        for field in ("interests", "voices", "defaultVoice", "titles", "text"):
+            if not item.get(field):
+                issues.append(f"[{source}] {base_id}: missing field {field!r}")
+        texts = item.get("text", {})
+        titles = item.get("titles", {})
+        for lang in texts:
+            if lang not in titles:
+                issues.append(f"[{source}] {base_id}: text[{lang}] has no title")
+            elif len(texts[lang].split()) < 15:
+                issues.append(f"[{source}] {base_id}: text[{lang}] too short "
+                              f"({len(texts[lang].split())} words)")
     return issues
+
+
+def _iter_library_files():
+    """Yield (path, parsed json) for library.json + library/*.json."""
+    legacy = CONTENT / "library.json"
+    if legacy.exists():
+        with open(legacy, encoding="utf-8") as f:
+            yield legacy, json.load(f)
+    split_dir = CONTENT / "library"
+    if split_dir.is_dir():
+        for p in sorted(split_dir.glob("*.json")):
+            with open(p, encoding="utf-8") as f:
+                yield p, json.load(f)
 
 
 def main() -> None:
@@ -111,9 +136,8 @@ def main() -> None:
     issues: list[str] = []
 
     if args.library or args.all:
-        with open(CONTENT / "library.json", encoding="utf-8") as f:
-            lib = json.load(f)
-        issues.extend(check_library(lib))
+        for path, lib in _iter_library_files():
+            issues.extend(check_library(lib, path.name))
 
     if not args.library or args.all:
         cat_path = Path(args.catalog) if args.catalog else DEFAULT_CATALOG

@@ -36,38 +36,38 @@ class AppLocalizationsUr extends AppLocalizations {
   String get onboardingSkip => 'چھوڑ دیں';
 
   @override
-  String get appLanguageTitle => 'Select app language';
+  String get appLanguageTitle => 'ایپ کی زبان منتخب کریں';
 
   @override
-  String get appLanguageSubtitle => 'The app will display in this language';
+  String get appLanguageSubtitle => 'ایپ اسی زبان میں دکھائی جائے گی';
 
   @override
-  String get contentLanguagesTitle => 'Choose content languages';
+  String get contentLanguagesTitle => 'مواد کی زبانیں منتخب کریں';
 
   @override
   String get contentLanguagesSubtitle =>
-      'Select languages you want to listen to';
+      'وہ زبانیں منتخب کریں جو آپ سننا چاہتے ہیں';
 
   @override
   String get interestsTitle => 'دلچسپیاں ترمیم کریں';
 
   @override
-  String get voiceTitle => 'Pick a voice';
+  String get voiceTitle => 'ایک آواز منتخب کریں';
 
   @override
-  String get accountTitle => 'Make it yours';
+  String get accountTitle => 'اسے اپنا بنائیں';
 
   @override
-  String get continueButton => 'Continue';
+  String get continueButton => 'جاری رکھیں';
 
   @override
-  String get skipForNow => 'Skip for now';
+  String get skipForNow => 'فی الحال چھوڑ دیں';
 
   @override
-  String get appLanguage => 'App Language';
+  String get appLanguage => 'ایپ کی زبان';
 
   @override
-  String get appLanguageDescription => 'Language for app interface';
+  String get appLanguageDescription => 'ایپ انٹرفیس کی زبان';
 
   @override
   String get homeTitle => 'ہوم';

@@ -17,36 +17,34 @@ class SpeedSelectorSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Padding(
+      child: ListView(
+        shrinkWrap: true,
         padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Row(
-                children: [
-                  Text('Playback Speed',
-                      style: Theme.of(context).textTheme.titleLarge),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Row(
+              children: [
+                Text('Playback Speed',
+                    style: Theme.of(context).textTheme.titleLarge),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
-            ...playbackSpeeds.map((speed) => _SpeedTile(
-                  speed: speed,
-                  isSelected: (speed - currentSpeed).abs() < 0.01,
-                  onTap: () {
-                    onSpeedSelected(speed);
-                    Navigator.pop(context);
-                  },
-                )),
-          ],
-        ),
+          ),
+          const SizedBox(height: 8),
+          ...playbackSpeeds.map((speed) => _SpeedTile(
+                speed: speed,
+                isSelected: (speed - currentSpeed).abs() < 0.01,
+                onTap: () {
+                  onSpeedSelected(speed);
+                  Navigator.pop(context);
+                },
+              )),
+        ],
       ),
     );
   }

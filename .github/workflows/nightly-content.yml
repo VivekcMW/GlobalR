@@ -1,0 +1,127 @@
+name: Nightly Content Pipeline
+
+# Generates daily content (news, astrology), synthesises any missing library
+# audio (resumable — only new items are rendered), validates legality and
+# catalog depth, then deploys to Cloudflare R2.
+#
+# Required repo secrets for deploy:
+#   R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY / R2_ACCOUNT_ID
+# Deploy is skipped automatically when secrets are absent (e.g. on forks).
+
+on:
+  schedule:
+    - cron: "30 0 * * *"   # 06:00 IST daily
+    - cron: "30 12 * * *"  # 18:00 IST daily (news refresh)
+  workflow_dispatch:
+
+concurrency:
+  group: nightly-content
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: global_radio
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: global_radio/tools/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg
+          pip install -r tools/requirements.txt
+
+      # Reuse previously rendered MP3s so only new items are synthesised.
+      - name: Restore cdn_dist cache
+        uses: actions/cache@v4
+        with:
+          path: global_radio/cdn_dist
+          key: cdn-dist-${{ hashFiles('global_radio/tools/content/**/*.json') }}
+          restore-keys: cdn-dist-
+
+      - name: Fetch daily news
+        run: python tools/fetch_news.py || echo "news fetch degraded — continuing"
+
+      - name: Generate daily astrology
+        run: python tools/astrology_cron.py || echo "astrology degraded — continuing"
+
+      - name: Generate daily Gita verse
+        run: python tools/gita_verse.py || echo "gita degraded — continuing"
+
+      - name: Generate daily weather bulletins
+        run: python tools/weather_cron.py || echo "weather degraded — continuing"
+
+      # Sundays: harvest fresh public-domain drafts + machine-translation
+      # drafts for editorial review (drafts never build automatically).
+      - name: Weekly sourcing harvest (drafts only)
+        if: github.event.schedule == '30 0 * * *'
+        run: |
+          if [ "$(date -u +%u)" = "7" ]; then
+            python tools/ingest_public_sources.py --source wikisource \
+              --language all --bulk --pages 2 || echo "harvest degraded"
+            python tools/ingest_public_sources.py --source wikiquote \
+              --language all --bulk --pages 1 || echo "wikiquote degraded"
+            python tools/ingest_public_sources.py --source wikipedia \
+              --language all --bulk --pages 1 || echo "wikipedia degraded"
+            python tools/translate_fanout.py --limit 25 || echo "fanout degraded"
+          else
+            echo "not Sunday — skipping harvest"
+          fi
+
+      - name: Build library catalog (resumable, all languages)
+        run: python tools/build_catalog.py
+
+      - name: Legal check
+        run: python tools/check_legal.py --all
+
+      - name: Depth guard (>=20 per core category x language)
+        run: python tools/catalog_depth.py --min 20 --report
+
+      - name: Configure rclone for R2
+        if: ${{ secrets.R2_ACCESS_KEY_ID != '' }}
+        env:
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+        run: |
+          curl -fsSL https://rclone.org/install.sh | sudo bash
+          mkdir -p ~/.config/rclone
+          cat > ~/.config/rclone/rclone.conf <<EOF
+          [r2]
+          type = s3
+          provider = Cloudflare
+          access_key_id = ${R2_ACCESS_KEY_ID}
+          secret_access_key = ${R2_SECRET_ACCESS_KEY}
+          endpoint = https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com
+          EOF
+
+      - name: Deploy to R2
+        if: ${{ secrets.R2_ACCESS_KEY_ID != '' }}
+        env:
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+        run: ./tools/deploy_r2.sh r2 globalradio-cdn cdn_dist
+
+      - name: Upload catalog artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: catalog
+          path: global_radio/cdn_dist/catalog.json
+          retention-days: 14
+
+      # Sourcing/translation drafts land in the repo workspace — surface them
+      # for editors to download, review, and commit.
+      - name: Upload sourcing drafts for review
+        if: github.event.schedule == '30 0 * * *'
+        uses: actions/upload-artifact@v4
+        with:
+          name: content-drafts
+          path: global_radio/tools/content/library/drafts/
+          retention-days: 30
+          if-no-files-found: ignore

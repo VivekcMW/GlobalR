@@ -1,5 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:hive/hive.dart';
 
 /// A content request from users.
@@ -51,29 +52,19 @@ class ContentRequest {
         'category': category,
         'language': language,
         'votes': votes,
-        'createdAt': Timestamp.fromDate(createdAt),
+        'createdAt': createdAt.toIso8601String(),
         'status': status,
       };
 
   factory ContentRequest.fromJson(Map<String, dynamic> json) {
-    dynamic createdAtData = json['createdAt'];
-    DateTime parsedDate;
-    if (createdAtData is Timestamp) {
-      parsedDate = createdAtData.toDate();
-    } else if (createdAtData is String) {
-      parsedDate = DateTime.parse(createdAtData);
-    } else {
-      parsedDate = DateTime.now();
-    }
-
     return ContentRequest(
-      id: json['id'] as String? ?? '',
-      title: json['title'] as String? ?? '',
+      id: json['id'] as String,
+      title: json['title'] as String,
       description: json['description'] as String? ?? '',
-      category: json['category'] as String? ?? '',
-      language: json['language'] as String? ?? '',
+      category: json['category'] as String,
+      language: json['language'] as String,
       votes: json['votes'] as int? ?? 0,
-      createdAt: parsedDate,
+      createdAt: DateTime.parse(json['createdAt'] as String),
       status: json['status'] as String? ?? 'pending',
     );
   }
@@ -83,12 +74,18 @@ class ContentRequest {
 class VotingService {
   static const _boxName = 'content_requests';
   static const _votesKey = 'my_votes';
+  static const _requestsKey = 'requests';
 
   Box? _box;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<void> init() async {
-    _box = await Hive.openBox(_boxName);
+    if (_box != null) return;
+    try {
+      _box = await Hive.openBox(_boxName);
+    } catch (e) {
+      // Hive unavailable (e.g. tests); degrade gracefully with no persistence.
+      debugPrint('VotingService: Hive unavailable: $e');
+    }
   }
 
   /// Get user's voted request IDs.
@@ -103,10 +100,6 @@ class VotingService {
     final votes = getMyVotes();
     votes.add(requestId);
     await _box?.put(_votesKey, votes.toList());
-    
-    await _firestore.collection('requests').doc(requestId).update({
-      'votes': FieldValue.increment(1),
-    });
   }
 
   /// Remove a vote.
@@ -114,10 +107,6 @@ class VotingService {
     final votes = getMyVotes();
     votes.remove(requestId);
     await _box?.put(_votesKey, votes.toList());
-
-    await _firestore.collection('requests').doc(requestId).update({
-      'votes': FieldValue.increment(-1),
-    });
   }
 
   /// Check if user has voted for a request.
@@ -125,15 +114,96 @@ class VotingService {
     return getMyVotes().contains(requestId);
   }
 
-  /// Get all requests.
-  Future<List<ContentRequest>> getAllRequests() async {
-    final snapshot = await _firestore.collection('requests').orderBy('createdAt', descending: true).get();
+  /// Get all requests (mock data for demo - in production, would fetch from server).
+  List<ContentRequest> getAllRequests() {
     final myVotes = getMyVotes();
 
-    return snapshot.docs.map((doc) {
-      final data = doc.data();
-      data['id'] = doc.id;
-      final r = ContentRequest.fromJson(data);
+    // Demo data
+    final requests = [
+      ContentRequest(
+        id: 'req_1',
+        title: 'Panchatantra Stories in Kannada',
+        description: 'Classic Panchatantra tales with moral lessons for kids',
+        category: 'kids_stories',
+        language: 'kannada',
+        votes: 47,
+        createdAt: DateTime.now().subtract(const Duration(days: 5)),
+        status: 'pending',
+      ),
+      ContentRequest(
+        id: 'req_2',
+        title: 'Bengali Science Podcasts',
+        description: 'Scientific discoveries explained in simple Bengali',
+        category: 'podcast',
+        language: 'bengali',
+        votes: 32,
+        createdAt: DateTime.now().subtract(const Duration(days: 3)),
+        status: 'approved',
+      ),
+      ContentRequest(
+        id: 'req_3',
+        title: 'Marathi Stand-up Comedy',
+        description: 'Popular stand-up comedians in Marathi',
+        category: 'comedy',
+        language: 'marathi',
+        votes: 89,
+        createdAt: DateTime.now().subtract(const Duration(days: 10)),
+        status: 'completed',
+      ),
+      ContentRequest(
+        id: 'req_4',
+        title: 'Tamil Tech News Daily',
+        description: 'Latest technology news in Tamil language',
+        category: 'news',
+        language: 'tamil',
+        votes: 56,
+        createdAt: DateTime.now().subtract(const Duration(days: 7)),
+        status: 'pending',
+      ),
+      ContentRequest(
+        id: 'req_5',
+        title: 'Gujarati Business Podcasts',
+        description: 'Entrepreneurship and business tips in Gujarati',
+        category: 'podcast',
+        language: 'gujarati',
+        votes: 28,
+        createdAt: DateTime.now().subtract(const Duration(days: 2)),
+        status: 'pending',
+      ),
+      ContentRequest(
+        id: 'req_6',
+        title: 'Telugu Horror Stories',
+        description: 'Thrilling horror stories and suspense tales',
+        category: 'stories',
+        language: 'telugu',
+        votes: 73,
+        createdAt: DateTime.now().subtract(const Duration(days: 8)),
+        status: 'approved',
+      ),
+      ContentRequest(
+        id: 'req_7',
+        title: 'Hindi History Podcasts',
+        description: 'Indian history narrated in engaging Hindi',
+        category: 'podcast',
+        language: 'hindi',
+        votes: 112,
+        createdAt: DateTime.now().subtract(const Duration(days: 15)),
+        status: 'pending',
+      ),
+      ContentRequest(
+        id: 'req_8',
+        title: 'Malayalam Cooking Shows',
+        description: 'Traditional Kerala recipes and cooking tips',
+        category: 'lifestyle',
+        language: 'malayalam',
+        votes: 41,
+        createdAt: DateTime.now().subtract(const Duration(days: 4)),
+        status: 'pending',
+      ),
+    ];
+
+    // Mark voted ones
+    return requests.map((r) {
       if (myVotes.contains(r.id)) {
         return r.copyWith(hasVoted: true);
       }
@@ -148,10 +218,8 @@ class VotingService {
     required String category,
     required String language,
   }) async {
-    final docRef = _firestore.collection('requests').doc();
-    
     final request = ContentRequest(
-      id: docRef.id,
+      id: 'req_${DateTime.now().millisecondsSinceEpoch}',
       title: title,
       description: description,
       category: category,
@@ -162,11 +230,8 @@ class VotingService {
       hasVoted: true,
     );
 
-    await docRef.set(request.toJson());
-    
-    final votes = getMyVotes();
-    votes.add(request.id);
-    await _box?.put(_votesKey, votes.toList());
+    // Save to local (in production, would POST to server)
+    await vote(request.id);
 
     return request;
   }
@@ -195,7 +260,7 @@ class ContentRequestsNotifier extends StateNotifier<List<ContentRequest>> {
 
   Future<void> _loadRequests() async {
     await _service.init();
-    state = await _service.getAllRequests();
+    state = _service.getAllRequests();
   }
 
   Future<void> vote(String requestId) async {

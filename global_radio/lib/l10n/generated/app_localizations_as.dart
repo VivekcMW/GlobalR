@@ -36,38 +36,37 @@ class AppLocalizationsAs extends AppLocalizations {
   String get onboardingSkip => 'এৰি দিয়ক';
 
   @override
-  String get appLanguageTitle => 'Select app language';
+  String get appLanguageTitle => 'এপৰ ভাষা বাছনি কৰক';
 
   @override
-  String get appLanguageSubtitle => 'The app will display in this language';
+  String get appLanguageSubtitle => 'এপটো এই ভাষাত দেখুওৱা হ\'ব';
 
   @override
-  String get contentLanguagesTitle => 'Choose content languages';
+  String get contentLanguagesTitle => 'সমলৰ ভাষা বাছনি কৰক';
 
   @override
-  String get contentLanguagesSubtitle =>
-      'Select languages you want to listen to';
+  String get contentLanguagesSubtitle => 'আপুনি শুনিব বিচৰা ভাষাসমূহ বাছনি কৰক';
 
   @override
   String get interestsTitle => 'আগ্ৰহ সম্পাদনা কৰক';
 
   @override
-  String get voiceTitle => 'Pick a voice';
+  String get voiceTitle => 'এটা কণ্ঠ বাছনি কৰক';
 
   @override
-  String get accountTitle => 'Make it yours';
+  String get accountTitle => 'ইয়াক আপোনাৰ কৰি লওক';
 
   @override
-  String get continueButton => 'Continue';
+  String get continueButton => 'আগবাঢ়ক';
 
   @override
-  String get skipForNow => 'Skip for now';
+  String get skipForNow => 'এতিয়াৰ বাবে এৰি দিয়ক';
 
   @override
-  String get appLanguage => 'App Language';
+  String get appLanguage => 'এপৰ ভাষা';
 
   @override
-  String get appLanguageDescription => 'Language for app interface';
+  String get appLanguageDescription => 'এপ ইন্টাৰফেছৰ ভাষা';
 
   @override
   String get homeTitle => 'হোম';

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_session/audio_session.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
@@ -49,14 +50,17 @@ class GlobalRadioAudioHandler extends BaseAudioHandler
   /// Callback when an error occurs during playback.
   void Function(Object error)? onError;
 
-  /// The concatenating source for dynamic ad insertion.
-  ConcatenatingAudioSource? _concatenatingSource;
-
   /// Whether the audio source is ready to play.
   bool _isReady = false;
   
   /// Whether the audio session is configured.
   bool _sessionConfigured = false;
+
+  /// Previous player index, used to detect natural advances off an ad.
+  int? _lastIndex;
+
+  /// Guards against firing [onAdComplete] twice (manual skip + index change).
+  bool _adCallbackFired = false;
 
   /// Current queue URLs for prefetching.
   List<String> _queueUrls = [];
@@ -79,6 +83,8 @@ class GlobalRadioAudioHandler extends BaseAudioHandler
     final config = _networkMonitor.currentConfig;
     _player = AudioPlayer(
       audioLoadConfiguration: config.toLoadConfiguration(),
+      // Don't use lazy preparation for demo mode - assets are local
+      useLazyPreparation: !AppConfig.demoAudio,
     );
     
     _player.playbackEventStream.map(_transformEvent).pipe(playbackState);
@@ -88,14 +94,14 @@ class GlobalRadioAudioHandler extends BaseAudioHandler
     _player.playerStateStream.listen((state) {
       if (state.processingState == ProcessingState.ready && !_isReady) {
         _isReady = true;
-        print('[AudioHandler] Audio source ready, starting playback');
+        debugPrint('[AudioHandler] Audio source ready, starting playback');
       }
     });
     
     // Listen for playback completion to auto-advance
     _player.processingStateStream.listen((state) {
       if (state == ProcessingState.completed) {
-        print('[AudioHandler] Playback completed');
+        debugPrint('[AudioHandler] Playback completed');
       }
     });
 
@@ -105,7 +111,7 @@ class GlobalRadioAudioHandler extends BaseAudioHandler
       if (duration != null && duration.inSeconds > 0) {
         final bufferedPercent = (buffered.inSeconds / duration.inSeconds * 100).round();
         if (bufferedPercent % 25 == 0) {
-          print('[AudioHandler] Buffered: $bufferedPercent%');
+          debugPrint('[AudioHandler] Buffered: $bufferedPercent%');
         }
       }
     });
@@ -128,7 +134,7 @@ class GlobalRadioAudioHandler extends BaseAudioHandler
       androidWillPauseWhenDucked: true,
     ));
     _sessionConfigured = true;
-    print('[AudioHandler] Audio session configured');
+    debugPrint('[AudioHandler] Audio session configured');
   }
   
   /// Wait for audio session to be configured
@@ -138,13 +144,13 @@ class GlobalRadioAudioHandler extends BaseAudioHandler
       await Future.delayed(const Duration(milliseconds: 100));
     }
     if (!_sessionConfigured) {
-      print('[AudioHandler] Warning: Audio session not configured yet');
+      debugPrint('[AudioHandler] Warning: Audio session not configured yet');
     }
   }
 
   /// Handle network quality changes.
   void _onNetworkQualityChanged(NetworkQuality quality) {
-    print('[AudioHandler] Network quality changed: $quality');
+    debugPrint('[AudioHandler] Network quality changed: $quality');
     // Note: Buffer config changes require recreating the player,
     // which is disruptive. Instead, we adjust prefetch behavior.
     // Prefetch more aggressively on good connections.
@@ -177,12 +183,12 @@ class GlobalRadioAudioHandler extends BaseAudioHandler
     
     // Only copy if file doesn't exist
     if (!await tempFile.exists()) {
-      print('[AudioHandler] Copying asset to temp: $assetPath -> ${tempFile.path}');
+      debugPrint('[AudioHandler] Copying asset to temp: $assetPath -> ${tempFile.path}');
       final data = await rootBundle.load(assetPath);
       await tempFile.writeAsBytes(data.buffer.asUint8List());
-      print('[AudioHandler] Asset copied successfully');
+      debugPrint('[AudioHandler] Asset copied successfully');
     } else {
-      print('[AudioHandler] Using cached temp file: ${tempFile.path}');
+      debugPrint('[AudioHandler] Using cached temp file: ${tempFile.path}');
     }
     
     return tempFile.path;
@@ -210,6 +216,18 @@ class GlobalRadioAudioHandler extends BaseAudioHandler
   /// Handle track changes, including ad detection and prefetching.
   void _onIndexChanged(int? index) {
     final q = queue.value;
+
+    // If we naturally moved off an ad, fire its completion callback once.
+    final prev = _lastIndex;
+    if (prev != null && prev != index && _adIndices.contains(prev)) {
+      if (!_adCallbackFired && prev < q.length) {
+        final adId = q[prev].extras?['adId'] as String?;
+        if (adId != null) onAdComplete?.call(adId);
+      }
+      _adCallbackFired = false;
+    }
+    _lastIndex = index;
+
     if (index != null && index < q.length) {
       mediaItem.add(q[index]);
 
@@ -231,7 +249,7 @@ class GlobalRadioAudioHandler extends BaseAudioHandler
   /// Returns true if the source was set successfully, false otherwise.
   ///
   /// **Seamless playback features:**
-  /// - Gapless queue via ConcatenatingAudioSource
+  /// - Gapless queue via setAudioSources
   /// - Network-aware buffering configuration
   /// - Automatic prefetch of next 2-3 items
   /// - Fallback chain: CDN → LockCaching → Demo asset
@@ -248,20 +266,22 @@ class GlobalRadioAudioHandler extends BaseAudioHandler
     try {
       final session = await AudioSession.instance;
       await session.setActive(true);
-      print('[AudioHandler] Audio session activated for loading');
+      debugPrint('[AudioHandler] Audio session activated for loading');
     } catch (e) {
-      print('[AudioHandler] Warning: Could not activate audio session: $e');
+      debugPrint('[AudioHandler] Warning: Could not activate audio session: $e');
     }
     
     _adIndices.clear();
     _isReady = false;
+    _lastIndex = null;
+    _adCallbackFired = false;
     _queueUrls.clear();
     _prefetchManager.clearTracking();
 
-    print('[AudioHandler] setRadioQueue called with ${items.length} items, preferredVoice: $preferredVoice');
+    debugPrint('[AudioHandler] setRadioQueue called with ${items.length} items, preferredVoice: $preferredVoice');
     
     if (items.isEmpty) {
-      print('[AudioHandler] ERROR: Empty queue provided');
+      debugPrint('[AudioHandler] ERROR: Empty queue provided');
       return false;
     }
 
@@ -298,15 +318,15 @@ class GlobalRadioAudioHandler extends BaseAudioHandler
         // Demo mode: use bundled assets
         // Copy to temp file for more reliable playback on iOS
         final assetPath = it.demoAssetFor(preferredVoice);
-        print('[AudioHandler] Loading demo asset: $assetPath for item: ${it.id}, language: ${it.language}, voice: ${it.resolvedVoice(preferredVoice)}');
+        debugPrint('[AudioHandler] Loading demo asset: $assetPath for item: ${it.id}, language: ${it.language}, voice: ${it.resolvedVoice(preferredVoice)}');
         
         try {
           // Copy asset to temp file for reliable iOS playback
           final tempFilePath = await _copyAssetToTempFile(assetPath);
           sources.add(AudioSource.file(tempFilePath, tag: m));
-          print('[AudioHandler] Using temp file: $tempFilePath');
+          debugPrint('[AudioHandler] Using temp file: $tempFilePath');
         } catch (e) {
-          print('[AudioHandler] ERROR copying asset: $assetPath - $e');
+          debugPrint('[AudioHandler] ERROR copying asset: $assetPath - $e');
           // Fallback to direct asset loading
           sources.add(AudioSource.asset(assetPath, tag: m));
         }
@@ -316,7 +336,7 @@ class GlobalRadioAudioHandler extends BaseAudioHandler
         final cachedPath = await _prefetchManager.getCachedPath(audioUrl);
         if (cachedPath != null) {
           // Use cached file directly for instant playback
-          print('[AudioHandler] Using cached file for: ${it.id}');
+          debugPrint('[AudioHandler] Using cached file for: ${it.id}');
           sources.add(AudioSource.file(cachedPath, tag: m));
         } else {
           // Stream with caching
@@ -328,28 +348,22 @@ class GlobalRadioAudioHandler extends BaseAudioHandler
 
     queue.add(mediaItems);
 
-    _concatenatingSource = ConcatenatingAudioSource(
-      children: sources,
-      // Don't use lazy preparation for demo mode - assets are local
-      useLazyPreparation: !AppConfig.demoAudio,
-    );
-
     // Adjust initial index for pre-roll ad
     final adjustedIndex = preRollAd != null ? 0 : initialIndex;
 
     try {
-      print('[AudioHandler] Setting audio source with ${mediaItems.length} items, starting at index $adjustedIndex');
-      print('[AudioHandler] Demo mode: ${AppConfig.demoAudio}');
-      print('[AudioHandler] Sources count: ${sources.length}');
+      debugPrint('[AudioHandler] Setting audio source with ${mediaItems.length} items, starting at index $adjustedIndex');
+      debugPrint('[AudioHandler] Demo mode: ${AppConfig.demoAudio}');
+      debugPrint('[AudioHandler] Sources count: ${sources.length}');
       
-      await _player.setAudioSource(
-        _concatenatingSource!,
+      await _player.setAudioSources(
+        sources,
         initialIndex: adjustedIndex.clamp(0, mediaItems.isEmpty ? 0 : mediaItems.length - 1),
       );
       
-      print('[AudioHandler] Audio source set successfully');
-      print('[AudioHandler] Player duration: ${_player.duration}');
-      print('[AudioHandler] Player processing state: ${_player.processingState}');
+      debugPrint('[AudioHandler] Audio source set successfully');
+      debugPrint('[AudioHandler] Player duration: ${_player.duration}');
+      debugPrint('[AudioHandler] Player processing state: ${_player.processingState}');
       _isReady = true;
 
       // Trigger initial prefetch (skipped in demo mode)
@@ -357,8 +371,8 @@ class GlobalRadioAudioHandler extends BaseAudioHandler
 
       return true;
     } catch (e, stack) {
-      print('[AudioHandler] ERROR setting audio source: $e');
-      print('[AudioHandler] Stack: $stack');
+      debugPrint('[AudioHandler] ERROR setting audio source: $e');
+      debugPrint('[AudioHandler] Stack: $stack');
       onError?.call(e);
       return false;
     }
@@ -367,7 +381,7 @@ class GlobalRadioAudioHandler extends BaseAudioHandler
   /// Insert a mid-roll ad after the specified content index.
   /// Returns the new queue index of the ad.
   Future<int?> insertMidRollAd(AdCreative ad, {required int afterContentIndex}) async {
-    if (_concatenatingSource == null) return null;
+    if (!_isReady) return null;
 
     // Calculate actual queue index (accounting for existing ads)
     var queueIndex = afterContentIndex + 1;
@@ -392,7 +406,7 @@ class GlobalRadioAudioHandler extends BaseAudioHandler
     _adIndices.add(queueIndex);
 
     // Insert into audio source
-    await _concatenatingSource!.insert(queueIndex, adSource);
+    await _player.insertAudioSource(queueIndex, adSource);
 
     return queueIndex;
   }
@@ -472,24 +486,93 @@ class GlobalRadioAudioHandler extends BaseAudioHandler
   double get speed => _player.speed;
   Stream<double> get speedStream => _player.speedStream;
 
+  /// Current playback position.
+  Duration get position => _player.position;
+
+  /// Stream of the buffered position (for the seek bar's secondary track).
+  Stream<Duration> get bufferedPositionStream =>
+      _player.bufferedPositionStream;
+
+  /// Stream of the player's current queue index (includes ad slots).
+  Stream<int?> get currentIndexStream => _player.currentIndexStream;
+
+  /// Current player queue index (includes ad slots).
+  int? get currentIndex => _player.currentIndex;
+
+  /// Duration of the current item as reported by the decoder.
+  Duration? get duration => _player.duration;
+
+  /// Stream of the current item's duration (null while loading).
+  Stream<Duration?> get durationStream => _player.durationStream;
+
+  /// Current player volume (0.0 - 1.0).
+  double get volume => _player.volume;
+
+  /// Set player volume (0.0 - 1.0). Used by the sleep-timer fade-out.
+  Future<void> setVolume(double volume) =>
+      _player.setVolume(volume.clamp(0.0, 1.0));
+
+  /// Seek relative to the current position, clamped to the track bounds.
+  Future<void> seekBy(Duration offset) async {
+    final d = _player.duration;
+    var target = _player.position + offset;
+    if (target < Duration.zero) target = Duration.zero;
+    if (d != null && target > d) target = d;
+    await _player.seek(target);
+  }
+
+  /// Map a player queue index to its content index (excluding ad slots).
+  /// Returns null if [playerIndex] is an ad.
+  int? contentIndexFor(int playerIndex) =>
+      contentIndexForAdIndices(playerIndex, _adIndices);
+
+  /// Pure mapping helper (testable without a platform player).
+  static int? contentIndexForAdIndices(int playerIndex, Set<int> adIndices) {
+    if (adIndices.contains(playerIndex)) return null;
+    var adsBefore = 0;
+    for (final a in adIndices) {
+      if (a < playerIndex) adsBefore++;
+    }
+    return playerIndex - adsBefore;
+  }
+
+  /// Map a content index back to the player queue index (skipping ad slots).
+  int playerIndexForContent(int contentIndex) {
+    var seen = -1;
+    final total = queue.value.length;
+    for (var playerIndex = 0; playerIndex < total; playerIndex++) {
+      if (!_adIndices.contains(playerIndex)) {
+        seen++;
+        if (seen == contentIndex) return playerIndex;
+      }
+    }
+    return contentIndex;
+  }
+
   /// Set playback speed (0.5x - 2.0x).
   Future<void> setSpeed(double speed) => _player.setSpeed(speed.clamp(0.5, 2.0));
 
   @override
   Future<void> play() async {
     try {
-      print('[AudioHandler] Play requested, isReady: $_isReady, processingState: ${_player.processingState}');
+      debugPrint('[AudioHandler] Play requested, isReady: $_isReady, processingState: ${_player.processingState}');
       
       // Activate audio session before playing (important for iOS)
       final session = await AudioSession.instance;
       await session.setActive(true);
-      print('[AudioHandler] Audio session activated');
+      debugPrint('[AudioHandler] Audio session activated');
       
-      await _player.play();
-      print('[AudioHandler] Play command sent successfully, playing: ${_player.playing}');
+      // NOTE: do NOT await _player.play() — in just_audio its future only
+      // completes when playback is paused/completed, which would block
+      // callers (and UI state updates) for the whole track duration.
+      unawaited(_player.play().catchError((Object e, StackTrace stack) {
+        debugPrint('[AudioHandler] ERROR during play: $e');
+        onError?.call(e);
+      }));
+      debugPrint('[AudioHandler] Play command sent, playing: ${_player.playing}');
     } catch (e, stack) {
-      print('[AudioHandler] ERROR during play: $e');
-      print('[AudioHandler] Stack trace: $stack');
+      debugPrint('[AudioHandler] ERROR during play: $e');
+      debugPrint('[AudioHandler] Stack trace: $stack');
       onError?.call(e);
     }
   }
@@ -506,6 +589,7 @@ class GlobalRadioAudioHandler extends BaseAudioHandler
     if (isCurrentItemAd) {
       final ad = currentAd;
       if (ad != null) {
+        _adCallbackFired = true;
         onAdComplete?.call(ad.id);
       }
     }
@@ -537,13 +621,12 @@ class GlobalRadioAudioHandler extends BaseAudioHandler
   Future<void> stop() async {
     await _player.stop();
     _adIndices.clear();
-    _concatenatingSource = null;
+    _isReady = false;
     await super.stop();
   }
 
   Future<void> dispose() {
     _adIndices.clear();
-    _concatenatingSource = null;
     _queueUrls.clear();
     _prefetchManager.clearTracking();
     _networkMonitor.dispose();

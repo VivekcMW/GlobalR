@@ -2,7 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../core/analytics/analytics_events.dart';
+import '../../../shared/providers/providers.dart';
 import '../../../shared/providers/radio_controller.dart';
 import '../ad_models.dart';
 
@@ -103,31 +106,49 @@ class _AdOverlayState extends ConsumerState<AdOverlay> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Ad badge
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.amber.shade700,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.campaign,
-                    size: 16,
-                    color: Colors.white,
+            // Ad badge + Premium upsell ("remove ads" is the primary funnel)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.amber.shade700,
+                    borderRadius: BorderRadius.circular(4),
                   ),
-                  const SizedBox(width: 4),
-                  Text(
-                    'AD',
-                    style: theme.textTheme.labelMedium?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.campaign,
+                        size: 16,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'AD',
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 8),
+                TextButton(
+                  onPressed: () => _onRemoveAds(ad),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 6),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: const Text('Remove ads'),
+                ),
+              ],
             ),
 
             // Skip button or countdown
@@ -136,6 +157,14 @@ class _AdOverlayState extends ConsumerState<AdOverlay> {
         ),
       ),
     );
+  }
+
+  /// "Remove ads" upsell: log the funnel event and open the Premium settings.
+  void _onRemoveAds(AdCreative ad) {
+    ref
+        .read(analyticsServiceProvider)
+        .logEvent(PremiumUpsellFromAdEvent(adId: ad.id));
+    context.push('/settings');
   }
 
   Widget _buildSkipButton(AdCreative ad, ThemeData theme) {

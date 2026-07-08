@@ -1,9 +1,7 @@
 {
   "@@locale": "ja",
   "@@last_modified": "2026-06-24T00:00:00.000Z",
-  
   "appName": "グローバルラジオ",
-  
   "onboardingWelcome": "グローバルラジオへようこそ",
   "onboardingSubtitle": "あなたの興味に合わせたパーソナライズオーディオ",
   "onboardingSelectLanguages": "言語を選択してください",
@@ -12,7 +10,6 @@
   "onboardingContinue": "続ける",
   "onboardingGetStarted": "始める",
   "onboardingSkip": "スキップ",
-  
   "homeTitle": "ホーム",
   "homeGreetingMorning": "おはようございます",
   "homeGreetingAfternoon": "こんにちは",
@@ -22,7 +19,6 @@
   "homeTrendingNow": "トレンド",
   "homeRecentlyPlayed": "最近再生したもの",
   "homeQuickPicks": "クイックピック",
-  
   "libraryTitle": "ライブラリ",
   "libraryFavorites": "お気に入り",
   "libraryDownloads": "ダウンロード",
@@ -33,7 +29,6 @@
   "libraryAddFavorites": "ハートアイコンをタップしてお気に入りに追加",
   "libraryDownloadContent": "オフラインで聴くためにコンテンツをダウンロード",
   "libraryStartListening": "履歴を見るには聴き始めてください",
-  
   "settingsTitle": "設定",
   "settingsAccount": "アカウント",
   "settingsSignIn": "サインイン",
@@ -53,7 +48,6 @@
   "settingsFeedback": "フィードバックを送信",
   "settingsRateApp": "アプリを評価",
   "settingsShareApp": "友達と共有",
-  
   "playerNowPlaying": "再生中",
   "playerUpNext": "次の曲",
   "playerPlaybackSpeed": "再生速度",
@@ -64,29 +58,24 @@
   "playerRemoveFromFavorites": "お気に入りから削除",
   "playerDownload": "ダウンロード",
   "playerShare": "共有",
-  
   "interestsTitle": "興味を編集",
   "interestsSubtitle": "聴きたいトピックを選択してください",
   "interestsSelected": "{count}件選択済み",
   "interestsSave": "保存",
-  
   "languagesTitle": "言語",
   "languagesSubtitle": "お好みの言語を選択してください",
   "languagesSave": "保存",
-  
   "searchTitle": "検索",
   "searchHint": "コンテンツを検索...",
   "searchVoiceHint": "タップして音声検索",
   "searchNoResults": "結果が見つかりませんでした",
   "searchTryDifferent": "別のキーワードを試してください",
-  
   "authSignInTitle": "サインイン",
   "authSignInSubtitle": "設定を同期するにはサインインしてください",
   "authContinueWithGoogle": "Google で続行",
   "authContinueWithApple": "Apple で続行",
   "authContinueAsGuest": "ゲストとして続行",
   "authSignOutConfirm": "本当にサインアウトしますか？",
-  
   "premiumTitle": "プレミアムになる",
   "premiumSubtitle": "すべての機能をアンロック",
   "premiumFeature1": "広告なしで聴く",
@@ -94,13 +83,11 @@
   "premiumFeature3": "プレミアム音声",
   "premiumSubscribe": "{price}で購読",
   "premiumRestore": "購入を復元",
-  
   "errorGeneric": "問題が発生しました",
   "errorNetwork": "インターネット接続がありません",
   "errorRetry": "再試行",
   "errorLoadingContent": "コンテンツの読み込みに失敗しました",
   "errorPlayback": "再生エラー",
-  
   "commonCancel": "キャンセル",
   "commonOk": "OK",
   "commonSave": "保存",
@@ -109,24 +96,29 @@
   "commonDone": "完了",
   "commonLoading": "読み込み中...",
   "commonRefresh": "更新",
-  
   "notificationDailyTitle": "今日のオーディオ",
   "notificationDailyBody": "パーソナライズされたコンテンツの準備ができました",
-  
   "adSkipIn": "{seconds}秒後にスキップ",
   "adSkip": "広告をスキップ",
   "adLabel": "広告",
-  
   "offlineTitle": "オフラインモード",
   "offlineMessage": "オフラインです。ダウンロードしたコンテンツのみ利用可能です。",
   "offlineDownloadAvailable": "オフラインで聴くためにダウンロード",
-  
   "feedbackTitle": "フィードバックを送信",
   "feedbackHint": "ご意見をお聞かせください...",
   "feedbackSubmit": "送信",
   "feedbackThankYou": "フィードバックありがとうございます！",
-  
   "updateRequired": "アップデートが必要です",
   "updateMessage": "新しいバージョンが利用可能です。続行するにはアップデートしてください。",
-  "updateButton": "今すぐアップデート"
+  "updateButton": "今すぐアップデート",
+  "accountTitle": "自分好みに設定",
+  "appLanguage": "アプリの言語",
+  "appLanguageDescription": "アプリ画面の言語",
+  "appLanguageSubtitle": "アプリはこの言語で表示されます",
+  "appLanguageTitle": "アプリの言語を選択",
+  "contentLanguagesSubtitle": "聴きたい言語を選択してください",
+  "contentLanguagesTitle": "コンテンツの言語を選択",
+  "continueButton": "続ける",
+  "skipForNow": "今はスキップ",
+  "voiceTitle": "音声を選択"
 }

@@ -1,9 +1,7 @@
 {
   "@@locale": "gu",
   "@@last_modified": "2026-06-24T00:00:00.000Z",
-  
   "appName": "ગ્લોબલ રેડિયો",
-  
   "onboardingWelcome": "ગ્લોબલ રેડિયોમાં આપનું સ્વાગત છે",
   "onboardingSubtitle": "તમારી રુચિઓ માટે વ્યક્તિગત ઑડિયો",
   "onboardingSelectLanguages": "તમારી ભાષાઓ પસંદ કરો",
@@ -12,7 +10,6 @@
   "onboardingContinue": "ચાલુ રાખો",
   "onboardingGetStarted": "શરૂ કરો",
   "onboardingSkip": "છોડો",
-  
   "homeTitle": "હોમ",
   "homeGreetingMorning": "શુભ સવાર",
   "homeGreetingAfternoon": "શુભ બપોર",
@@ -22,7 +19,6 @@
   "homeTrendingNow": "હવે ટ્રેન્ડિંગ",
   "homeRecentlyPlayed": "તાજેતરમાં ચલાવેલ",
   "homeQuickPicks": "ઝડપી પસંદગીઓ",
-  
   "libraryTitle": "લાઇબ્રેરી",
   "libraryFavorites": "મનપસંદ",
   "libraryDownloads": "ડાઉનલોડ્સ",
@@ -33,7 +29,6 @@
   "libraryAddFavorites": "મનપસંદમાં ઉમેરવા હાર્ટ આઇકોન ટેપ કરો",
   "libraryDownloadContent": "ઑફલાઇન સાંભળવા માટે કન્ટેન્ટ ડાઉનલોડ કરો",
   "libraryStartListening": "તમારો ઇતિહાસ જોવા સાંભળવાનું શરૂ કરો",
-  
   "settingsTitle": "સેટિંગ્સ",
   "settingsAccount": "એકાઉન્ટ",
   "settingsSignIn": "સાઇન ઇન કરો",
@@ -53,7 +48,6 @@
   "settingsFeedback": "પ્રતિસાદ મોકલો",
   "settingsRateApp": "એપ રેટ કરો",
   "settingsShareApp": "મિત્રો સાથે શેર કરો",
-  
   "playerNowPlaying": "હમણાં ચાલી રહ્યું છે",
   "playerUpNext": "આગળ",
   "playerPlaybackSpeed": "પ્લેબેક ગતિ",
@@ -64,29 +58,24 @@
   "playerRemoveFromFavorites": "મનપસંદમાંથી દૂર કરો",
   "playerDownload": "ડાઉનલોડ કરો",
   "playerShare": "શેર કરો",
-  
   "interestsTitle": "રુચિઓ સંપાદિત કરો",
   "interestsSubtitle": "તમે જે વિષયો સાંભળવા માંગો છો તે પસંદ કરો",
   "interestsSelected": "{count} પસંદ કરેલ",
   "interestsSave": "સાચવો",
-  
   "languagesTitle": "ભાષાઓ",
   "languagesSubtitle": "તમારી પસંદગીની ભાષાઓ પસંદ કરો",
   "languagesSave": "સાચવો",
-  
   "searchTitle": "શોધો",
   "searchHint": "કન્ટેન્ટ શોધો...",
   "searchVoiceHint": "અવાજથી શોધવા ટેપ કરો",
   "searchNoResults": "કોઈ પરિણામો મળ્યા નથી",
   "searchTryDifferent": "જુદા કીવર્ડ્સ અજમાવો",
-  
   "authSignInTitle": "સાઇન ઇન કરો",
   "authSignInSubtitle": "તમારી પસંદગીઓ સિંક કરવા સાઇન ઇન કરો",
   "authContinueWithGoogle": "Google સાથે ચાલુ રાખો",
   "authContinueWithApple": "Apple સાથે ચાલુ રાખો",
   "authContinueAsGuest": "અતિથિ તરીકે ચાલુ રાખો",
   "authSignOutConfirm": "શું તમે ખરેખર સાઇન આઉટ કરવા માંગો છો?",
-  
   "premiumTitle": "પ્રીમિયમ બનો",
   "premiumSubtitle": "બધી સુવિધાઓ અનલૉક કરો",
   "premiumFeature1": "જાહેરાત-મુક્ત સાંભળવું",
@@ -94,13 +83,11 @@
   "premiumFeature3": "પ્રીમિયમ અવાજો",
   "premiumSubscribe": "{price} માં સબ્સ્ક્રાઇબ કરો",
   "premiumRestore": "ખરીદી પુનઃસ્થાપિત કરો",
-  
   "errorGeneric": "કંઈક ખોટું થયું",
   "errorNetwork": "ઇન્ટરનેટ કનેક્શન નથી",
   "errorRetry": "ફરી પ્રયાસ કરો",
   "errorLoadingContent": "કન્ટેન્ટ લોડ કરવામાં નિષ્ફળ",
   "errorPlayback": "પ્લેબેક ભૂલ",
-  
   "commonCancel": "રદ કરો",
   "commonOk": "ઠીક છે",
   "commonSave": "સાચવો",
@@ -109,24 +96,29 @@
   "commonDone": "થઈ ગયું",
   "commonLoading": "લોડ થઈ રહ્યું છે...",
   "commonRefresh": "રિફ્રેશ કરો",
-  
   "notificationDailyTitle": "તમારું દૈનિક ઑડિયો",
   "notificationDailyBody": "તમારું વ્યક્તિગત કન્ટેન્ટ તૈયાર છે",
-  
   "adSkipIn": "{seconds} સેકન્ડમાં છોડો",
   "adSkip": "જાહેરાત છોડો",
   "adLabel": "જાહેરાત",
-  
   "offlineTitle": "ઑફલાઇન મોડ",
   "offlineMessage": "તમે ઑફલાઇન છો. ફક્ત ડાઉનલોડ કરેલ કન્ટેન્ટ ઉપલબ્ધ છે.",
   "offlineDownloadAvailable": "ઑફલાઇન સાંભળવા ડાઉનલોડ કરો",
-  
   "feedbackTitle": "પ્રતિસાદ મોકલો",
   "feedbackHint": "તમને શું લાગે છે તે કહો...",
   "feedbackSubmit": "સબમિટ કરો",
   "feedbackThankYou": "તમારા પ્રતિસાદ બદલ આભાર!",
-  
   "updateRequired": "અપડેટ જરૂરી",
   "updateMessage": "નવી આવૃત્તિ ઉપલબ્ધ છે. કૃપા કરીને ચાલુ રાખવા અપડેટ કરો.",
-  "updateButton": "હમણાં અપડેટ કરો"
+  "updateButton": "હમણાં અપડેટ કરો",
+  "accountTitle": "તેને તમારું બનાવો",
+  "appLanguage": "ઍપની ભાષા",
+  "appLanguageDescription": "ઍપ ઇન્ટરફેસની ભાષા",
+  "appLanguageSubtitle": "ઍપ આ ભાષામાં દેખાશે",
+  "appLanguageTitle": "ઍપની ભાષા પસંદ કરો",
+  "contentLanguagesSubtitle": "તમે સાંભળવા માંગતા હો તે ભાષાઓ પસંદ કરો",
+  "contentLanguagesTitle": "કન્ટેન્ટની ભાષાઓ પસંદ કરો",
+  "continueButton": "આગળ વધો",
+  "skipForNow": "હમણાં માટે છોડી દો",
+  "voiceTitle": "એક અવાજ પસંદ કરો"
 }

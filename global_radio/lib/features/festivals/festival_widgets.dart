@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../shared/providers/radio_controller.dart';
 import 'festival_provider.dart';
 
 /// Festival banner for home screen - shows today's festival.
@@ -320,13 +322,13 @@ class FestivalCalendarScreen extends ConsumerWidget {
   }
 }
 
-class _ExpandedFestivalCard extends StatelessWidget {
+class _ExpandedFestivalCard extends ConsumerWidget {
   final Festival festival;
 
   const _ExpandedFestivalCard({required this.festival});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
     final daysUntil = festival.daysUntil ?? 0;
     final nextDate = festival.nextDate;
@@ -393,11 +395,15 @@ class _ExpandedFestivalCard extends StatelessWidget {
             // Play button
             IconButton(
               icon: Icon(Icons.play_circle_fill, color: scheme.primary, size: 36),
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Playing ${festival.name} content coming soon!')),
-                );
-              },
+              onPressed: festival.contentTags.isEmpty
+                  ? null
+                  : () async {
+                      final controller =
+                          ref.read(radioControllerProvider.notifier);
+                      await controller.startRadio(
+                          onlyInterests: festival.contentTags);
+                      if (context.mounted) context.push('/player');
+                    },
             ),
           ],
         ),

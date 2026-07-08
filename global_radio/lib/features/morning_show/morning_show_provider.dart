@@ -11,7 +11,7 @@ final dailyShowProvider = Provider<SequencedShow?>((ref) {
   final catalogAsync = ref.watch(catalogProvider);
   final profile = ref.watch(profileProvider);
   
-  final catalog = catalogAsync.valueOrNull;
+  final catalog = catalogAsync.value;
   if (catalog == null) return null;
   
   final generator = MorningShowGenerator(

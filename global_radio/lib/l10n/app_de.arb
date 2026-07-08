@@ -1,9 +1,7 @@
 {
   "@@locale": "de",
   "@@last_modified": "2026-06-24T00:00:00.000Z",
-  
   "appName": "Global Radio",
-  
   "onboardingWelcome": "Willkommen bei Global Radio",
   "onboardingSubtitle": "Personalisiertes Audio für Ihre Interessen",
   "onboardingSelectLanguages": "Wählen Sie Ihre Sprachen",
@@ -12,7 +10,6 @@
   "onboardingContinue": "Weiter",
   "onboardingGetStarted": "Los geht's",
   "onboardingSkip": "Überspringen",
-  
   "homeTitle": "Startseite",
   "homeGreetingMorning": "Guten Morgen",
   "homeGreetingAfternoon": "Guten Tag",
@@ -22,7 +19,6 @@
   "homeTrendingNow": "Jetzt im Trend",
   "homeRecentlyPlayed": "Kürzlich gespielt",
   "homeQuickPicks": "Schnelle Auswahl",
-  
   "libraryTitle": "Bibliothek",
   "libraryFavorites": "Favoriten",
   "libraryDownloads": "Downloads",
@@ -33,7 +29,6 @@
   "libraryAddFavorites": "Tippen Sie auf das Herz-Symbol, um zu Favoriten hinzuzufügen",
   "libraryDownloadContent": "Laden Sie Inhalte herunter, um offline zu hören",
   "libraryStartListening": "Beginnen Sie zu hören, um Ihren Verlauf zu sehen",
-  
   "settingsTitle": "Einstellungen",
   "settingsAccount": "Konto",
   "settingsSignIn": "Anmelden",
@@ -53,7 +48,6 @@
   "settingsFeedback": "Feedback senden",
   "settingsRateApp": "App bewerten",
   "settingsShareApp": "Mit Freunden teilen",
-  
   "playerNowPlaying": "Wird jetzt gespielt",
   "playerUpNext": "Als Nächstes",
   "playerPlaybackSpeed": "Wiedergabegeschwindigkeit",
@@ -64,29 +58,24 @@
   "playerRemoveFromFavorites": "Aus Favoriten entfernen",
   "playerDownload": "Herunterladen",
   "playerShare": "Teilen",
-  
   "interestsTitle": "Interessen bearbeiten",
   "interestsSubtitle": "Wählen Sie die Themen, die Sie hören möchten",
   "interestsSelected": "{count} ausgewählt",
   "interestsSave": "Speichern",
-  
   "languagesTitle": "Sprachen",
   "languagesSubtitle": "Wählen Sie Ihre bevorzugten Sprachen",
   "languagesSave": "Speichern",
-  
   "searchTitle": "Suchen",
   "searchHint": "Inhalte suchen...",
   "searchVoiceHint": "Tippen Sie für Sprachsuche",
   "searchNoResults": "Keine Ergebnisse gefunden",
   "searchTryDifferent": "Versuchen Sie andere Stichwörter",
-  
   "authSignInTitle": "Anmelden",
   "authSignInSubtitle": "Melden Sie sich an, um Ihre Einstellungen zu synchronisieren",
   "authContinueWithGoogle": "Mit Google fortfahren",
   "authContinueWithApple": "Mit Apple fortfahren",
   "authContinueAsGuest": "Als Gast fortfahren",
   "authSignOutConfirm": "Sind Sie sicher, dass Sie sich abmelden möchten?",
-  
   "premiumTitle": "Premium werden",
   "premiumSubtitle": "Alle Funktionen freischalten",
   "premiumFeature1": "Werbefreies Hören",
@@ -94,13 +83,11 @@
   "premiumFeature3": "Premium-Stimmen",
   "premiumSubscribe": "Für {price} abonnieren",
   "premiumRestore": "Käufe wiederherstellen",
-  
   "errorGeneric": "Etwas ist schief gelaufen",
   "errorNetwork": "Keine Internetverbindung",
   "errorRetry": "Erneut versuchen",
   "errorLoadingContent": "Laden des Inhalts fehlgeschlagen",
   "errorPlayback": "Wiedergabefehler",
-  
   "commonCancel": "Abbrechen",
   "commonOk": "OK",
   "commonSave": "Speichern",
@@ -109,24 +96,29 @@
   "commonDone": "Fertig",
   "commonLoading": "Wird geladen...",
   "commonRefresh": "Aktualisieren",
-  
   "notificationDailyTitle": "Ihr tägliches Audio",
   "notificationDailyBody": "Ihr personalisierter Inhalt ist bereit",
-  
   "adSkipIn": "In {seconds} Sekunden überspringen",
   "adSkip": "Werbung überspringen",
   "adLabel": "Werbung",
-  
   "offlineTitle": "Offline-Modus",
   "offlineMessage": "Sie sind offline. Nur heruntergeladene Inhalte sind verfügbar.",
   "offlineDownloadAvailable": "Herunterladen für Offline-Hören",
-  
   "feedbackTitle": "Feedback senden",
   "feedbackHint": "Teilen Sie uns Ihre Meinung mit...",
   "feedbackSubmit": "Absenden",
   "feedbackThankYou": "Danke für Ihr Feedback!",
-  
   "updateRequired": "Update erforderlich",
   "updateMessage": "Neue Version verfügbar. Bitte aktualisieren Sie, um fortzufahren.",
-  "updateButton": "Jetzt aktualisieren"
+  "updateButton": "Jetzt aktualisieren",
+  "accountTitle": "Mach sie zu deiner App",
+  "appLanguage": "App-Sprache",
+  "appLanguageDescription": "Sprache der App-Oberfläche",
+  "appLanguageSubtitle": "Die App wird in dieser Sprache angezeigt",
+  "appLanguageTitle": "App-Sprache auswählen",
+  "contentLanguagesSubtitle": "Wähle die Sprachen, die du hören möchtest",
+  "contentLanguagesTitle": "Inhaltssprachen auswählen",
+  "continueButton": "Weiter",
+  "skipForNow": "Vorerst überspringen",
+  "voiceTitle": "Stimme auswählen"
 }

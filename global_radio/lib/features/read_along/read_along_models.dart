@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 /// A single timed segment of text for read-along sync.
 class TextSegment {
   final int index;
@@ -8,12 +6,16 @@ class TextSegment {
   final Duration endTime;
   final bool isParagraphStart;
 
+  /// Optional translation of [text] (language-learning mode).
+  final String? translation;
+
   const TextSegment({
     required this.index,
     required this.text,
     required this.startTime,
     required this.endTime,
     this.isParagraphStart = false,
+    this.translation,
   });
 
   bool containsPosition(Duration position) {
@@ -27,6 +29,7 @@ class TextSegment {
       startTime: Duration(milliseconds: json['startMs'] as int),
       endTime: Duration(milliseconds: json['endMs'] as int),
       isParagraphStart: json['isParagraphStart'] as bool? ?? false,
+      translation: json['translation'] as String?,
     );
   }
 
@@ -36,6 +39,7 @@ class TextSegment {
         'startMs': startTime.inMilliseconds,
         'endMs': endTime.inMilliseconds,
         'isParagraphStart': isParagraphStart,
+        if (translation != null) 'translation': translation,
       };
 }
 
@@ -220,12 +224,16 @@ class ReadAlongSettings {
   final double lineSpacing;
   final bool showProgress;
 
+  /// Language-learning mode: show segment translations when available.
+  final bool showTranslation;
+
   const ReadAlongSettings({
     this.highlightMode = HighlightMode.karaoke,
     this.fontSize = 18,
     this.autoScroll = true,
     this.lineSpacing = 1.5,
     this.showProgress = true,
+    this.showTranslation = false,
   });
 
   ReadAlongSettings copyWith({
@@ -234,6 +242,7 @@ class ReadAlongSettings {
     bool? autoScroll,
     double? lineSpacing,
     bool? showProgress,
+    bool? showTranslation,
   }) {
     return ReadAlongSettings(
       highlightMode: highlightMode ?? this.highlightMode,
@@ -241,6 +250,7 @@ class ReadAlongSettings {
       autoScroll: autoScroll ?? this.autoScroll,
       lineSpacing: lineSpacing ?? this.lineSpacing,
       showProgress: showProgress ?? this.showProgress,
+      showTranslation: showTranslation ?? this.showTranslation,
     );
   }
 }

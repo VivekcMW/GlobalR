@@ -1,8 +1,6 @@
-// PLACEHOLDER — replaced by `flutterfire configure`.
-//
-// Until you run that command (see tools/setup_firebase.sh), this stub throws a
-// clear error if Firebase is enabled without configuration. The app default
-// (USE_FIREBASE_AUTH=false) never touches this file.
+// Generated from Firebase Console config files (project: globalradio-1f547).
+// Android values come from android/app/google-services.json.
+// iOS values come from ios/Runner/GoogleService-Info.plist.
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
@@ -11,18 +9,15 @@ class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
       throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
+        'DefaultFirebaseOptions have not been configured for web.',
       );
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-      case TargetPlatform.macOS:
-      case TargetPlatform.windows:
-      case TargetPlatform.linux:
-      case TargetPlatform.fuchsia:
+        return ios;
+      default:
         throw UnsupportedError(
           'DefaultFirebaseOptions are not supported for this platform.',
         );
@@ -30,10 +25,19 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyD_PYKUZbMMIPkg-Bu6lJoBUXct1yHFv68',
-    appId: '1:229658503186:android:12392305ba819ff482d0cb',
-    messagingSenderId: '229658503186',
-    projectId: 'globalir',
-    storageBucket: 'globalir.firebasestorage.app',
+    apiKey: 'AIzaSyCWMGy3yTybmGKOwHcdjF7_wjm9pD3K1fY',
+    appId: '1:716603335285:android:8810928357fc4fbe9e4e3c',
+    messagingSenderId: '716603335285',
+    projectId: 'globalradio-1f547',
+    storageBucket: 'globalradio-1f547.firebasestorage.app',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyA78HCbEsfTY-BCPav1A6pKT80pu7kFAng',
+    appId: '1:716603335285:ios:d4ff60940cd8feac9e4e3c',
+    messagingSenderId: '716603335285',
+    projectId: 'globalradio-1f547',
+    storageBucket: 'globalradio-1f547.firebasestorage.app',
+    iosBundleId: 'com.globalradio.globalRadio',
   );
 }

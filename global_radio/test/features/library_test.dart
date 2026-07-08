@@ -4,58 +4,55 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:global_radio/data/models/catalog_item.dart';
+import 'package:global_radio/data/models/item_signals.dart';
 import 'package:global_radio/features/library/library_screen.dart';
 import 'package:global_radio/shared/providers/providers.dart';
+import 'package:global_radio/shared/providers/radio_controller.dart';
+
+import '../helpers/fake_controllers.dart';
 
 void main() {
+  Widget createTestWidget({
+    List<CatalogItem> catalogItems = const [],
+    List<String> favoriteIds = const [],
+    List<String> recentIds = const [],
+  }) {
+    final testRouter = GoRouter(
+      initialLocation: '/library',
+      routes: [
+        GoRoute(path: '/library', builder: (_, __) => const LibraryScreen()),
+        GoRoute(
+          path: '/player',
+          builder: (_, __) => const Scaffold(body: Text('Player')),
+        ),
+      ],
+    );
+
+    return ProviderScope(
+      overrides: [
+        localStoreProvider.overrideWithValue(FakeLocalStore()),
+        catalogProvider.overrideWith(
+            () => FakeCatalogController(testCatalog(catalogItems))),
+        favoritesProvider.overrideWithValue(
+            favoriteIds.map((id) => ItemSignals(itemId: id)).toList()),
+        recentlyPlayedProvider.overrideWithValue(
+            recentIds.map((id) => ItemSignals(itemId: id)).toList()),
+        radioControllerProvider.overrideWith(FakeRadioController.new),
+      ],
+      child: MaterialApp.router(routerConfig: testRouter),
+    );
+  }
+
   group('LibraryScreen Widget', () {
-    late GoRouter testRouter;
-
-    setUp(() {
-      testRouter = GoRouter(
-        initialLocation: '/library',
-        routes: [
-          GoRoute(
-            path: '/library',
-            builder: (_, __) => const LibraryScreen(),
-          ),
-          GoRoute(
-            path: '/player',
-            builder: (_, __) => const Scaffold(body: Text('Player')),
-          ),
-        ],
-      );
-    });
-
-    Widget createTestWidget({
-      List<CatalogItem> catalogItems = const [],
-      List<String> favoriteIds = const [],
-      List<String> recentIds = const [],
-    }) {
-      return ProviderScope(
-        overrides: [
-          catalogProvider.overrideWith(
-            (ref) => AsyncValue.data(MockCatalog(items: catalogItems)),
-          ),
-          favoritesProvider.overrideWith(
-            (ref) => favoriteIds.map((id) => FavoriteSignal(itemId: id)).toList(),
-          ),
-          recentlyPlayedProvider.overrideWith(
-            (ref) => recentIds.map((id) => RecentSignal(itemId: id)).toList(),
-          ),
-        ],
-        child: MaterialApp.router(routerConfig: testRouter),
-      );
-    }
-
     testWidgets('displays Saved title in app bar', (tester) async {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      expect(find.text('Saved'), findsWidgets); // AppBar + Section
+      expect(find.text('Saved'), findsWidgets); // AppBar + section header
     });
 
-    testWidgets('shows three sections: Saved, Recently Played, Downloads', (tester) async {
+    testWidgets('shows three sections: Saved, Recently Played, Downloads',
+        (tester) async {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
@@ -64,15 +61,17 @@ void main() {
       expect(find.text('Downloads'), findsOneWidget);
     });
 
-    testWidgets('shows empty state for favorites when none saved', (tester) async {
-      await tester.pumpWidget(createTestWidget(favoriteIds: []));
+    testWidgets('shows empty state for favorites when none saved',
+        (tester) async {
+      await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
       expect(find.textContaining('save favorites'), findsOneWidget);
     });
 
-    testWidgets('shows empty state for recent when none played', (tester) async {
-      await tester.pumpWidget(createTestWidget(recentIds: []));
+    testWidgets('shows empty state for recent when none played',
+        (tester) async {
+      await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
       expect(find.textContaining('Items you play'), findsOneWidget);
@@ -86,21 +85,8 @@ void main() {
     });
 
     testWidgets('displays saved items when present', (tester) async {
-      final items = [
-        CatalogItem(
-          id: 'fav-1',
-          title: 'Favorite Story',
-          interests: ['kids'],
-          language: 'hindi',
-          availableVoices: ['male_story'],
-          defaultVoice: 'male_story',
-          durationSec: 180,
-          sizeKb: 1440,
-        ),
-      ];
-
       await tester.pumpWidget(createTestWidget(
-        catalogItems: items,
+        catalogItems: [testItem(id: 'fav-1', title: 'Favorite Story')],
         favoriteIds: ['fav-1'],
       ));
       await tester.pumpAndSettle();
@@ -109,26 +95,49 @@ void main() {
     });
 
     testWidgets('displays recent items when present', (tester) async {
-      final items = [
-        CatalogItem(
-          id: 'recent-1',
-          title: 'Recent Story',
-          interests: ['moral'],
-          language: 'english',
-          availableVoices: ['female_warm'],
-          defaultVoice: 'female_warm',
-          durationSec: 240,
-          sizeKb: 1920,
-        ),
-      ];
-
       await tester.pumpWidget(createTestWidget(
-        catalogItems: items,
+        catalogItems: [
+          testItem(
+            id: 'recent-1',
+            title: 'Recent Story',
+            interests: ['moral'],
+            language: 'english',
+            availableVoices: ['female_warm'],
+            defaultVoice: 'female_warm',
+          ),
+        ],
         recentIds: ['recent-1'],
       ));
       await tester.pumpAndSettle();
 
       expect(find.text('Recent Story'), findsOneWidget);
+    });
+
+    testWidgets('caps saved list at 5 with expandable See all',
+        (tester) async {
+      final items = List.generate(
+          7, (i) => testItem(id: 'fav-$i', title: 'Story $i'));
+      await tester.pumpWidget(createTestWidget(
+        catalogItems: items,
+        favoriteIds: items.map((it) => it.id).toList(),
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Story 4'), findsOneWidget);
+      expect(find.text('Story 6'), findsNothing);
+
+      await tester.scrollUntilVisible(find.text('See all 7 saved'), 100,
+          scrollable: find.byType(Scrollable).first);
+      // Nudge further so the button is fully inside the viewport.
+      await tester.drag(find.byType(ListView), const Offset(0, -120));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('See all 7 saved'));
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(find.text('Story 6'), 100,
+          scrollable: find.byType(Scrollable).first);
+      expect(find.text('Story 6'), findsOneWidget);
+      expect(find.text('Show less'), findsOneWidget);
     });
 
     testWidgets('has ListView for scrolling', (tester) async {
@@ -140,83 +149,13 @@ void main() {
   });
 
   group('LibraryScreen Icons', () {
-    testWidgets('shows bookmark icon for Saved section', (tester) async {
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            catalogProvider.overrideWith(
-              (ref) => AsyncValue.data(MockCatalog(items: [])),
-            ),
-            favoritesProvider.overrideWith((ref) => []),
-            recentlyPlayedProvider.overrideWith((ref) => []),
-          ],
-          child: const MaterialApp(home: LibraryScreen()),
-        ),
-      );
+    testWidgets('shows section icons', (tester) async {
+      await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.bookmark_rounded), findsOneWidget);
-    });
-
-    testWidgets('shows history icon for Recently Played section', (tester) async {
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            catalogProvider.overrideWith(
-              (ref) => AsyncValue.data(MockCatalog(items: [])),
-            ),
-            favoritesProvider.overrideWith((ref) => []),
-            recentlyPlayedProvider.overrideWith((ref) => []),
-          ],
-          child: const MaterialApp(home: LibraryScreen()),
-        ),
-      );
-      await tester.pumpAndSettle();
-
       expect(find.byIcon(Icons.history), findsOneWidget);
-    });
-
-    testWidgets('shows download icon for Downloads section', (tester) async {
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            catalogProvider.overrideWith(
-              (ref) => AsyncValue.data(MockCatalog(items: [])),
-            ),
-            favoritesProvider.overrideWith((ref) => []),
-            recentlyPlayedProvider.overrideWith((ref) => []),
-          ],
-          child: const MaterialApp(home: LibraryScreen()),
-        ),
-      );
-      await tester.pumpAndSettle();
-
       expect(find.byIcon(Icons.download_done_rounded), findsOneWidget);
     });
   });
-}
-
-/// Mock catalog for testing.
-class MockCatalog {
-  final List<CatalogItem> items;
-
-  MockCatalog({required this.items});
-}
-
-/// Mock favorite signal for testing.
-class FavoriteSignal {
-  final String itemId;
-  final DateTime timestamp;
-
-  FavoriteSignal({required this.itemId, DateTime? timestamp})
-      : timestamp = timestamp ?? DateTime.now();
-}
-
-/// Mock recent signal for testing.
-class RecentSignal {
-  final String itemId;
-  final DateTime timestamp;
-
-  RecentSignal({required this.itemId, DateTime? timestamp})
-      : timestamp = timestamp ?? DateTime.now();
 }

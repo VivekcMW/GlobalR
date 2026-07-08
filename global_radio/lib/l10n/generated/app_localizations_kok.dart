@@ -36,38 +36,38 @@ class AppLocalizationsKok extends AppLocalizations {
   String get onboardingSkip => 'सोडात';
 
   @override
-  String get appLanguageTitle => 'Select app language';
+  String get appLanguageTitle => 'ॲपाची भास वेंचून काडात';
 
   @override
-  String get appLanguageSubtitle => 'The app will display in this language';
+  String get appLanguageSubtitle => 'ॲप ह्या भाशेंत दिसतलें';
 
   @override
-  String get contentLanguagesTitle => 'Choose content languages';
+  String get contentLanguagesTitle => 'मजकुराच्यो भासो वेंचून काडात';
 
   @override
   String get contentLanguagesSubtitle =>
-      'Select languages you want to listen to';
+      'तुमकां आयकपाक जाय त्यो भासो वेंचून काडात';
 
   @override
   String get interestsTitle => 'आवडी संपादीत करात';
 
   @override
-  String get voiceTitle => 'Pick a voice';
+  String get voiceTitle => 'एक आवाज वेंचून काडात';
 
   @override
-  String get accountTitle => 'Make it yours';
+  String get accountTitle => 'हें तुमचें करून घेयात';
 
   @override
-  String get continueButton => 'Continue';
+  String get continueButton => 'फुडें वचात';
 
   @override
-  String get skipForNow => 'Skip for now';
+  String get skipForNow => 'सद्या सोडून दियात';
 
   @override
-  String get appLanguage => 'App Language';
+  String get appLanguage => 'ॲपाची भास';
 
   @override
-  String get appLanguageDescription => 'Language for app interface';
+  String get appLanguageDescription => 'ॲप इंटरफेसाची भास';
 
   @override
   String get homeTitle => 'घर';

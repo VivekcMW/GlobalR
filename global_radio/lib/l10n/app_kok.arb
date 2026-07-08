@@ -1,9 +1,7 @@
 {
   "@@locale": "kok",
   "@@last_modified": "2026-06-24T00:00:00.000Z",
-  
   "appName": "ग्लोबल रेडियो",
-  
   "onboardingWelcome": "ग्लोबल रेडियोंत येवकार",
   "onboardingSubtitle": "तुमच्या आवडी खातीर वैयक्तीक ऑडियो",
   "onboardingSelectLanguages": "तुमच्यो भाशा निवडात",
@@ -12,7 +10,6 @@
   "onboardingContinue": "चालू दवरात",
   "onboardingGetStarted": "सुरू करात",
   "onboardingSkip": "सोडात",
-  
   "homeTitle": "घर",
   "homeGreetingMorning": "बरी सकाळ",
   "homeGreetingAfternoon": "बरी दनपार",
@@ -22,7 +19,6 @@
   "homeTrendingNow": "आतां ट्रेंडिंग",
   "homeRecentlyPlayed": "नुकतेंच वाजयलें",
   "homeQuickPicks": "झटपट निवड",
-  
   "libraryTitle": "ग्रंथालय",
   "libraryFavorites": "आवडतें",
   "libraryDownloads": "डाउनलोड",
@@ -33,7 +29,6 @@
   "libraryAddFavorites": "आवडत्यांत घालपाक हार्ट आयकन टॅप करात",
   "libraryDownloadContent": "ऑफलायन आयकपाक सामुग्री डाउनलोड करात",
   "libraryStartListening": "तुमचो इतिहास पळोवपाक आयकपाक सुरू करात",
-  
   "settingsTitle": "सेटिंग्स",
   "settingsAccount": "खातें",
   "settingsSignIn": "साइन इन करात",
@@ -53,7 +48,6 @@
   "settingsFeedback": "अभिप्राय धाडात",
   "settingsRateApp": "अॅप रेट करात",
   "settingsShareApp": "इश्टांक शेर करात",
-  
   "playerNowPlaying": "आतां वाजता",
   "playerUpNext": "फुडें",
   "playerPlaybackSpeed": "प्लेबॅक वेग",
@@ -64,29 +58,24 @@
   "playerRemoveFromFavorites": "आवडत्यांतल्यान काडात",
   "playerDownload": "डाउनलोड करात",
   "playerShare": "शेर करात",
-  
   "interestsTitle": "आवडी संपादीत करात",
   "interestsSubtitle": "तुमी आयकपाक जाय तें विशय निवडात",
   "interestsSelected": "{count} निवडलें",
   "interestsSave": "सांबाळात",
-  
   "languagesTitle": "भाशा",
   "languagesSubtitle": "तुमच्यो पसंतीच्यो भाशा निवडात",
   "languagesSave": "सांबाळात",
-  
   "searchTitle": "सोदात",
   "searchHint": "सामुग्री सोदात...",
   "searchVoiceHint": "आवाजान सोदपाक टॅप करात",
   "searchNoResults": "कांयच परिणाम सापडले ना",
   "searchTryDifferent": "वेगळे शब्द वापरात",
-  
   "authSignInTitle": "साइन इन करात",
   "authSignInSubtitle": "तुमच्यो पसंती सिंक करपाक साइन इन करात",
   "authContinueWithGoogle": "गूगल वांगडा चालू दवरात",
   "authContinueWithApple": "अॅपल वांगडा चालू दवरात",
   "authContinueAsGuest": "सोयऱ्याक म्हणून चालू दवरात",
   "authSignOutConfirm": "तुमी खरेंच साइन आउट करपाक जाय?",
-  
   "premiumTitle": "प्रीमियम जायात",
   "premiumSubtitle": "सगळी फीचर्स अनलॉक करात",
   "premiumFeature1": "जायरात-मुक्त आयकप",
@@ -94,13 +83,11 @@
   "premiumFeature3": "प्रीमियम आवाज",
   "premiumSubscribe": "{price} खातीर सबस्क्राइब करात",
   "premiumRestore": "खरेदी परतून हाडात",
-  
   "errorGeneric": "कितें तरी चुकलें",
   "errorNetwork": "इंटरनेट जोडणी ना",
   "errorRetry": "परतून यत्न करात",
   "errorLoadingContent": "सामुग्री लोड करपाक अपेशी",
   "errorPlayback": "प्लेबॅक चूक",
-  
   "commonCancel": "रद्द करात",
   "commonOk": "बरें",
   "commonSave": "सांबाळात",
@@ -109,24 +96,29 @@
   "commonDone": "जालें",
   "commonLoading": "लोड जाता...",
   "commonRefresh": "रिफ्रेश करात",
-  
   "notificationDailyTitle": "तुमचें दिसपट्टें ऑडियो",
   "notificationDailyBody": "तुमची वैयक्तीक सामुग्री तयार आसा",
-  
   "adSkipIn": "{seconds} सेकंदांत सोडात",
   "adSkip": "जायरात सोडात",
   "adLabel": "जायरात",
-  
   "offlineTitle": "ऑफलायन मोड",
   "offlineMessage": "तुमी ऑफलायन आसात. फकत डाउनलोड केल्ली सामुग्री उपलब्ध आसा.",
   "offlineDownloadAvailable": "ऑफलायन आयकपाक डाउनलोड करात",
-  
   "feedbackTitle": "अभिप्राय धाडात",
   "feedbackHint": "तुमी कितें चिंतात तें सांगात...",
   "feedbackSubmit": "सादर करात",
   "feedbackThankYou": "तुमच्या अभिप्रायाक धन्यवाद!",
-  
   "updateRequired": "अपडेट जाय",
   "updateMessage": "नवी आवृत्ती उपलब्ध आसा. कृपया चालू दवरपाक अपडेट करात.",
-  "updateButton": "आतां अपडेट करात"
+  "updateButton": "आतां अपडेट करात",
+  "accountTitle": "हें तुमचें करून घेयात",
+  "appLanguage": "ॲपाची भास",
+  "appLanguageDescription": "ॲप इंटरफेसाची भास",
+  "appLanguageSubtitle": "ॲप ह्या भाशेंत दिसतलें",
+  "appLanguageTitle": "ॲपाची भास वेंचून काडात",
+  "contentLanguagesSubtitle": "तुमकां आयकपाक जाय त्यो भासो वेंचून काडात",
+  "contentLanguagesTitle": "मजकुराच्यो भासो वेंचून काडात",
+  "continueButton": "फुडें वचात",
+  "skipForNow": "सद्या सोडून दियात",
+  "voiceTitle": "एक आवाज वेंचून काडात"
 }

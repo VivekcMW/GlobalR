@@ -1,9 +1,7 @@
 {
   "@@locale": "brx",
   "@@last_modified": "2026-06-24T00:00:00.000Z",
-  
   "appName": "ग्लबाल रेडिअ'",
-  
   "onboardingWelcome": "ग्लबाल रेडिअ'आव सुस्रांबाय",
   "onboardingSubtitle": "नोंथांनि मोजां लानायनि थाखाय एखे अडिओ",
   "onboardingSelectLanguages": "नोंथांनि राव सायख",
@@ -12,7 +10,6 @@
   "onboardingContinue": "आगान सोलियो",
   "onboardingGetStarted": "जागायो",
   "onboardingSkip": "थांनांगौ",
-  
   "homeTitle": "नो",
   "homeGreetingMorning": "मोजां अंगार",
   "homeGreetingAfternoon": "मोजां बेलासे",
@@ -22,7 +19,6 @@
   "homeTrendingNow": "दान्नाय ट्रेन्डिं",
   "homeRecentlyPlayed": "नाथाय खेलाबाय",
   "homeQuickPicks": "गोसोमै सायख",
-  
   "libraryTitle": "लाइब्रेरी",
   "libraryFavorites": "मोजां लानाय",
   "libraryDownloads": "डाउनलड",
@@ -33,7 +29,6 @@
   "libraryAddFavorites": "मोजां लानायआव दाखल खालामनायनि थाखाय हार्ट आइकन टेप खालाम",
   "libraryDownloadContent": "अफलाइनआव खोनाय थाखाय डाउनलड खालाम",
   "libraryStartListening": "नोंथांनि जाहोन नायनायनि थाखाय खोनाय जागाय",
-  
   "settingsTitle": "सेटिंस",
   "settingsAccount": "एखाउन्ट",
   "settingsSignIn": "साइन इन खालाम",
@@ -53,7 +48,6 @@
   "settingsFeedback": "फिडबेक दा",
   "settingsRateApp": "एप रेट खालाम",
   "settingsShareApp": "गसायफोरजों शेयार खालाम",
-  
   "playerNowPlaying": "दान्नाय खेलाबोदों",
   "playerUpNext": "उनाव",
   "playerPlaybackSpeed": "प्लेबेक गोसोम",
@@ -64,29 +58,24 @@
   "playerRemoveFromFavorites": "मोजां लानायनिफ्राय बोखार",
   "playerDownload": "डाउनलड खालाम",
   "playerShare": "शेयार खालाम",
-  
   "interestsTitle": "मोजां लानाय सोदांमा",
   "interestsSubtitle": "नोंथां खोनो सोंनाय विषय सायख",
   "interestsSelected": "{count} सायखबाय",
   "interestsSave": "सेभ खालाम",
-  
   "languagesTitle": "रावफोर",
   "languagesSubtitle": "नोंथांनि मोजां लानाय राव सायख",
   "languagesSave": "सेभ खालाम",
-  
   "searchTitle": "नायगिरि",
   "searchHint": "खन्थाय नायगिरि...",
   "searchVoiceHint": "सोरनि नायगिरि थाखाय टेप खालाम",
   "searchNoResults": "बेसेन मोनाबा नायगैया",
   "searchTryDifferent": "गुबुन सोदोब बाहाय",
-  
   "authSignInTitle": "साइन इन खालाम",
   "authSignInSubtitle": "नोंथांनि मोजां लानाय सिंक खालामनायनि थाखाय साइन इन खालाम",
   "authContinueWithGoogle": "गुगलजों आगान सोलियो",
   "authContinueWithApple": "एपलजों आगान सोलियो",
   "authContinueAsGuest": "अमोलानि बायदिआव आगान सोलियो",
   "authSignOutConfirm": "नोंथां सासे साइन आउट खालामो सोंना?",
-  
   "premiumTitle": "प्रिमियम जा",
   "premiumSubtitle": "गासै फिचारफोर अनलक खालाम",
   "premiumFeature1": "बिगियान-मुक्त खोनाय",
@@ -94,13 +83,11 @@
   "premiumFeature3": "प्रिमियम सोरफोर",
   "premiumSubscribe": "{price} आव सबस्क्राइब खालाम",
   "premiumRestore": "गिरि फिनाय",
-  
   "errorGeneric": "जेंना गोरोन्था जाबाय",
   "errorNetwork": "इन्टारनेट खनेक्सन गैया",
   "errorRetry": "फिनफाग हमथा",
   "errorLoadingContent": "खन्थाय लड खालामनाय जानाय गैया",
   "errorPlayback": "प्लेबेक गोरोन्था",
-  
   "commonCancel": "रद खालाम",
   "commonOk": "मोजां",
   "commonSave": "सेभ खालाम",
@@ -109,24 +96,29 @@
   "commonDone": "जाबाय",
   "commonLoading": "लड जाबोदों...",
   "commonRefresh": "रिफ्रेस खालाम",
-  
   "notificationDailyTitle": "नोंथांनि सान्नाय अडिओ",
   "notificationDailyBody": "नोंथांनि एखे खन्थाय थाहोलाय",
-  
   "adSkipIn": "{seconds} सेकेन्डआव थांनांगौ",
   "adSkip": "बिगियान थांनांगौ",
   "adLabel": "बिगियान",
-  
   "offlineTitle": "अफलाइन मड",
   "offlineMessage": "नोंथां अफलाइन। सोमोन्दै डाउनलड खालामबाय खन्थाय दं।",
   "offlineDownloadAvailable": "अफलाइनआव खोनायनि थाखाय डाउनलड खालाम",
-  
   "feedbackTitle": "फिडबेक दा",
   "feedbackHint": "नोंथां माबा सान्नो हागौ...",
   "feedbackSubmit": "जमा खालाम",
   "feedbackThankYou": "नोंथांनि फिडबेक थाखाय गोजोनाय!",
-  
   "updateRequired": "अपडेट गोनां",
   "updateMessage": "गोदान भार्सन दं। आगान सोलियोनायनि थाखाय अपडेट खालाम।",
-  "updateButton": "दान्नाय अपडेट खालाम"
+  "updateButton": "दान्नाय अपडेट खालाम",
+  "accountTitle": "बेखौ गावनि खालाम",
+  "appLanguage": "एपनि राव",
+  "appLanguageDescription": "एप इन्टारफेसनि राव",
+  "appLanguageSubtitle": "एपआ बे रावाव नुजागोन",
+  "appLanguageTitle": "एपनि राव सायख'",
+  "contentLanguagesSubtitle": "नोंथाङा खोनासोनो लुबैनाय रावफोरखौ सायख'",
+  "contentLanguagesTitle": "आयदानि रावफोरखौ सायख'",
+  "continueButton": "सालाय लांबाय",
+  "skipForNow": "दानिया नागार",
+  "voiceTitle": "मोनसे गारां सायख'"
 }
