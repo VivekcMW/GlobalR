@@ -1,0 +1,94 @@
+name: Build and Release APK
+
+on:
+  push:
+    tags:
+      - 'v*' # Triggers workflow on tag pushes matching v*, e.g. v1.0.0, v20.15.10
+  workflow_dispatch:
+
+permissions:
+  contents: write # required by softprops/action-gh-release to publish a release
+
+# Production build flags — keep in sync with .github/workflows/ios-build.yml.
+# DEMO_AUDIO must be false or every catalog item plays the bundled demo clip
+# instead of the real CDN URL (see CHANGELOG.md / lib/core/constants.dart).
+env:
+  DART_DEFINES: >-
+    --dart-define=USE_FIREBASE_AUTH=true
+    --dart-define=USE_ANALYTICS=true
+    --dart-define=USE_CRASHLYTICS=true
+    --dart-define=USE_REMOTE_CONFIG=true
+    --dart-define=USE_PUSH=true
+    --dart-define=DEMO_AUDIO=false
+
+jobs:
+  build_and_release:
+    name: Build & Release
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: global_radio
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17' # Flutter 3.16+ recommends Java 17
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.4' # keep in sync with ci.yml / ios-build.yml
+          channel: 'stable'
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Generate localizations
+        run: flutter gen-l10n
+
+      - name: Verify signing secrets are configured
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          missing=()
+          [ -z "$KEYSTORE_BASE64" ] && missing+=(KEYSTORE_BASE64)
+          [ -z "$KEYSTORE_PASSWORD" ] && missing+=(KEYSTORE_PASSWORD)
+          [ -z "$KEY_PASSWORD" ] && missing+=(KEY_PASSWORD)
+          [ -z "$KEY_ALIAS" ] && missing+=(KEY_ALIAS)
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "::error::Missing repo secrets for a signed Android build: ${missing[*]}"
+            exit 1
+          fi
+
+      - name: Decode Android Keystore
+        # Generated via tools/setup_android_keystore.sh, then:
+        #   base64 -w0 keystore/release.keystore | gh secret set KEYSTORE_BASE64
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
+
+      - name: Create key.properties
+        run: |
+          cat << EOF > android/key.properties
+          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.KEY_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          storeFile=upload-keystore.jks
+          EOF
+
+      - name: Build Release APK
+        run: flutter build apk --release ${{ env.DART_DEFINES }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: global_radio/build/app/outputs/flutter-apk/app-release.apk
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
