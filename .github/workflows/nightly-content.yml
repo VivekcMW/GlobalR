@@ -12,6 +12,11 @@ name: Nightly Content Pipeline
 # are (re)generated daily for anything new, resumable so this is a no-op
 # once everything already has an image.
 #
+# Every run (twice daily): drains the user-requested scrapeQueue Firestore
+# collection (tools/process_scrape_queue.py) — a user typing a custom
+# interest with no matching content queues it there, and this surfaces it
+# within ~12h instead of waiting for the weekly popularity-based harvest.
+#
 # Required repo secrets for deploy:
 #   R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY / R2_ACCOUNT_ID
 # Deploy is skipped automatically when secrets are absent (e.g. on forks).
@@ -71,6 +76,12 @@ jobs:
 
       - name: Generate daily weather bulletins
         run: python tools/weather_cron.py || echo "weather degraded — continuing"
+
+      # Every run: drain any user-requested custom interests first — these
+      # are explicit demand (someone is actually waiting on this), so they
+      # go before the weekly popularity-based harvest below.
+      - name: Process user-requested scrape queue (auto-promoted, no review)
+        run: python tools/process_scrape_queue.py --limit 8 || echo "queue processing degraded"
 
       # Sundays: harvest public-domain English text matched to whatever
       # interests real users actually have (Firestore `users.interests`,
@@ -147,9 +158,10 @@ jobs:
       # No review gate — auto_promote_drafts.py already merged everything
       # into scraped.json and moved originals to drafts/promoted/. This is
       # purely an audit trail of what got auto-published and when, not a
-      # checkpoint anything waits on.
+      # checkpoint anything waits on. Runs every invocation now (not just
+      # Sundays) since the scrapeQueue can promote content on any run;
+      # if-no-files-found: ignore makes an empty run a harmless no-op.
       - name: Upload auto-promoted content audit log
-        if: github.event.schedule == '30 0 * * *'
         uses: actions/upload-artifact@v4
         with:
           name: auto-promoted-content

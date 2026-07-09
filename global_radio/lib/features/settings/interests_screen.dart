@@ -18,13 +18,23 @@ class InterestsScreen extends ConsumerStatefulWidget {
 
 class _InterestsScreenState extends ConsumerState<InterestsScreen> {
   late Set<String> _selected;
+  late Set<String> _customInterests; // subset of _selected not in Interest.all
   bool _hasChanges = false;
   bool _saving = false;
+  final _customInterestController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _selected = ref.read(profileProvider).interests.toSet();
+    final builtInIds = Interest.all.map((i) => i.id).toSet();
+    _customInterests = _selected.difference(builtInIds);
+  }
+
+  @override
+  void dispose() {
+    _customInterestController.dispose();
+    super.dispose();
   }
 
   void _toggle(String id) {
@@ -34,6 +44,41 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
       } else {
         _selected.add(id);
       }
+      _hasChanges = true;
+    });
+  }
+
+  void _addCustomInterest() {
+    final raw = _customInterestController.text.trim();
+    if (raw.isEmpty) return;
+    final id = raw.toLowerCase();
+    setState(() {
+      _selected.add(id);
+      _customInterests.add(id);
+      _hasChanges = true;
+    });
+    _customInterestController.clear();
+
+    // If nothing in the catalog matches this interest yet, queue a scrape
+    // request — drained by tools/process_scrape_queue.py.
+    final catalog = ref.read(catalogProvider).value;
+    final hasContent =
+        catalog?.items.any((it) => it.interests.contains(id)) ?? true;
+    if (!hasContent) {
+      ref.read(scrapeQueueServiceProvider).requestScrape(id);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('"$raw" has no content yet — we\'ve queued it to be sourced.'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+  void _removeCustomInterest(String id) {
+    setState(() {
+      _selected.remove(id);
+      _customInterests.remove(id);
       _hasChanges = true;
     });
   }
@@ -131,6 +176,45 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
               ),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _customInterestController,
+                    decoration: const InputDecoration(
+                      hintText: 'Add your own interest (e.g. dinosaurs)',
+                      isDense: true,
+                      border: OutlineInputBorder(),
+                    ),
+                    onSubmitted: (_) => _addCustomInterest(),
+                    textInputAction: TextInputAction.done,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton.filled(
+                  onPressed: _addCustomInterest,
+                  icon: const Icon(Icons.add),
+                  tooltip: 'Add interest',
+                ),
+              ],
+            ),
+          ),
+          if (_customInterests.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: _customInterests.map((id) {
+                  return Chip(
+                    label: Text(id),
+                    onDeleted: () => _removeCustomInterest(id),
+                  );
+                }).toList(),
+              ),
+            ),
           Expanded(
             child: GridView.builder(
               padding: const EdgeInsets.all(16),

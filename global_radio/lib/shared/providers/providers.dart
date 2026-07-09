@@ -17,6 +17,7 @@ import '../../data/services/catalog_sync_service.dart';
 import '../../data/services/firebase_auth_service.dart';
 import '../../data/services/payment_service.dart';
 import '../../data/services/push_service.dart';
+import '../../data/services/scrape_queue_service.dart';
 import '../../data/services/user_db_service.dart';
 import '../../radio_engine/radio_engine.dart';
 
@@ -34,6 +35,10 @@ final authServiceProvider = Provider<AuthService>((ref) {
 
 final userDbServiceProvider = Provider<UserDbService>((ref) {
   return FirestoreUserDbService();
+});
+
+final scrapeQueueServiceProvider = Provider<ScrapeQueueService>((ref) {
+  return FirestoreScrapeQueueService();
 });
 
 final paymentServiceProvider = Provider<PaymentService>((ref) {
