@@ -89,7 +89,12 @@ def main() -> None:
 
     PROMOTED_DIR.mkdir(parents=True, exist_ok=True)
     for path in promoted_files:
-        path.rename(PROMOTED_DIR / path.name)
+        # .replace() (os.replace) overwrites the destination if present;
+        # .rename() (os.rename) raises FileExistsError on Windows in that
+        # case. Some sources (e.g. translate_fanout.py) always write the
+        # same filename, so a same-named archive from an earlier promotion
+        # is expected here, not an error — this is just an audit snapshot.
+        path.replace(PROMOTED_DIR / path.name)
     print(f"Moved {len(promoted_files)} draft file(s) to {PROMOTED_DIR}")
 
 
