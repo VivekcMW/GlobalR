@@ -92,17 +92,20 @@ def main() -> None:
     mapped = [i for i in top_interests if i in INTEREST_QUERIES]
     print(f"Top interests: {top_interests} -> harvesting for: {mapped}")
 
+    # ingest_public_sources.py --source wikisource --language english always
+    # writes to the SAME file (drafts/wikisource-english.json), overwriting
+    # it each call. Translating + promoting immediately after each interest
+    # drains that file before the next interest's scrape can clobber it —
+    # batching all scrapes first (the original design) silently lost every
+    # interest but the last one.
     for interest in mapped:
         query = INTEREST_QUERIES[interest]
         run([sys.executable, str(ROOT / "ingest_public_sources.py"),
              "--source", "wikisource", "--language", "english",
              "--query", query, "--interest", interest, "--limit", str(args.limit)],
             args.dry_run)
-
-    if mapped:
         run([sys.executable, str(ROOT / "translate_fanout.py"), "--limit", "25"], args.dry_run)
-
-    run([sys.executable, str(ROOT / "auto_promote_drafts.py")], args.dry_run)
+        run([sys.executable, str(ROOT / "auto_promote_drafts.py")], args.dry_run)
 
 
 if __name__ == "__main__":
