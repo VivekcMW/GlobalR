@@ -93,10 +93,15 @@ jobs:
       - name: Build Release APK
         run: flutter build apk --release ${{ env.DART_DEFINES }}
 
+      - name: Rename APK with version
+        run: |
+          mv build/app/outputs/flutter-apk/app-release.apk \
+             build/app/outputs/flutter-apk/GlobalRadio-${{ github.ref_name }}.apk
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: global_radio/build/app/outputs/flutter-apk/app-release.apk
+          files: global_radio/build/app/outputs/flutter-apk/GlobalRadio-${{ github.ref_name }}.apk
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -2,6 +2,15 @@
 
 All notable changes to Global Radio are documented in this file.
 
+## 2026-07-10
+
+### Added
+- **`tools/overnight_fill_all_interests.sh`**: one-shot unattended job chaining scrape → translate → auto-promote → rebuild catalog → generate story images → deploy, for every interest that currently has zero catalog content.
+- Promoted the first batch of scraped `biography`-interest content (`tools/content/library/scraped.json`, audit trail in `tools/content/library/drafts/promoted/`).
+
+### Changed
+- **Release APK/IPA filenames now include the version tag.** `android-release.yml` and `ios-build.yml` previously attached generically-named build outputs (`app-release.apk`, `GlobalRadio-unsigned.ipa`) to every GitHub Release regardless of version, making assets hard to tell apart once a release page has more than one. Both workflows now rename the build output to `GlobalRadio-<tag>.apk` / `GlobalRadio-<tag>-unsigned.ipa` / `GlobalRadio-<tag>.ipa` before upload. The already-published v1.0.9 APK asset was renamed in place to match (`GlobalRadio-v1.0.9.apk`).
+
 ## 2026-07-09
 
 ### Added
