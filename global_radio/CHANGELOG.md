@@ -2,6 +2,23 @@
 
 All notable changes to Global Radio are documented in this file.
 
+## 2026-07-09
+
+### Fixed
+- **Google Sign-In rejected on every signed build.** Root cause: `globalradio-1f547`'s `google-services.json` had an empty `oauth_client` list — no SHA-1/SHA-256 fingerprint had ever been registered for `com.globalradio.global_radio` in that Firebase project, for any keystore. Reproduced live on-device by installing the [v1.0.4](https://github.com/VivekcMW/GlobalR/releases/tag/v1.0.4) release APK and capturing `SecurityException: GoogleCertificatesRslt: not allowed` in logcat at launch; confirmed via `apksigner verify --print-certs` that the rejected SHA-256 matched the release keystore's own certificate.
+
+### Changed
+- **Firebase project switched from `globalradio-1f547` to `globalir`, permanently.** `google-services.json`, `firebase_options.dart`, and `GoogleService-Info.plist` (new iOS app registered under `globalir` via the Firebase Management API) now all point at `globalir`. This supersedes the 2026-07-08 changelog entry that named `globalradio-1f547` as the real project going forward — that plan assumed access to it would be sorted out; it wasn't (`gcloud projects describe globalradio-1f547` still returns permission denied for every identity available to this work), so `globalir` — where the release keystore's fingerprint is registered and Google is enabled as a sign-in provider — is now the actual production project. `tools/FUTURE_FIREBASE_SETUP.md` is updated to target `globalir` instead.
+- Granted `vivekanand.design@gmail.com` Editor on `globalir` (Owner was considered and intentionally scoped down to Editor).
+- Tagged and released [v1.0.5](https://github.com/VivekcMW/GlobalR/releases/tag/v1.0.5) with the fix.
+
+### Known issues / follow-ups
+- **Billing still not enabled on `globalir`.** `gcloud billing projects describe globalir` → `billingEnabled: false`. Cloud Storage bucket creation and Cloud Functions (`verifyPurchase`) remain blocked until billing is linked — same category of blocker as before, just on the new project. Firestore, Auth (incl. Google Sign-In), Analytics, Crashlytics, Remote Config, and FCM all work today on the free tier.
+- **Phone OTP now requires the Blaze plan too.** Firebase's `smsRegionConfig: allowlistOnly` on `globalir` confirms real SMS verification needs billing; only allowlisted test numbers work without it. Same bucket as the Storage/Functions blocker above.
+- **Apple Sign-In is not configured** (`defaultSupportedIdpConfigs` on `globalir` only lists `google.com`) and setting it up needs Apple Developer Team `4H23B2XQN4` credentials, same access gap as signed iOS builds below.
+- **A local debug build can silently overwrite a release install on a shared test device** — happened once during verification (debug keystore's cert isn't registered, so it reproduces the exact same sign-in error). Worth registering the debug keystore's SHA-1 (`5a34c744028d9dff6d16b36877aa2dd9de3f6265`) on `globalir` too, if debug-build testing on this device continues.
+- `globalradio-1f547` itself has not been deleted — it's still sitting unused pending a decision by whoever actually owns it (likely Vivekanand); this account has no access to delete it even if that were decided.
+
 ## 2026-07-08
 
 ### Added
