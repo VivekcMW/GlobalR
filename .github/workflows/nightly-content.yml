@@ -30,8 +30,16 @@ name: Nightly Content Pipeline
 # polling was chosen as the safe middle ground.
 #
 # Required repo secrets for deploy:
-#   R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY / R2_ACCOUNT_ID
-# Deploy is skipped automatically when secrets are absent (e.g. on forks).
+#   CDN_DEPLOY_TOKEN — fine-grained PAT, scoped ONLY to
+#     prince11jose/globalradio-cdn-content with Contents: Read+Write. This is
+#     the interim CDN the app actually reads from (CDN_BASE in the release
+#     workflows points at raw.githubusercontent.com/.../globalradio-cdn-content).
+#   R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY / R2_ACCOUNT_ID — optional, for a
+#     future move off the interim GitHub-raw CDN onto real Cloudflare R2
+#     (see tools/PRODUCTION_INFRA.md). Currently unconfigured; that step
+#     no-ops until secrets are added.
+# Both deploys are skipped automatically when their secrets are absent
+# (e.g. on forks).
 #
 # harvest_top_interests.py reads real user interests from Firestore via
 # `gcloud auth print-access-token` — no GCP service-account is configured
@@ -166,6 +174,44 @@ jobs:
         env:
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
         run: ./tools/deploy_r2.sh r2 globalradio-cdn cdn_dist
+
+      # This is the deploy that actually matters today — the app fetches
+      # catalog.json and story images from this repo via raw.githubusercontent.com,
+      # not from R2 above (which has no secrets configured and has likely never
+      # actually run). CDN_DEPLOY_TOKEN is a fine-grained PAT scoped to ONLY
+      # this one repo with Contents: Read+Write — see tools/PRODUCTION_INFRA.md
+      # for the plan to retire this in favor of real CDN infrastructure.
+      - name: Check for CDN deploy token
+        id: cdn_check
+        env:
+          TOKEN: ${{ secrets.CDN_DEPLOY_TOKEN }}
+        run: echo "enabled=$([ -n "$TOKEN" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy to interim GitHub-raw CDN
+        if: steps.cdn_check.outputs.enabled == 'true'
+        env:
+          CDN_DEPLOY_TOKEN: ${{ secrets.CDN_DEPLOY_TOKEN }}
+        run: |
+          rm -rf /tmp/cdn-deploy
+          git clone --depth 1 "https://x-access-token:${CDN_DEPLOY_TOKEN}@github.com/prince11jose/globalradio-cdn-content.git" /tmp/cdn-deploy
+          # Deliberately NOT --delete: this only adds/updates files. If the
+          # cdn_dist cache ever misses or only partially rebuilds, an
+          # unattended --delete here would silently wipe the entire live CDN
+          # (1300+ audio files) to match an incomplete local directory —
+          # an unattended job should never be able to do that much damage
+          # on a cache miss. Orphaned files (e.g. a renamed/removed story)
+          # are left behind; clean those up manually if it ever matters.
+          rsync -a cdn_dist/ /tmp/cdn-deploy/ --exclude .git
+          cd /tmp/cdn-deploy
+          git config user.name "Global Radio Content Bot"
+          git config user.email "actions@github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "nothing new to deploy"
+          else
+            git commit -m "Automated content update ($(date -u +%Y-%m-%d))"
+            git push origin main
+          fi
 
       - name: Upload catalog artifact
         uses: actions/upload-artifact@v4
