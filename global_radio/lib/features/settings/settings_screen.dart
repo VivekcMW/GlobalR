@@ -9,6 +9,8 @@ import '../../data/services/payment_service.dart' show PaymentException;
 import '../../shared/providers/display_settings_provider.dart';
 import '../../shared/providers/providers.dart';
 import '../../shared/widgets/voice_preview_button.dart';
+import '../ads/display_ad_models.dart';
+import '../ads/widgets/display_ad_slot.dart';
 import '../alarm/alarm_service.dart';
 import '../auth/profile_setup_sheet.dart';
 import '../kids_mode/kids_mode_provider.dart';
@@ -86,6 +88,13 @@ class SettingsScreen extends ConsumerWidget {
                   ],
                 ),
               ),
+
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: DisplayAdSlot(
+                    layout: DisplayAdLayout.card, lastAdId: 'house_display_referral'),
+              ),
+              const SizedBox(height: 8),
 
               // Content Section
               _section(context, 'Content'),

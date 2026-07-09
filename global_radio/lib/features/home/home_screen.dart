@@ -9,6 +9,8 @@ import '../../shared/providers/daypart_provider.dart';
 import '../../shared/providers/providers.dart';
 import '../../shared/providers/radio_controller.dart';
 import '../../shared/utils/interest_icons.dart';
+import '../ads/display_ad_models.dart';
+import '../ads/widgets/display_ad_slot.dart';
 import '../engagement/milestones.dart';
 import '../festivals/festival_live_card.dart';
 import '../kids_mode/kids_mode_provider.dart';
@@ -147,6 +149,8 @@ class HomeScreen extends ConsumerWidget {
                   ),
                 );
               }),
+              const SizedBox(height: 12),
+              const DisplayAdSlot(layout: DisplayAdLayout.mediumRectangle),
               const SizedBox(height: 12),
               const ListenersChoiceCard(),
               const SponsoredStationCard(),

@@ -7,6 +7,8 @@ import '../../data/models/catalog_item.dart';
 import '../../shared/providers/providers.dart';
 import '../../shared/providers/radio_controller.dart';
 import '../../shared/utils/interest_icons.dart';
+import '../ads/display_ad_models.dart';
+import '../ads/widgets/display_ad_slot.dart';
 import '../offline/offline_packs.dart';
 
 /// Library: Saved (Favorites), Recently Played, Downloads
@@ -74,6 +76,8 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                   ? 'Show less'
                   : 'See all ${savedItems.length} saved'),
             ),
+          const SizedBox(height: 12),
+          const DisplayAdSlot(layout: DisplayAdLayout.banner, lastAdId: 'house_display_premium'),
           const SizedBox(height: 20),
 
           // Recently Played Section
