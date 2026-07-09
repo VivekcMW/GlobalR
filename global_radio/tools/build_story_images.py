@@ -159,10 +159,16 @@ def composite_strip(panels: list[Image.Image], size: tuple[int, int]) -> Image.I
 
 def build_story_image(spec: dict, out_dir: Path, n_panels: int, force: bool,
                        size: tuple[int, int] = PANEL_SIZE) -> dict | None:
+    """Returns None if skipped/failed, else {"reused": bool} — caller owns
+    recording the manifest entry (this function doesn't know whether an
+    existing file at out_path is its own prior AI strip or a Commons photo
+    fetch_commons_images.py placed there; main() checks the manifest before
+    ever calling this, so reaching here with the file already existing
+    means --force was passed)."""
     base_id = spec["base_id"]
     out_path = out_dir / f"{base_id}.jpg"
     if out_path.exists() and not force:
-        return {"base_id": base_id, "reused": True, "panelCount": n_panels}
+        return {"reused": True}
 
     text = spec["text"].get("english") or next(iter(spec["text"].values()), "")
     if not text:
@@ -182,7 +188,7 @@ def build_story_image(spec: dict, out_dir: Path, n_panels: int, force: bool,
     strip = composite_strip(panels, size)
     out_dir.mkdir(parents=True, exist_ok=True)
     strip.save(out_path, "JPEG", quality=85)
-    return {"base_id": base_id, "reused": False, "panelCount": n_panels}
+    return {"reused": False}
 
 
 def main() -> None:
@@ -205,23 +211,39 @@ def main() -> None:
 
     print(f"Building images for {len(specs)} story/stories -> {images_dir}")
 
-    results = []
+    # Shared per-base_id manifest — also written by fetch_commons_images.py
+    # (real photos, panelCount 1). Load first so a base story that already
+    # has a Commons photo is skipped entirely rather than treated as if it
+    # needs (or already has) an AI strip.
     manifest_path = out_root / "images_manifest.json"
+    manifest: dict = {}
+    if manifest_path.exists():
+        with open(manifest_path, encoding="utf-8") as f:
+            manifest = json.load(f)
+
+    built = reused = failed = 0
     for i, spec in enumerate(specs):
-        print(f"[{i + 1}/{len(specs)}] {spec['base_id']}")
+        base_id = spec["base_id"]
+        if base_id in manifest:
+            continue  # already has an image (Commons or a prior AI run)
+        print(f"[{i + 1}/{len(specs)}] {base_id}")
         try:
             res = build_story_image(spec, images_dir, args.panels, args.force)
-            if res:
-                results.append(res)
         except RuntimeError as e:
-            print(f"  [FAILED] {spec['base_id']}: {e}")
+            print(f"  [FAILED] {base_id}: {e}")
+            failed += 1
+            continue
+        if res is None:
+            failed += 1
+            continue
+        manifest[base_id] = {"panelCount": args.panels, "source": "pollinations"}
+        built += 0 if res["reused"] else 1
+        reused += 1 if res["reused"] else 0
 
     with open(manifest_path, "w", encoding="utf-8") as f:
-        json.dump(results, f, indent=2)
+        json.dump(manifest, f, indent=2, ensure_ascii=False)
 
-    built = sum(1 for r in results if not r["reused"])
-    reused = sum(1 for r in results if r["reused"])
-    print(f"\nDone: {built} generated, {reused} reused, {len(specs) - len(results)} failed/skipped")
+    print(f"\nDone: {built} generated, {reused} reused, {failed} failed/skipped")
     print(f"Manifest: {manifest_path}")
 
 

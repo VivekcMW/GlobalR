@@ -29,11 +29,25 @@ from pipeline import (CONTENT, DEFAULT_OUT, LANG_VOICES, NEEDS_PAID_TTS,
                       write_catalog)
 
 
+def _load_images_manifest(out_root) -> dict:
+    """Per-base_id image metadata written by fetch_commons_images.py (real
+    photos, panelCount 1) and build_story_images.py (AI illustration
+    strips, panelCount matching --panels). Missing entries default to the
+    AI-strip assumption (panelCount 4) for backward compatibility with
+    catalogs built before this manifest existed."""
+    path = out_root / "images_manifest.json"
+    if not path.exists():
+        return {}
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
 def build(langs: list[str], out_root, category: str | None = None,
           force: bool = False, concurrency: int = 8) -> list[dict]:
     specs = load_library_items()
     if category:
         specs = [s for s in specs if category in s["interests"]]
+    images_manifest = _load_images_manifest(out_root)
 
     # Phase 1: collect every (item x language x voice) render job.
     jobs: list[tuple] = []
@@ -69,6 +83,16 @@ def build(langs: list[str], out_root, category: str | None = None,
         available = [p for p in spec["voices"] if p in by_preset]
         meta = by_preset[available[-1]]  # last voice's stats are representative
         default_voice = spec["defaultVoice"] if spec["defaultVoice"] in available else available[0]
+
+        # Real Commons photo (panelCount 1) if fetch_commons_images.py found
+        # one for this base story; otherwise assume the AI illustration
+        # strip build_story_images.py produces (panelCount 4, its default).
+        image_meta = images_manifest.get(spec["base_id"], {})
+        panel_count = image_meta.get("panelCount", 4)
+        attribution = spec["attribution"]
+        if image_meta.get("source") == "commons":
+            attribution = f"{attribution} | {image_meta['attribution']}"
+
         items.append({
             "id": f"{spec['base_id']}-{short_code(language)}",
             "title": spec["titles"].get(language, spec["base_id"]),
@@ -78,17 +102,18 @@ def build(langs: list[str], out_root, category: str | None = None,
             "defaultVoice": default_voice,
             "durationSec": meta["durationSec"],
             "sizeKb": meta["sizeKb"],
-            "attribution": spec["attribution"],
+            "attribution": attribution,
             "popularity": spec.get("popularity", 50),
             "type": "library",
             "publishedDate": published,
             "reachable": True,
             "text": spec["text"].get(language, ""),
-            # Language-independent: one illustration strip per base story,
-            # built separately by build_story_images.py, reused across every
-            # language variant. panelCount must match that script's --panels.
+            # Language-independent: one image per base story, reused across
+            # every language variant — either a real Commons photo
+            # (panelCount 1) or an AI illustration strip (panelCount
+            # matching build_story_images.py's --panels, default 4).
             "imageUrl": f"images/{spec['base_id']}.jpg",
-            "imagePanelCount": 4,
+            "imagePanelCount": panel_count,
         })
     return items
 

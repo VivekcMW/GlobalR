@@ -3,17 +3,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/models/catalog_item.dart';
 import '../../../shared/providers/providers.dart';
+import '../../../shared/providers/radio_controller.dart';
 
 /// Bottom sheet showing the story's text alongside its illustration,
 /// windowed to whichever panel matches current playback position.
+///
+/// Watches [radioControllerProvider] rather than taking a fixed item, so
+/// when the queue auto-advances to the next story this sheet follows along
+/// instead of staying stuck on whatever was playing when it opened. Closes
+/// itself if playback stops entirely (queue ends, item removed, etc.).
 class StoryReadSheet extends ConsumerWidget {
-  final CatalogItem item;
   final ScrollController scrollController;
 
-  const StoryReadSheet(
-      {super.key, required this.item, required this.scrollController});
+  const StoryReadSheet({super.key, required this.scrollController});
 
-  static Future<void> show(BuildContext context, CatalogItem item) {
+  static Future<void> show(BuildContext context) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -24,15 +28,38 @@ class StoryReadSheet extends ConsumerWidget {
         maxChildSize: 0.95,
         expand: false,
         builder: (context, controller) =>
-            StoryReadSheet(item: item, scrollController: controller),
+            StoryReadSheet(scrollController: controller),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final item = ref.watch(radioControllerProvider.select((s) => s.current));
     final audioHandler = ref.read(audioHandlerProvider);
     final scheme = Theme.of(context).colorScheme;
+
+    if (item == null) {
+      // Queue ended / nothing playing anymore — close instead of showing a
+      // stale or empty sheet.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (Navigator.of(context).canPop()) Navigator.of(context).pop();
+      });
+      return const SizedBox.shrink();
+    }
+
+    // Reset scroll to top when the story changes (auto-advance or manual
+    // skip) instead of carrying over a mid-scroll position from the
+    // previous, unrelated story.
+    ref.listen<CatalogItem?>(
+      radioControllerProvider.select((s) => s.current),
+      (previous, next) {
+        if (previous != null && next != null && previous.id != next.id &&
+            scrollController.hasClients) {
+          scrollController.jumpTo(0);
+        }
+      },
+    );
 
     return Container(
       decoration: BoxDecoration(

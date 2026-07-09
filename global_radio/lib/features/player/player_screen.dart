@@ -52,7 +52,7 @@ class PlayerScreen extends ConsumerWidget {
             IconButton(
               icon: const Icon(Icons.menu_book_outlined),
               tooltip: 'Read story',
-              onPressed: () => StoryReadSheet.show(context, item),
+              onPressed: () => StoryReadSheet.show(context),
             ),
           IconButton(
             icon: const Icon(Icons.directions_car_outlined),
