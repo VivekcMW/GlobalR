@@ -2,18 +2,24 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CLIENT_ID</key>
+	<string>229658503186-8s3jui2lt1hj4p8ipp0djr70qfkq9nip.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.229658503186-8s3jui2lt1hj4p8ipp0djr70qfkq9nip</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>229658503186-gm0m2iou8hvh243mo4sejvfj44477iro.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
-	<string>AIzaSyA78HCbEsfTY-BCPav1A6pKT80pu7kFAng</string>
+	<string>AIzaSyCaJUYdzOhi4gSgAKgTFNzs_hE6m90HpKU</string>
 	<key>GCM_SENDER_ID</key>
-	<string>716603335285</string>
+	<string>229658503186</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.globalradio.globalRadio</string>
 	<key>PROJECT_ID</key>
-	<string>globalradio-1f547</string>
+	<string>globalir</string>
 	<key>STORAGE_BUCKET</key>
-	<string>globalradio-1f547.firebasestorage.app</string>
+	<string>globalir.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:716603335285:ios:d4ff60940cd8feac9e4e3c</string>
+	<string>1:229658503186:ios:f364506b5850ae8682d0cb</string>
 </dict>
 </plist>

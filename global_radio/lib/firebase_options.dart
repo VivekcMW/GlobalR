@@ -1,4 +1,4 @@
-// Generated from Firebase Console config files (project: globalradio-1f547).
+// Generated from Firebase Console config files (project: globalir).
 // Android values come from android/app/google-services.json.
 // iOS values come from ios/Runner/GoogleService-Info.plist.
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
@@ -25,19 +25,19 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCWMGy3yTybmGKOwHcdjF7_wjm9pD3K1fY',
-    appId: '1:716603335285:android:8810928357fc4fbe9e4e3c',
-    messagingSenderId: '716603335285',
-    projectId: 'globalradio-1f547',
-    storageBucket: 'globalradio-1f547.firebasestorage.app',
+    apiKey: 'AIzaSyD_PYKUZbMMIPkg-Bu6lJoBUXct1yHFv68',
+    appId: '1:229658503186:android:12392305ba819ff482d0cb',
+    messagingSenderId: '229658503186',
+    projectId: 'globalir',
+    storageBucket: 'globalir.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyA78HCbEsfTY-BCPav1A6pKT80pu7kFAng',
-    appId: '1:716603335285:ios:d4ff60940cd8feac9e4e3c',
-    messagingSenderId: '716603335285',
-    projectId: 'globalradio-1f547',
-    storageBucket: 'globalradio-1f547.firebasestorage.app',
+    apiKey: 'AIzaSyCaJUYdzOhi4gSgAKgTFNzs_hE6m90HpKU',
+    appId: '1:229658503186:ios:f364506b5850ae8682d0cb',
+    messagingSenderId: '229658503186',
+    projectId: 'globalir',
+    storageBucket: 'globalir.firebasestorage.app',
     iosBundleId: 'com.globalradio.globalRadio',
   );
 }
