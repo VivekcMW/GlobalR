@@ -12,10 +12,22 @@ name: Nightly Content Pipeline
 # are (re)generated daily for anything new, resumable so this is a no-op
 # once everything already has an image.
 #
-# Every run (twice daily): drains the user-requested scrapeQueue Firestore
+# Every run (hourly): drains the user-requested scrapeQueue Firestore
 # collection (tools/process_scrape_queue.py) — a user typing a custom
-# interest with no matching content queues it there, and this surfaces it
-# within ~12h instead of waiting for the weekly popularity-based harvest.
+# interest with no matching content queues it there, and this now surfaces
+# it within ~1h worst case instead of the 12h it'd take waiting for a
+# twice-daily run, or a week for the popularity-based harvest. The heavier
+# daily-content steps (news/astrology/weather, weekly harvest) still only
+# run on the twice-daily schedule below — running those hourly would be
+# wasteful, since they don't change that often.
+#
+# True real-time (seconds, not ~1h) would need either a Cloud Function
+# reacting to the Firestore write directly (needs Blaze billing, not
+# enabled on globalir — same recurring blocker as elsewhere in this
+# project) or embedding a GitHub Actions trigger token in the app so it
+# could call workflow_dispatch itself (a real security risk: a repo-scoped
+# credential shipped inside the APK, extractable by anyone). Hourly
+# polling was chosen as the safe middle ground.
 #
 # Required repo secrets for deploy:
 #   R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY / R2_ACCOUNT_ID
@@ -29,8 +41,9 @@ name: Nightly Content Pipeline
 
 on:
   schedule:
-    - cron: "30 0 * * *"   # 06:00 IST daily
-    - cron: "30 12 * * *"  # 18:00 IST daily (news refresh)
+    - cron: "0 * * * *"    # hourly — scrape-queue drain only (lightweight)
+    - cron: "30 0 * * *"   # 06:00 IST daily — full pipeline
+    - cron: "30 12 * * *"  # 18:00 IST daily (news refresh) — full pipeline
   workflow_dispatch:
 
 concurrency:
@@ -65,16 +78,22 @@ jobs:
           key: cdn-dist-${{ hashFiles('global_radio/tools/content/**/*.json') }}
           restore-keys: cdn-dist-
 
+      # These don't change hour to hour — only run on the twice-daily
+      # schedule (or a manual dispatch), not the hourly scrape-queue tick.
       - name: Fetch daily news
+        if: github.event_name != 'schedule' || github.event.schedule != '0 * * * *'
         run: python tools/fetch_news.py || echo "news fetch degraded — continuing"
 
       - name: Generate daily astrology
+        if: github.event_name != 'schedule' || github.event.schedule != '0 * * * *'
         run: python tools/astrology_cron.py || echo "astrology degraded — continuing"
 
       - name: Generate daily Gita verse
+        if: github.event_name != 'schedule' || github.event.schedule != '0 * * * *'
         run: python tools/gita_verse.py || echo "gita degraded — continuing"
 
       - name: Generate daily weather bulletins
+        if: github.event_name != 'schedule' || github.event.schedule != '0 * * * *'
         run: python tools/weather_cron.py || echo "weather degraded — continuing"
 
       # Every run: drain any user-requested custom interests first — these
