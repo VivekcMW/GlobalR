@@ -84,8 +84,17 @@ jobs:
       - name: Depth guard (>=20 per core category x language)
         run: python tools/catalog_depth.py --min 20 --report
 
+      # `secrets` can't be referenced directly in a step `if:` condition
+      # ("Unrecognized named-value: 'secrets'") — same issue already fixed
+      # once in ios-build.yml; route through a step output instead.
+      - name: Check for R2 deploy secrets
+        id: r2_check
+        env:
+          KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+        run: echo "enabled=$([ -n "$KEY_ID" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
       - name: Configure rclone for R2
-        if: ${{ secrets.R2_ACCESS_KEY_ID != '' }}
+        if: steps.r2_check.outputs.enabled == 'true'
         env:
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
@@ -103,7 +112,7 @@ jobs:
           EOF
 
       - name: Deploy to R2
-        if: ${{ secrets.R2_ACCESS_KEY_ID != '' }}
+        if: steps.r2_check.outputs.enabled == 'true'
         env:
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
         run: ./tools/deploy_r2.sh r2 globalradio-cdn cdn_dist
