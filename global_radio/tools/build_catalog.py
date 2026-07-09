@@ -83,6 +83,12 @@ def build(langs: list[str], out_root, category: str | None = None,
             "type": "library",
             "publishedDate": published,
             "reachable": True,
+            "text": spec["text"].get(language, ""),
+            # Language-independent: one illustration strip per base story,
+            # built separately by build_story_images.py, reused across every
+            # language variant. panelCount must match that script's --panels.
+            "imageUrl": f"images/{spec['base_id']}.jpg",
+            "imagePanelCount": 4,
         })
     return items
 

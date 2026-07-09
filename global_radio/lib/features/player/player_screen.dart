@@ -15,6 +15,7 @@ import 'widgets/diya_disc.dart';
 import 'widgets/seek_bar.dart';
 import 'widgets/sleep_timer_sheet.dart';
 import 'widgets/speed_selector.dart';
+import 'widgets/story_read_sheet.dart';
 import 'widgets/up_next_sheet.dart';
 
 /// Full-screen player: big art, title, controls, "why this", favorite.
@@ -47,6 +48,12 @@ class PlayerScreen extends ConsumerWidget {
         ),
         title: const Text('Now Playing'),
         actions: [
+          if (item.text.isNotEmpty || item.hasImage)
+            IconButton(
+              icon: const Icon(Icons.menu_book_outlined),
+              tooltip: 'Read story',
+              onPressed: () => StoryReadSheet.show(context, item),
+            ),
           IconButton(
             icon: const Icon(Icons.directions_car_outlined),
             tooltip: 'Car Mode',

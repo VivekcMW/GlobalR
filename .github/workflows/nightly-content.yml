@@ -4,9 +4,23 @@ name: Nightly Content Pipeline
 # audio (resumable — only new items are rendered), validates legality and
 # catalog depth, then deploys to Cloudflare R2.
 #
+# Weekly (Sundays): scrapes public-domain English text matched to top user
+# interests (tools/harvest_top_interests.py), fans it out to every language,
+# and auto-promotes it straight into the catalog with no human review step —
+# an explicit choice, not an oversight (see CHANGELOG). Story illustration
+# strips (tools/build_story_images.py, free Pollinations.ai, rate-limited)
+# are (re)generated daily for anything new, resumable so this is a no-op
+# once everything already has an image.
+#
 # Required repo secrets for deploy:
 #   R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY / R2_ACCOUNT_ID
 # Deploy is skipped automatically when secrets are absent (e.g. on forks).
+#
+# harvest_top_interests.py reads real user interests from Firestore via
+# `gcloud auth print-access-token` — no GCP service-account is configured
+# for this runner, so that read currently fails and it falls back to a
+# fixed default interest list. Set one up whenever interest-driven
+# targeting (vs. the defaults) actually matters.
 
 on:
   schedule:
@@ -58,25 +72,31 @@ jobs:
       - name: Generate daily weather bulletins
         run: python tools/weather_cron.py || echo "weather degraded — continuing"
 
-      # Sundays: harvest fresh public-domain drafts + machine-translation
-      # drafts for editorial review (drafts never build automatically).
-      - name: Weekly sourcing harvest (drafts only)
+      # Sundays: harvest public-domain English text matched to whatever
+      # interests real users actually have (Firestore `users.interests`,
+      # falls back to a fixed default list if that read fails/is empty —
+      # no GCP service-account is configured for this runner yet, so today
+      # this always uses the fallback; wire one up whenever that matters),
+      # fan it out to every language, and auto-promote straight into the
+      # catalog. No editorial review step — see CHANGELOG for that call.
+      - name: Weekly interest-driven sourcing harvest (auto-promoted, no review)
         if: github.event.schedule == '30 0 * * *'
         run: |
           if [ "$(date -u +%u)" = "7" ]; then
-            python tools/ingest_public_sources.py --source wikisource \
-              --language all --bulk --pages 2 || echo "harvest degraded"
-            python tools/ingest_public_sources.py --source wikiquote \
-              --language all --bulk --pages 1 || echo "wikiquote degraded"
-            python tools/ingest_public_sources.py --source wikipedia \
-              --language all --bulk --pages 1 || echo "wikipedia degraded"
-            python tools/translate_fanout.py --limit 25 || echo "fanout degraded"
+            python tools/harvest_top_interests.py --top 3 --limit 8 || echo "harvest degraded"
           else
             echo "not Sunday — skipping harvest"
           fi
 
       - name: Build library catalog (resumable, all languages)
         run: python tools/build_catalog.py
+
+      # Rate-limited to Pollinations.ai's 1 req/15s anonymous-tier limit
+      # (enforced inside the script itself), so this is safe to run daily —
+      # it skips any base story that already has an image and only spends
+      # time on whatever the Sunday harvest added.
+      - name: Generate story illustration strips (resumable, rate-limited)
+        run: python tools/build_story_images.py --panels 4 || echo "image gen degraded"
 
       - name: Legal check
         run: python tools/check_legal.py --all
@@ -124,13 +144,15 @@ jobs:
           path: global_radio/cdn_dist/catalog.json
           retention-days: 14
 
-      # Sourcing/translation drafts land in the repo workspace — surface them
-      # for editors to download, review, and commit.
-      - name: Upload sourcing drafts for review
+      # No review gate — auto_promote_drafts.py already merged everything
+      # into scraped.json and moved originals to drafts/promoted/. This is
+      # purely an audit trail of what got auto-published and when, not a
+      # checkpoint anything waits on.
+      - name: Upload auto-promoted content audit log
         if: github.event.schedule == '30 0 * * *'
         uses: actions/upload-artifact@v4
         with:
-          name: content-drafts
-          path: global_radio/tools/content/library/drafts/
+          name: auto-promoted-content
+          path: global_radio/tools/content/library/drafts/promoted/
           retention-days: 30
           if-no-files-found: ignore

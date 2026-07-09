@@ -18,6 +18,9 @@ class CatalogItem {
   final String? sign; // for astrology
   final DateTime? publishedDate;
   final bool reachable; // health-check flag; hides dead URLs
+  final String text; // full story text in [language], for the "Read" sheet
+  final String? imageUrl; // relative path under cdnBase; null if none generated
+  final int imagePanelCount; // panels in the imageUrl strip, 0 if no image
 
   const CatalogItem({
     required this.id,
@@ -35,9 +38,27 @@ class CatalogItem {
     this.sign,
     this.publishedDate,
     this.reachable = true,
+    this.text = '',
+    this.imageUrl,
+    this.imagePanelCount = 0,
   });
 
   bool get isDaily => type == 'daily';
+
+  /// Whether this item has a story-image strip to show on the Read sheet.
+  bool get hasImage => imageUrl != null && imagePanelCount > 0;
+
+  /// Full URL for the (possibly multi-panel) story-image strip.
+  String? get imageUrlResolved =>
+      imageUrl == null ? null : '${AppConfig.cdnBase}/$imageUrl';
+
+  /// Which panel (0-indexed) to show for a given playback position, based
+  /// on how far through the item we are.
+  int panelIndexFor(Duration position) {
+    if (imagePanelCount <= 1 || durationSec <= 0) return 0;
+    final frac = (position.inSeconds / durationSec).clamp(0.0, 0.999);
+    return (frac * imagePanelCount).floor().clamp(0, imagePanelCount - 1);
+  }
 
   /// Primary interest used for round-robin sequencing / bucketing.
   String get primaryInterest => interests.isNotEmpty ? interests.first : 'misc';
@@ -79,6 +100,9 @@ class CatalogItem {
       sign: j['sign'] as String?,
       publishedDate: parseDate(j['publishedDate']) ?? parseDate(j['date']),
       reachable: j['reachable'] as bool? ?? true,
+      text: j['text'] as String? ?? '',
+      imageUrl: j['imageUrl'] as String?,
+      imagePanelCount: (j['imagePanelCount'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -99,6 +123,9 @@ class CatalogItem {
         if (publishedDate != null)
           'publishedDate': publishedDate!.toIso8601String().substring(0, 10),
         'reachable': reachable,
+        if (text.isNotEmpty) 'text': text,
+        if (imageUrl != null) 'imageUrl': imageUrl,
+        if (imagePanelCount > 0) 'imagePanelCount': imagePanelCount,
       };
 }
 

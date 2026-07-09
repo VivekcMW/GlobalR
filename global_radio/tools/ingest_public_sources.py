@@ -836,6 +836,7 @@ def main():
     parser.add_argument("--language", default="hindi", help="Target language")
     parser.add_argument("--collection", help="Archive.org collection ID")
     parser.add_argument("--query", help="Search query")
+    parser.add_argument("--interest", help="Tag drafts with this interest instead of the source's default")
     parser.add_argument("--limit", type=int, default=20, help="Max items to fetch")
     parser.add_argument("--bulk", action="store_true",
                         help="StoryWeaver: paginate + fetch FULL story text; "
@@ -893,8 +894,9 @@ def main():
                     else ws.search(query, limit=args.limit))
             print(f"[{args.source}:{lang}] Found {len(hits)} pages for '{query}'")
             lang_drafts = []
+            draft_interests = [args.interest] if args.interest else None
             for hit in hits:
-                d = ws.to_draft(hit)
+                d = ws.to_draft(hit, interests=draft_interests)
                 if d:
                     lang_drafts.append(d)
                 time.sleep(1.0)  # stay under the API rate limit

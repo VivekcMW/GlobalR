@@ -13,3 +13,6 @@ aiohttp==3.9.5
 # Translation fan-out to all 10 languages (translate_fanout.py)
 deep-translator==1.11.4
 
+# Story illustration strips via Pollinations.ai (build_story_images.py)
+Pillow==11.0.0
+
