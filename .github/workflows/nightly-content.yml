@@ -55,7 +55,13 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: nightly-content
+  # Separate groups for the hourly scrape-queue drain vs. the twice-daily
+  # full pipeline: a stuck/slow full-pipeline run (e.g. image generation
+  # hanging on a slow upstream) must not block the hourly drain from ever
+  # getting a turn — that's the whole point of the hourly cadence (see
+  # header comment). workflow_dispatch (no .schedule) falls into "full"
+  # since a manual run is expected to do everything.
+  group: nightly-content-${{ github.event.schedule == '0 * * * *' && 'hourly' || 'full' }}
   cancel-in-progress: false
 
 jobs:
@@ -133,7 +139,19 @@ jobs:
       # (enforced inside the script itself), so this is safe to run daily —
       # it skips any base story that already has an image and only spends
       # time on whatever the Sunday harvest added.
+      #
+      # timeout-minutes + continue-on-error: on 2026-07-09/10, Pollinations.ai
+      # got slow/unresponsive and a single stuck image (retries + backoff,
+      # per-request timeout but no overall budget) ran this step past
+      # GitHub's 6h job cap, which then wedged the shared concurrency group
+      # (see above) and cancelled every queued run behind it for ~11h with
+      # nothing reaching deploy. This step is resumable and non-critical —
+      # bail out well short of the job cap and let legal-check/depth-guard/
+      # deploy run anyway; whatever didn't get an image this run picks up
+      # next run.
       - name: Generate story illustration strips (resumable, rate-limited)
+        timeout-minutes: 30
+        continue-on-error: true
         run: python tools/build_story_images.py --panels 4 || echo "image gen degraded"
 
       - name: Legal check
