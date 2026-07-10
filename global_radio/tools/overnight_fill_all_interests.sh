@@ -25,9 +25,10 @@ echo "=== [3/7] Auto-promoting drafts into the live catalog (no review) ==="
 echo "=== [4/7] Rebuilding catalog + rendering audio for new items ==="
 "$VENV_PY" build_catalog.py --out ../cdn_dist
 
-echo "=== [5/7] (skipped — the concurrent original-134 image batch already finished) ==="
+echo "=== [5/7] Fetching real photos for non-fiction content (Wikipedia/Commons) ==="
+"$VENV_PY" fetch_commons_images.py --out ../cdn_dist || echo "[degraded] commons fetch failed, continuing"
 
-echo "=== [6/7] Generating images for newly-promoted stories (resumable, rate-limited) ==="
+echo "=== [6/7] Generating AI images for whatever still needs one (fiction + non-fiction misses) ==="
 "$VENV_PY" build_story_images.py --panels 4 --out ../cdn_dist
 
 echo "=== [7/7] Deploying to the interim CDN repo (prince11jose/globalradio-cdn-content) ==="

@@ -1,15 +1,24 @@
 #!/usr/bin/env python3
-"""Fetch a real, appropriately-licensed photo for scraped (non-fiction)
-content, instead of an AI-generated illustration.
+"""Fetch a real, appropriately-licensed photo for non-fiction content,
+instead of an AI-generated illustration.
 
-Scoped to tools/content/library/scraped.json only — the hand-written
-fictional catalog (kids/moral/fairytales/bedtime/folklore/devotion/etc.)
-gets the AI illustration strip from build_story_images.py as before; those
-are retold stories about invented characters, not real people/places, so a
-real photo wouldn't make sense for them. Scraped content, by contrast, is
-mostly encyclopedia articles (biographies, historical events, festivals) —
-a real photo of the actual subject is both more accurate and easier to
-source than an AI reinterpretation.
+Scoped to NON_FICTION_LIBRARY_FILES: scraped.json (Wikisource/Wikipedia
+harvested biographies, historical events, festivals — real people/places,
+so a real photo is both more accurate and easier to source than an AI
+reinterpretation) plus devotion.json and finance.json (hand-written but
+factual explainer/devotional content — no invented characters, even though
+a Wikipedia topic search often won't have a specific real-world subject to
+match against). The hand-written fictional catalog (kids/moral/fairytales/
+bedtime/folklore — invented characters) is deliberately excluded and always
+gets the AI illustration strip from build_story_images.py, since a "real
+photo" of a fictional character doesn't make sense.
+
+For any non-fiction item this script can't find a license-clear match for
+(most devotion/finance items, or a scraped biography Wikipedia has no
+image for), it falls through silently and leaves it for
+build_story_images.py's AI illustration step, which runs after this one
+and is resumable (skips anything that already has an image) — so nothing
+ships without an image, real photos are just preferred where findable.
 
 Uses Wikipedia's `pageimages` API (a topic's curated infobox thumbnail),
 NOT raw Wikimedia Commons full-text search. An earlier version tried
@@ -51,7 +60,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_OUT = ROOT.parent / "cdn_dist"
-SCRAPED_PATH = ROOT / "content" / "library" / "scraped.json"
+NON_FICTION_LIBRARY_FILES = ("scraped.json", "devotion.json", "finance.json")
 
 WIKIPEDIA_API = "https://en.wikipedia.org/w/api.php"
 COMMONS_API = "https://commons.wikimedia.org/w/api.php"
@@ -164,12 +173,21 @@ def main() -> None:
     images_dir = out_root / "images"
     manifest_path = out_root / "images_manifest.json"
 
-    if not SCRAPED_PATH.exists():
-        print("No scraped.json yet — nothing to do.")
+    library_dir = ROOT / "content" / "library"
+    specs: dict[str, dict] = {}
+    for filename in NON_FICTION_LIBRARY_FILES:
+        path = library_dir / filename
+        if not path.exists():
+            continue
+        with open(path, encoding="utf-8") as f:
+            for item in json.load(f).get("items", []):
+                if item.get("_draft"):
+                    continue  # unreviewed ingested drafts never build
+                specs[item["base_id"]] = item
+    specs = list(specs.values())
+    if not specs:
+        print("No non-fiction library files found yet — nothing to do.")
         return
-
-    with open(SCRAPED_PATH, encoding="utf-8") as f:
-        specs = json.load(f).get("items", [])
     if args.limit:
         specs = specs[: args.limit]
 

@@ -7,10 +7,14 @@ name: Nightly Content Pipeline
 # Weekly (Sundays): scrapes public-domain English text matched to top user
 # interests (tools/harvest_top_interests.py), fans it out to every language,
 # and auto-promotes it straight into the catalog with no human review step —
-# an explicit choice, not an oversight (see CHANGELOG). Story illustration
-# strips (tools/build_story_images.py, free Pollinations.ai, rate-limited)
-# are (re)generated daily for anything new, resumable so this is a no-op
-# once everything already has an image.
+# an explicit choice, not an oversight (see CHANGELOG). Images for anything
+# new are (re)generated daily, resumable so this is a no-op once everything
+# already has one: non-fiction content (scraped.json, devotion.json,
+# finance.json) tries a real licensed photo first (tools/fetch_commons_
+# images.py, Wikipedia/Commons), falling back to an AI illustration strip
+# (tools/build_story_images.py, free Pollinations.ai, rate-limited) only if
+# no license-clear photo is found; fiction (kids/fairytales/bedtime/
+# folklore — invented characters) always gets the AI strip.
 #
 # Every run (hourly): drains the user-requested scrapeQueue Firestore
 # collection (tools/process_scrape_queue.py) — a user typing a custom
@@ -135,10 +139,26 @@ jobs:
       - name: Build library catalog (resumable, all languages)
         run: python tools/build_catalog.py
 
+      # Non-fiction content (scraped.json biographies/history, plus
+      # devotion/finance explainers) gets a real licensed photo instead of
+      # an AI illustration where one can be found (Wikipedia pageimage ->
+      # Commons license check). Must run BEFORE the AI step below — it
+      # writes to the same images_manifest.json, and the AI step skips
+      # anything already in that manifest. Anything this can't find a
+      # license-clear match for (most devotion/finance items, or a scraped
+      # biography Wikipedia has no image for) falls through to the AI step
+      # as a fallback, same resumable pattern as that step.
+      - name: Fetch real photos for non-fiction content (Wikipedia/Commons)
+        timeout-minutes: 20
+        continue-on-error: true
+        run: python tools/fetch_commons_images.py || echo "commons fetch degraded"
+
       # Rate-limited to Pollinations.ai's 1 req/15s anonymous-tier limit
       # (enforced inside the script itself), so this is safe to run daily —
-      # it skips any base story that already has an image and only spends
-      # time on whatever the Sunday harvest added.
+      # it skips any base story that already has an image (real photo from
+      # the step above, or a prior AI run) and only spends time on whatever
+      # still needs one — fiction always does, non-fiction only on a
+      # Commons miss.
       #
       # timeout-minutes + continue-on-error: on 2026-07-09/10, Pollinations.ai
       # got slow/unresponsive and a single stuck image (retries + backoff,
