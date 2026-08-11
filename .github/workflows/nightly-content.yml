@@ -45,11 +45,13 @@ name: Nightly Content Pipeline
 # Both deploys are skipped automatically when their secrets are absent
 # (e.g. on forks).
 #
-# harvest_top_interests.py reads real user interests from Firestore via
-# `gcloud auth print-access-token` — no GCP service-account is configured
-# for this runner, so that read currently fails and it falls back to a
-# fixed default interest list. Set one up whenever interest-driven
-# targeting (vs. the defaults) actually matters.
+# harvest_top_interests.py and process_scrape_queue.py read/write real
+# user data in Firestore via `gcloud auth print-access-token`. A GCP
+# service-account key for firebase-adminsdk-fbsvc@globalir.iam.gserviceaccount.com
+# is stored as the GCP_SA_KEY repo secret and activated by the
+# "Authenticate to GCP" step below; without that secret set (e.g. on a
+# fork) these scripts fall back to "nothing to process" / a fixed default
+# interest list instead of failing the run.
 
 on:
   schedule:
@@ -87,6 +89,21 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y ffmpeg
           pip install -r tools/requirements.txt
+
+      # tools/process_scrape_queue.py, tools/aggregate_user_interests.py
+      # (called from tools/harvest_top_interests.py) all shell out to
+      # `gcloud auth print-access-token` to read/write Firestore on the
+      # `globalir` project. Without this, every run silently fails that
+      # call (no ambient credentials on a GitHub-hosted runner) and falls
+      # back to "nothing to process" / default interests — which is why
+      # the scrapeQueue collection was never actually being drained.
+      # google-github-actions/auth also activates the gcloud CLI itself
+      # (no separate setup-gcloud step needed) once given a JSON key.
+      - name: Authenticate to GCP (globalir) for Firestore access
+        if: ${{ secrets.GCP_SA_KEY != '' }}
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
       # Reuse previously rendered MP3s so only new items are synthesised.
       - name: Restore cdn_dist cache
@@ -248,7 +265,27 @@ jobs:
             echo "nothing new to deploy"
           else
             git commit -m "Automated content update ($(date -u +%Y-%m-%d))"
-            git push origin main
+            # The hourly scrape-queue drain and the twice-daily full pipeline
+            # run in separate concurrency groups (see top of file) so a slow
+            # full run can't starve the hourly one — but that means both can
+            # end up here around the same time. Whichever pushes second gets
+            # a plain rejection since this is a shallow (--depth 1) clone.
+            # Retry with a rebase onto whatever the other run just pushed
+            # instead of failing outright; a few attempts with backoff is
+            # enough since these runs don't collide more than once.
+            for attempt in 1 2 3 4 5; do
+              if git push origin main; then
+                break
+              fi
+              if [ "$attempt" = 5 ]; then
+                echo "push still failing after $attempt attempts, giving up"
+                exit 1
+              fi
+              echo "push rejected (attempt $attempt), rebasing onto latest origin/main and retrying"
+              sleep $((attempt * 10))
+              git fetch --depth 1 origin main
+              git rebase origin/main
+            done
           fi
 
       - name: Upload catalog artifact
