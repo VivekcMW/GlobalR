@@ -99,8 +99,18 @@ jobs:
       # the scrapeQueue collection was never actually being drained.
       # google-github-actions/auth also activates the gcloud CLI itself
       # (no separate setup-gcloud step needed) once given a JSON key.
+      #
+      # `secrets` can't be referenced directly in a step `if:` condition
+      # ("Unrecognized named-value: 'secrets'") — same issue already fixed
+      # for the R2/CDN secret checks below; route through a step output.
+      - name: Check for GCP service-account secret
+        id: gcp_check
+        env:
+          SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: echo "enabled=$([ -n "$SA_KEY" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
       - name: Authenticate to GCP (globalir) for Firestore access
-        if: ${{ secrets.GCP_SA_KEY != '' }}
+        if: steps.gcp_check.outputs.enabled == 'true'
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
