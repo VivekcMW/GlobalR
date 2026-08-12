@@ -123,6 +123,40 @@ jobs:
           key: cdn-dist-${{ hashFiles('global_radio/tools/content/**/*.json') }}
           restore-keys: cdn-dist-
 
+      # The cache above is keyed by a hash of the STATIC content library
+      # files, not by anything that changes when generated daily content
+      # (astro/gita/weather) is produced — so whenever that hash doesn't
+      # change between runs, or a cache save gets skipped by an earlier
+      # step failing, `restore-keys: cdn-dist-` silently falls back to
+      # whatever cache blob was last successfully saved, however old. Every
+      # run that restores a stale blob this way (which, per the git history
+      # of the CDN repo checked on 2026-08-12, has been most hourly runs
+      # for weeks) then preserves that stale snapshot's daily items
+      # untouched through "Build library catalog" and pushes it straight
+      # over whatever a recent full-pipeline run had correctly published —
+      # wiping today's astrology/gita/weather back to a month-old snapshot
+      # within about an hour of it going live. Confirmed by walking the CDN
+      # repo's commit history: astro dates flapped between "2026-08-12"
+      # (right after each full run) and "2026-07-09"/"2026-07-10" (every
+      # hourly run in between) all day.
+      #
+      # The cache above is still worth keeping for its real purpose —
+      # skipping re-synthesis of MP3s that already exist — but catalog.json
+      # itself must always start from what's actually deployed, not a
+      # frozen cache blob. Pull it fresh from the live CDN every run
+      # instead; this only replaces catalog.json, not the audio files
+      # restored above.
+      - name: Sync catalog.json baseline from the live CDN
+        run: |
+          mkdir -p cdn_dist
+          if curl -fsSL "https://raw.githubusercontent.com/prince11jose/globalradio-cdn-content/main/catalog.json" -o cdn_dist/catalog.json.live && python -c "import json; json.load(open('cdn_dist/catalog.json.live'))"; then
+            mv cdn_dist/catalog.json.live cdn_dist/catalog.json
+            echo "synced $(python -c "import json; print(len(json.load(open('cdn_dist/catalog.json'))['items']))") live item(s) as this run's baseline"
+          else
+            rm -f cdn_dist/catalog.json.live
+            echo "live catalog not reachable/valid — keeping cached/local catalog.json as-is"
+          fi
+
       # These don't change hour to hour — only run on the twice-daily
       # schedule (or a manual dispatch), not the hourly scrape-queue tick.
       - name: Fetch daily news
