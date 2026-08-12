@@ -2,10 +2,18 @@
 """Drain the `scrapeQueue` Firestore collection: for every interest a user
 has typed into the app that has no matching catalog content yet (see
 lib/features/settings/interests_screen.dart + scrape_queue_service.dart),
-scrape English public-domain text for it, fan it out to every language, and
-auto-promote it straight into the catalog — same unattended pipeline as
-tools/harvest_top_interests.py, just driven by explicit user requests
-instead of aggregate interest popularity.
+scrape English text for it from a legally-approved source (Wikisource for
+curated literary interests, falling back to Wikipedia — CC BY-SA, real
+coverage of any current topic — for anything Wikisource has no chance of
+matching, e.g. a modern/technical free-typed interest), fan it out to
+every language, and auto-promote it straight into the catalog — same
+unattended pipeline as tools/harvest_top_interests.py, just driven by
+explicit user requests instead of aggregate interest popularity.
+
+Deliberately stays inside tools/check_legal.py's approved-source list
+(public domain / CC-BY / CC-BY-SA) rather than scraping arbitrary web
+content — the latter would mean redistributing copyrighted text with no
+license, which is exactly what the legal-check gate exists to catch.
 
 Auth: `gcloud auth print-access-token` (Application Default Credentials),
 same as tools/aggregate_user_interests.py. Marking a request 'done' needs
@@ -92,10 +100,39 @@ def run(cmd: list[str], dry_run: bool) -> None:
     subprocess.run(cmd, check=False)
 
 
+# Wikisource is a literature archive (pre-1929 public-domain text) — it has
+# no chance of matching a modern/technical free-typed interest (e.g.
+# "devops"), only literary/thematic ones. Wikipedia (CC BY-SA, already an
+# approved source — see tools/check_legal.py) has real coverage of almost
+# any current topic, so it's the better first attempt for interests that
+# aren't in INTEREST_QUERIES's hand-tuned literary list; for curated ones,
+# try Wikisource first since its query was tuned specifically for it.
+FALLBACK_SOURCES = ("wikisource", "wikipedia")
+
+
+def draft_path(language: str, source: str) -> Path:
+    return ROOT / "content" / "library" / "drafts" / f"{source}-{language}.json"
+
+
+def scrape_one_source(source: str, language: str, query: str, interest: str,
+                      limit: int, dry_run: bool) -> bool:
+    """Run ingest_public_sources.py for a single source. Returns True if it
+    actually produced a draft (a search returning zero hits exits 0 with no
+    file written, so success has to be checked by file presence, not
+    exit code)."""
+    path = draft_path(language, source)
+    path.unlink(missing_ok=True)  # so we can tell if THIS call created it
+    run([sys.executable, str(ROOT / "ingest_public_sources.py"),
+         "--source", source, "--language", language,
+         "--query", query, "--interest", interest, "--limit", str(limit)],
+        dry_run)
+    return dry_run or path.exists()
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--project", default="globalir")
-    ap.add_argument("--limit", type=int, default=8, help="Wikisource pages per queued interest")
+    ap.add_argument("--limit", type=int, default=8, help="pages per queued interest, per source")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
@@ -112,19 +149,26 @@ def main() -> None:
 
     print(f"{len(pending)} pending request(s): {[p['interest'] for p in pending]}")
 
-    # ingest_public_sources.py --source wikisource --language english always
-    # writes to the SAME file (drafts/wikisource-english.json), overwriting
-    # it each call. Translating + promoting immediately after each interest
-    # drains that file before the next interest's scrape can clobber it —
-    # batching all scrapes first (the original design) silently lost every
-    # interest but the last one in the queue.
+    # Each source's ingest call always writes to the SAME file
+    # (drafts/{source}-english.json), overwriting it each call. Translating
+    # + promoting immediately after each interest drains that file before
+    # the next interest's scrape can clobber it — batching all scrapes
+    # first (the original design) silently lost every interest but the
+    # last one in the queue.
     for req in pending:
         interest = req["interest"]
-        query = INTEREST_QUERIES.get(interest, f"{interest} story")
-        run([sys.executable, str(ROOT / "ingest_public_sources.py"),
-             "--source", "wikisource", "--language", "english",
-             "--query", query, "--interest", interest, "--limit", str(args.limit)],
-            args.dry_run)
+        curated = interest in INTEREST_QUERIES
+        sources = FALLBACK_SOURCES if curated else tuple(reversed(FALLBACK_SOURCES))
+        found = False
+        for source in sources:
+            # Wikisource's query is tuned for literary/thematic phrasing
+            # ("<interest> story"); Wikipedia just wants the topic itself.
+            query = INTEREST_QUERIES.get(interest, f"{interest} story") if source == "wikisource" else interest
+            if scrape_one_source(source, "english", query, interest, args.limit, args.dry_run):
+                found = True
+                break
+        if not found and not args.dry_run:
+            print(f"  [warn] no content found for '{interest}' on any source ({', '.join(sources)})")
         run([sys.executable, str(ROOT / "translate_fanout.py"), "--limit", "25"], args.dry_run)
         run([sys.executable, str(ROOT / "auto_promote_drafts.py")], args.dry_run)
 
