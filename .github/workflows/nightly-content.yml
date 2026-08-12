@@ -129,6 +129,10 @@ jobs:
         if: github.event_name != 'schedule' || github.event.schedule != '0 * * * *'
         run: python tools/fetch_news.py || echo "news fetch degraded — continuing"
 
+      # No --date/--days-ahead needed: the script defaults to UTC "today"
+      # plus a 1-day lead so every timezone (not just IST, which this
+      # 00:30 UTC run is otherwise timed for) already has a reading before
+      # its own local midnight — see tools/astrology_cron.py's docstring.
       - name: Generate daily astrology
         if: github.event_name != 'schedule' || github.event.schedule != '0 * * * *'
         run: python tools/astrology_cron.py || echo "astrology degraded — continuing"

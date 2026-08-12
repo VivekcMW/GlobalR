@@ -31,13 +31,16 @@ python tools/build_catalog.py --langs hindi,english   # subset
 
 ## 2. Generate daily astrology (the engagement driver)
 ```bash
-python tools/astrology_cron.py                # today, all languages
+python tools/astrology_cron.py                # today + tomorrow (lead day), all languages
 python tools/astrology_cron.py --date 2026-06-24 --keep-days 2
 ```
 - Real Moon phase via **Skyfield + JPL DE421** (public domain); falls back to a
   synodic approximation offline.
 - Readings are **original**, deterministic per (date, sign); merged into
   `catalog.json` as `type:"daily"` items, old days pruned. Idempotent → safe for cron.
+- Defaults to `--days-ahead 1` so every timezone has "today"'s reading before
+  its own local midnight, not just IST's (the app matches on each device's
+  local calendar date, not the runner's).
 - Cron (00:30 IST): `30 19 * * * cd /path/global_radio && tools/.venv/bin/python tools/astrology_cron.py --out cdn_dist && tools/deploy_r2.sh`
 
 ## 3. Prove the streaming path locally (DEMO_AUDIO=false)

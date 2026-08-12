@@ -9,13 +9,24 @@ For a given date it produces, for every zodiac sign x language:
   - a `type:"daily"` catalog entry (with `date` and `sign`).
 
 It merges into the existing catalog.json: library items are kept, daily items
-for the SAME date are replaced (idempotent), older daily items are pruned
-beyond --keep-days. Designed to run from cron at 00:30 IST.
+for a generated date are replaced (idempotent), older daily items are pruned
+beyond --keep-days. Designed to run from cron at 00:30 UTC (06:00 IST).
+
+By default it also pre-generates --days-ahead (1) day past --date. The app
+picks "today" by matching each device's own local calendar date against an
+item's `date` field — a single run timed for IST's morning leaves every
+timezone ahead of IST (most of Asia-Pacific, up to UTC+14) with no reading
+for several hours after their own local midnight, since their "today" rolls
+over before this job would otherwise have generated it. Pre-generating a
+lead day (cheap: audio rendering is resumable/cached) means that by the time
+any timezone reaches a given date, the reading for it was already published
+on the previous run.
 
 Usage:
-    python tools/astrology_cron.py                         # today, all free-voice langs
+    python tools/astrology_cron.py                         # today + tomorrow, all free-voice langs
     python tools/astrology_cron.py --date 2026-06-24 --langs hindi,english
     python tools/astrology_cron.py --keep-days 3
+    python tools/astrology_cron.py --days-ahead 0           # only --date, no lead day
 """
 from __future__ import annotations
 
@@ -86,11 +97,22 @@ def load_catalog(path: Path) -> dict:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--date", default=dt.date.today().isoformat())
+    ap.add_argument("--date", default=dt.date.today().isoformat(),
+                    help="base date (server/UTC 'today' unless overridden)")
+    ap.add_argument("--days-ahead", type=int, default=1,
+                    help="also pre-generate this many days past --date. The "
+                         "app matches 'today' against each device's own "
+                         "local calendar date, but this cron is scheduled "
+                         "around IST's day-start — without a lead day, any "
+                         "timezone ahead of IST (most of Asia-Pacific) hits "
+                         "its local midnight up to ~15h before this job "
+                         "would otherwise generate that date's reading. "
+                         "Rendering is resumable/cached, so pre-generating "
+                         "is cheap and just becomes 'today' on schedule.")
     ap.add_argument("--langs", default="")
     ap.add_argument("--out", default=str(DEFAULT_OUT))
     ap.add_argument("--keep-days", type=int, default=2,
-                    help="prune daily items older than N days")
+                    help="prune daily items older than N days before --date")
     ap.add_argument("--notify", action="store_true",
                     help="send an FCM push when the day's items are published")
     ap.add_argument("--notify-dry-run", action="store_true",
@@ -101,7 +123,8 @@ def main() -> None:
                     help="Firebase project id (or env FCM_PROJECT_ID / key file)")
     args = ap.parse_args()
 
-    date = dt.date.fromisoformat(args.date)
+    base_date = dt.date.fromisoformat(args.date)
+    dates = [base_date + dt.timedelta(days=i) for i in range(0, max(0, args.days_ahead) + 1)]
     out_root = Path(args.out)
     with open(CONTENT / "astrology.json", encoding="utf-8") as f:
         astro = json.load(f)
@@ -114,71 +137,77 @@ def main() -> None:
     langs = ([l.strip() for l in args.langs.split(",") if l.strip()]
              or [l for l in candidates if l in templates])
 
-    phase_key = moon_phase_key(date)
-    ymd = date.strftime("%Y%m%d")
-    print(f"Astrology for {date} (moon: {phase_key}) — {len(langs)} langs x {len(signs)} signs")
-
     new_items: list[dict] = []
-    done_langs: list[str] = []
-    for language in langs:
-        tpl = templates.get(language)
-        if not tpl or not voice_available(language, ASTRO_VOICE):
-            continue
-        for sign in signs:
-            sign_name = sign.get(language, sign["en"])
-            seed = f"{ymd}-{sign['id']}"
-            text = build_reading(tpl, sign_name, phase_key, seed)
-            item_id = f"astro-{sign['id']}-{short_code(language)}-{ymd}"
-            meta = render_item_audio(out_root, language, item_id, ASTRO_VOICE, text)
-            if meta is None:
-                continue
-            new_items.append({
-                "id": item_id,
-                "title": f"{sign_name} — {date.isoformat()}",
-                "interests": ["astrology"],
-                "language": language,
-                "availableVoices": [ASTRO_VOICE],
-                "defaultVoice": ASTRO_VOICE,
-                "durationSec": meta["durationSec"],
-                "sizeKb": meta["sizeKb"],
-                "attribution": "Original daily reading — Global Radio. Moon phase from JPL ephemeris.",
-                "popularity": 60,
-                "type": "daily",
-                "date": date.isoformat(),
-                "sign": sign["id"],
-                "publishedDate": date.isoformat(),
-                "reachable": True,
-            })
-        done_langs.append(language)
-        print(f"  ✓ {language}: {len(signs)} signs")
+    done_langs: set[str] = set()
+    for date in dates:
+        phase_key = moon_phase_key(date)
+        ymd = date.strftime("%Y%m%d")
+        print(f"Astrology for {date} (moon: {phase_key}) — {len(langs)} langs x {len(signs)} signs")
 
-    catalog = merge_catalog(out_root, date, new_items, args.keep_days)
-    print(f"\nAdded {len(new_items)} daily items; catalog now has "
-          f"{len(catalog['items'])} items (version {catalog['version']}).")
+        for language in langs:
+            tpl = templates.get(language)
+            if not tpl or not voice_available(language, ASTRO_VOICE):
+                continue
+            for sign in signs:
+                sign_name = sign.get(language, sign["en"])
+                seed = f"{ymd}-{sign['id']}"
+                text = build_reading(tpl, sign_name, phase_key, seed)
+                item_id = f"astro-{sign['id']}-{short_code(language)}-{ymd}"
+                meta = render_item_audio(out_root, language, item_id, ASTRO_VOICE, text)
+                if meta is None:
+                    continue
+                new_items.append({
+                    "id": item_id,
+                    "title": f"{sign_name} — {date.isoformat()}",
+                    "interests": ["astrology"],
+                    "language": language,
+                    "availableVoices": [ASTRO_VOICE],
+                    "defaultVoice": ASTRO_VOICE,
+                    "durationSec": meta["durationSec"],
+                    "sizeKb": meta["sizeKb"],
+                    "attribution": "Original daily reading — Global Radio. Moon phase from JPL ephemeris.",
+                    "popularity": 60,
+                    "type": "daily",
+                    "date": date.isoformat(),
+                    "sign": sign["id"],
+                    "publishedDate": date.isoformat(),
+                    "reachable": True,
+                })
+            done_langs.add(language)
+            print(f"  ✓ {language}: {len(signs)} signs")
+
+    catalog = merge_catalog(out_root, base_date, dates, new_items, args.keep_days)
+    print(f"\nAdded {len(new_items)} daily items across {len(dates)} date(s); "
+          f"catalog now has {len(catalog['items'])} items (version {catalog['version']}).")
 
     if args.notify or args.notify_dry_run:
-        send_daily_push(date, done_langs, args)
+        # Only the base date's reading is "published today" for push copy —
+        # pre-generated future days shouldn't trigger a push yet.
+        send_daily_push(base_date, sorted(done_langs), args)
 
 
-def merge_catalog(out_root: Path, date: dt.date, new_items: list[dict],
-                  keep_days: int) -> dict:
-    """Keep library items + recent daily items (not this date), add new ones,
-    prune anything older than keep_days. Idempotent for a given date."""
+def merge_catalog(out_root: Path, base_date: dt.date, generated_dates: list[dt.date],
+                  new_items: list[dict], keep_days: int) -> dict:
+    """Keep library items + recent daily items (not one of generated_dates),
+    add new ones, prune anything older than keep_days before base_date.
+    Idempotent for a given set of dates. Pruning is anchored to base_date
+    (the real 'today'), not the furthest pre-generated day, so a lead day
+    never shortens how far back retention reaches."""
     catalog_path = out_root / "catalog.json"
     catalog = load_catalog(catalog_path)
-    cutoff = date - dt.timedelta(days=max(0, keep_days))
-    today = date.isoformat()
+    cutoff = base_date - dt.timedelta(days=max(0, keep_days))
+    generated = {d.isoformat() for d in generated_dates}
     kept = []
     for it in catalog["items"]:
         if it.get("type") == "daily":
             d = it.get("date", "")
-            if d == today:
+            if d in generated:
                 continue  # replaced below
             if d and dt.date.fromisoformat(d) < cutoff:
                 continue  # pruned
         kept.append(it)
     catalog["items"] = kept + new_items
-    catalog["version"] = f"{today}-astro"
+    catalog["version"] = f"{base_date.isoformat()}-astro"
     with open(catalog_path, "w", encoding="utf-8") as f:
         json.dump(catalog, f, ensure_ascii=False, indent=2)
     return catalog
