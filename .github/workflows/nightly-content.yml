@@ -296,11 +296,39 @@ jobs:
           CDN_DEPLOY_TOKEN: ${{ secrets.CDN_DEPLOY_TOKEN }}
         run: |
           SRC="$(pwd)/cdn_dist"
+          MERGE="$(pwd)/tools/merge_deploy_catalog.py"
+          # Freeze what THIS run actually produced before anything below
+          # can touch cdn_dist/catalog.json again.
+          cp "$SRC/catalog.json" "$SRC/catalog.ours.json"
           rm -rf /tmp/cdn-deploy
           git clone --depth 1 "https://x-access-token:${CDN_DEPLOY_TOKEN}@github.com/prince11jose/globalradio-cdn-content.git" /tmp/cdn-deploy
           cd /tmp/cdn-deploy
           git config user.name "Global Radio Content Bot"
           git config user.email "actions@github.com"
+
+          # This run's own catalog.json was synced from the live CDN back
+          # at job START ("Sync catalog.json baseline from the live CDN")
+          # — for the twice-daily full pipeline that can be up to ~an hour
+          # before this step runs. If another run published something new
+          # in the meantime (e.g. a scrape-queue promotion), overwriting
+          # catalog.json outright would silently erase it. Confirmed in
+          # practice on 2026-08-12: a "devops" scrape-queue promotion
+          # pushed by one run at 13:41 was wiped by another run's deploy
+          # at 14:11, because that run's local catalog.json predated the
+          # devops push. Merge onto whatever's actually live right now —
+          # any id only we know about is added, any id only the live repo
+          # has is kept, any id both have uses our (more recent) version —
+          # instead of blindly overwriting. catalog.json is excluded from
+          # the rsync below since merge_catalog writes it directly.
+          merge_catalog() {
+            if [ -f catalog.json ]; then
+              python "$MERGE" --base catalog.json --ours "$SRC/catalog.ours.json" --out catalog.json.new
+              mv catalog.json.new catalog.json
+            else
+              cp "$SRC/catalog.ours.json" catalog.json
+            fi
+          }
+          merge_catalog
 
           # Deliberately NOT --delete: this only adds/updates files. If the
           # cdn_dist cache ever misses or only partially rebuilds, an
@@ -309,7 +337,7 @@ jobs:
           # an unattended job should never be able to do that much damage
           # on a cache miss. Orphaned files (e.g. a renamed/removed story)
           # are left behind; clean those up manually if it ever matters.
-          rsync -a "$SRC/" ./ --exclude .git
+          rsync -a "$SRC/" ./ --exclude .git --exclude catalog.json --exclude catalog.ours.json
           git add -A
           if git diff --cached --quiet; then
             echo "nothing new to deploy"
@@ -328,10 +356,8 @@ jobs:
           # whole step under `bash -e`, losing the rest of the retry loop
           # (hit in practice: 2026-08-12, run 31570060432). Instead, on
           # rejection, discard our commit, hard-reset onto whatever the
-          # other run just pushed, and re-apply our freshly-generated
-          # cdn_dist on top as a brand-new commit — our directory is
-          # already the authoritative full output of this run, so there's
-          # nothing to line-merge, just re-stack it on the new tip.
+          # other run just pushed, re-merge (same merge_catalog rule as
+          # above, against the new tip) and re-apply as a brand-new commit.
           for attempt in 1 2 3 4 5; do
             if git push origin main; then
               break
@@ -340,11 +366,12 @@ jobs:
               echo "push still failing after $attempt attempts, giving up"
               exit 1
             fi
-            echo "push rejected (attempt $attempt), re-applying our output onto latest origin/main and retrying"
+            echo "push rejected (attempt $attempt), re-merging onto latest origin/main and retrying"
             sleep $((attempt * 10))
             git fetch --depth 1 origin main
             git reset --hard origin/main
-            rsync -a "$SRC/" ./ --exclude .git
+            merge_catalog
+            rsync -a "$SRC/" ./ --exclude .git --exclude catalog.json --exclude catalog.ours.json
             git add -A
             if git diff --cached --quiet; then
               echo "nothing new to deploy after resync — the other run's push already included our changes"
